@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/evan/code/lidar_slam/lidar_slam/install/other_msgs/include/**",
+        "/home/evan/code/Complete_slam_system/lidar_slam_system/install/lidar_slam_msgs/include/**",
+        "/home/evan/code/lego-loam/lego/install/cloud_msgs/include/**",
+        "/home/evan/code/ndt-loc/install/cloud_msgs/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/evan/code/radar-localization/src/localization/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
