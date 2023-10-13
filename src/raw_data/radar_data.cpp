@@ -2,10 +2,10 @@
 
 namespace rawdata{
 
-RadarData::RadarData(std::string &radar_data_path, std::string &radar_data_name)
+RadarData::RadarData(const std::string &radar_data_path, const std::string &radar_data_name)
 {
     cur_radar_data_timestamp = std::stoll(radar_data_name);
-    std::string radar_data_file_path = radar_data_path + "/" + radar_data_name + "png";
+    std::string radar_data_file_path = radar_data_path + "/" + radar_data_name + ".png";
     cv::Mat fft_data = cv::imread(radar_data_file_path, 0);
     cur_radar_data_row_theta.resize(fft_data.rows, 0);
     cur_radar_data_row_timestamp.resize(fft_data.rows, 0);
@@ -27,7 +27,8 @@ RadarData::RadarData(std::string &radar_data_path, std::string &radar_data_name)
     }
 }
 
-RadarData::CLOUDPTR RadarData::trans_to_point_cloud(){
+RadarData::CLOUDPTR RadarData::trans_to_point_cloud()
+{
     CLOUDPTR point_cloud(new CLOUD());
     point_cloud -> points.reserve(cur_radar_data_raw.size() * cur_radar_data_raw.back().size());
     for(size_t i = 0; i < cur_radar_data_row_theta.size(); ++i){
@@ -42,6 +43,31 @@ RadarData::CLOUDPTR RadarData::trans_to_point_cloud(){
         }
     }
     return point_cloud;
+}
+
+const int64& RadarData::get_cur_radar_data_timestamp() const
+{
+    return this -> cur_radar_data_timestamp;
+}
+
+const std::vector<int64>& RadarData::get_cur_radar_data_row_timestamp() const
+{
+    return this -> cur_radar_data_row_timestamp;
+}
+
+const std::vector<float>& RadarData::get_cur_radar_data_row_theta() const
+{
+    return this -> cur_radar_data_row_theta;
+}
+
+const std::vector<std::vector<float>>& RadarData::get_cur_radar_data_raw() const
+{
+    return this -> cur_radar_data_raw;
+}
+
+std::vector<std::vector<bool>>& RadarData::get_cur_radar_data_flag()
+{
+    return this -> cur_radar_data_flag;
 }
 
 } // namespace rawdata

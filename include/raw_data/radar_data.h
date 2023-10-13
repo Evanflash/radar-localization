@@ -17,8 +17,13 @@ private:
     using CLOUD = pcl::PointCloud<POINT>;
     using CLOUDPTR = CLOUD::Ptr;
 public:
-    RadarData(std::string &radar_data_path, std::string &radar_data_name);
+    RadarData(const std::string &radar_data_path, const std::string &radar_data_name);
     CLOUDPTR trans_to_point_cloud();
+    const int64& get_cur_radar_data_timestamp() const;
+    const std::vector<int64>& get_cur_radar_data_row_timestamp() const;
+    const std::vector<float>& get_cur_radar_data_row_theta() const;
+    const std::vector<std::vector<float>>& get_cur_radar_data_raw() const;
+    std::vector<std::vector<bool>>& get_cur_radar_data_flag(); 
 
 private:
     int64 cur_radar_data_timestamp;                         // 文件时间戳
