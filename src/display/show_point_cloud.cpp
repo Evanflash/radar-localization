@@ -33,4 +33,32 @@ void ShowPointCloud::show(model m) const
     }
 }
 
+void ShowPointCloud::show(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud_1, 
+        pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud_2)
+{
+    static float d = 0.2;
+    static int dx = 400;
+    static int dy_1 = 400;
+    static int dy_2 = 1200;
+        cv::Mat image(800, 1600, CV_8U, cv::Scalar(0));
+        for(auto point : point_cloud_1 -> points){
+            int cur_x = point.x / d;
+            int cur_y = point.y / d;
+            cur_x += dx;
+            cur_y += dy_1;
+            if(cur_x < 0 || cur_x >= 800 || cur_y < 0 || cur_y >= 800) continue;
+            image.at<uchar>(cur_x, cur_y) = (uchar)(point.intensity * 255.0);
+        }
+        for(auto point : point_cloud_2 -> points){
+            int cur_x = point.x / d;
+            int cur_y = point.y / d;
+            cur_x += dx;
+            cur_y += dy_2;
+            if(cur_x < 0 || cur_x >= 800 || cur_y < 800 || cur_y >= 1600) continue;
+            image.at<uchar>(cur_x, cur_y) = (uchar)(point.intensity * 255.0);
+        }
+        cv::imshow("image", image);
+        cv::waitKey(0);
+}
+
 } // namespace display

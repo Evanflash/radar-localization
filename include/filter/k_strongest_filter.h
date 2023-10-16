@@ -5,10 +5,10 @@
 
 namespace datafilter{
 
-class KStrongestFilter : public BaseFilter{
+class KStrongestFilter : public BaseFilter
+{
 public:
-    KStrongestFilter(rawdata::RadarData &_radar_data);
-    KStrongestFilter(rawdata::RadarData &_radar_data, int _k);
+    KStrongestFilter(rawdata::RadarData &_radar_data, int _k = 12);
     void set_k(int _k);
     void filter() override;
 

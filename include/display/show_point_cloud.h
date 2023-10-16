@@ -14,6 +14,8 @@ public:
 public:
     ShowPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr _point_cloud);
     void show(model m) const;
+    static void show(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud_1, 
+        pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud_2);
 private:
     const pcl::PointCloud<pcl::PointXYZI>::ConstPtr point_cloud;
 }; // class ShowPointCloud

@@ -2,8 +2,6 @@
 #include <queue>
 
 namespace datafilter{
-KStrongestFilter::KStrongestFilter(rawdata::RadarData &_radar_data)
-    : BaseFilter(_radar_data){}
 
 KStrongestFilter::KStrongestFilter(rawdata::RadarData &_radar_data, int _k)
     : BaseFilter(_radar_data), k(_k){}
@@ -24,6 +22,7 @@ void KStrongestFilter::filter()
         };
         std::priority_queue<int, std::vector<int>, decltype(cmp)> pri_que(cmp);
         for(size_t j = 0; j < radar_data_raw.back().size(); ++j){
+            if(!radar_data_flag[i][j]) continue;
             pri_que.push(j);
             while(pri_que.size() > (size_t)k){
                 pri_que.pop();
