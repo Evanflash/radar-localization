@@ -10,7 +10,7 @@ public:
     BaseFilter(rawdata::RadarData &_radar_data);
     virtual void filter(){};
 
-public:
+protected:
     rawdata::RadarData &radar_data;
 
 }; // class BaseFilter

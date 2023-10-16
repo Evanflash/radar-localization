@@ -17,12 +17,12 @@ RadarData::RadarData(const std::string &radar_data_path, const std::string &rada
             int64 tmp = (int64) fft_data.at<uchar>(i, j);
             cur_radar_data_row_timestamp[i] = (cur_radar_data_row_timestamp[i] << 8) + tmp;
         }
-        uint16_t high_byte = (uint16_t)fft_data.at<uchar>(i, 8);
-        uint16_t low_byte = (uint16_t)fft_data.at<uchar>(i, 9);
+        uint16_t high_byte = (uint16_t)fft_data.at<uchar>(i, 9);
+        uint16_t low_byte = (uint16_t)fft_data.at<uchar>(i, 8);
         cur_radar_data_row_theta[i] = (float)((high_byte << 8) + low_byte);
         cur_radar_data_row_theta[i] *= encode;
         for(int j = 11; j < fft_data.cols; ++j){
-            cur_radar_data_raw[i][j - 11] = (float)fft_data.at<uchar>(i, j) / 255.0;
+            cur_radar_data_raw[i][j - 11] = (float)fft_data.at<uchar>(i, j) / 255;
         }
     }
 }
@@ -36,7 +36,7 @@ RadarData::CLOUDPTR RadarData::trans_to_point_cloud()
         float cos_theta = cos(cur_radar_data_row_theta[i]);
         for(size_t j = 0; j < cur_radar_data_raw.back().size(); ++j){
             if(cur_radar_data_flag[i][j]){
-                float dis = (j + 1) * 0.0438;
+                float dis = (j + 0.5) * 0.0438;
                 POINT point(dis * cos_theta, dis * sin_theta, 0.0, cur_radar_data_raw[i][j]);
                 point_cloud -> push_back(point);
             }
