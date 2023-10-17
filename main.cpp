@@ -12,8 +12,8 @@ using namespace display;
 pcl::PointCloud<pcl::PointXYZI>::Ptr run(const std::string &path, const std::string &name)
 {
     RadarData radar_data(path, name);
-    // BaseFilter *filter = new KStrongestFilter(radar_data, 12);
-    BaseFilter *filter = new CFARFilter(radar_data, CFARFilter::CA, 10, 0.1);
+    BaseFilter *filter = new KStrongestFilter(radar_data, 40, KStrongestFilter::threshold);
+    // BaseFilter *filter = new CFARFilter(radar_data, CFARFilter::CA, 5, 1e-6);
     filter -> filter();
     return radar_data.trans_to_point_cloud();
 }

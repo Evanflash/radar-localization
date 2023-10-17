@@ -1,10 +1,11 @@
 #include "k_strongest_filter.h"
+#include "utils_func.h"
 #include <queue>
 
 namespace datafilter{
 
-KStrongestFilter::KStrongestFilter(rawdata::RadarData &_radar_data, int _k)
-    : BaseFilter(_radar_data), k(_k){}
+KStrongestFilter::KStrongestFilter(rawdata::RadarData &_radar_data, int _k, filter_model _fm)
+    : BaseFilter(_radar_data), k(_k), fm(_fm){}
 
 void KStrongestFilter::set_k(int _k)
 {
@@ -15,6 +16,16 @@ void KStrongestFilter::filter()
 {
     const std::vector<std::vector<float>> &radar_data_raw = radar_data.get_cur_radar_data_raw();
     std::vector<std::vector<bool>> &radar_data_flag = radar_data.get_cur_radar_data_flag();
+    
+    if(fm == threshold){
+        for(size_t i = 0; i < radar_data_raw.size(); ++i){
+            float thred = utils::Utils::sum(radar_data_raw[i], 0, radar_data_raw[i].size()) / radar_data_raw[i].size();
+            for(size_t j = 0; j < radar_data_raw.back().size(); ++j){
+                radar_data_flag[i][j] = radar_data_raw[i][j] > thred;
+            }
+        }
+    }
+
     for(size_t i = 0; i < radar_data_raw.size(); ++i){
         auto cmp = [&](const size_t &l_index, const size_t &r_index)
         {

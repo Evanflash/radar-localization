@@ -13,6 +13,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include/raw_data
     ${PROJECT_SOURCE_DIR}/include/display
     ${PROJECT_SOURCE_DIR}/include/utils
+    ${PROJECT_SOURCE_DIR}/include/registration
 )
 
 set(SRC_LIST
@@ -22,6 +23,7 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/raw_data/radar_data.cpp
     ${PROJECT_SOURCE_DIR}/src/display/show_point_cloud.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/utils_func.cpp
+    ${PROJECT_SOURCE_DIR}/src/registration/base_registration.cpp
 )
 
 add_executable(MAIN main.cpp ${SRC_LIST})
