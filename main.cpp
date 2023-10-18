@@ -3,11 +3,13 @@
 #include "filter.h"
 #include "data.h"
 #include "show_point_cloud.h"
+#include "utils_func.h"
 #include <thread>
 
 using namespace rawdata;
 using namespace datafilter;
 using namespace display;
+using namespace std;
 
 pcl::PointCloud<pcl::PointXYZI>::Ptr run(const std::string &path, const std::string &name)
 {
@@ -20,11 +22,11 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr run(const std::string &path, const std::str
 
 int main()
 {
-    ShowPointCloud::show(run("/home/evan/code/radar-localization/test", "1547131046353776"),
-                    run("/home/evan/code/radar-localization/test", "1547131046606586"));
-    // std::thread first(run, "/home/evan/code/radar-localization/test", "1547131046353776");
-    // std::thread second(run, "/home/evan/code/radar-localization/test", "1547131046606586");
-    // first.join();
-    // second.join();
+    // ShowPointCloud::show(run("/home/evan/code/radar-localization/test", "1547131046353776"),
+    //                 run("/home/evan/code/radar-localization/test", "1547131046606586"));
+    cout << utils::Utils::theta(0.707, 0.707) << endl;
+    cout << utils::Utils::theta(0.707, -0.707) << endl;
+    cout << utils::Utils::theta(-0.707, -0.707) << endl;
+    cout << utils::Utils::theta(-0.707, 0.707) << endl;
     return 0;
 }

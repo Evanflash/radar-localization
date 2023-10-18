@@ -20,6 +20,7 @@ public:
 public:
     static CLOUDPTR radar_polar_to_point_cloud(const std::string &path, const std::string &name, filter_model fm);
     static float sum(const std::vector<float> &nums, int begin, int end);
+    static float theta(const float sin_t, const float cos_t);
 }; // class Utils
 
 } // namespace utils
