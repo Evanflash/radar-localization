@@ -33,11 +33,15 @@ protected:
 class SE2
 {
 public:
+    SE2() = default;
     SE2(float _x, float _y, float _theta);
     POINT operator*(POINT p);
     SE2& operator*(SE2 se2);
     float get_theta() const {return theta;}
     Mat3d get_trans() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const SE2& se2);
+
 private:
     float x;
     float y;

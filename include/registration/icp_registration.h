@@ -8,6 +8,7 @@ namespace registration {
 class ICPRegistration : public BaseRegistration
 {
 public:
+    ICPRegistration() = default;
     bool registration(SE2 &init_pose, int iterations_) override;
     void set_target(CLOUD::Ptr target_scan_) override;
 private:

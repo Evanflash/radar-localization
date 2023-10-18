@@ -4,11 +4,13 @@
 #include "data.h"
 #include "show_point_cloud.h"
 #include "utils_func.h"
+#include "registration.h"
 #include <thread>
 
 using namespace rawdata;
 using namespace datafilter;
 using namespace display;
+using namespace registration;
 using namespace std;
 
 pcl::PointCloud<pcl::PointXYZI>::Ptr run(const std::string &path, const std::string &name)
@@ -24,9 +26,10 @@ int main()
 {
     // ShowPointCloud::show(run("/home/evan/code/radar-localization/test", "1547131046353776"),
     //                 run("/home/evan/code/radar-localization/test", "1547131046606586"));
-    cout << utils::Utils::theta(0.707, 0.707) << endl;
-    cout << utils::Utils::theta(0.707, -0.707) << endl;
-    cout << utils::Utils::theta(-0.707, -0.707) << endl;
-    cout << utils::Utils::theta(-0.707, 0.707) << endl;
+    Registration r(Registration::ICP2D, 10);
+    r.set_target_cloud(run("/home/evan/code/radar-localization/test", "1547131046353776"));
+    r.set_source_cloud(run("/home/evan/code/radar-localization/test", "1547131046606586"));
+    r.registration();
+    std::cout << r.get_cur_pose() << endl;
     return 0;
 }

@@ -2,6 +2,11 @@
 #include "utils_func.h"
 
 namespace registration{
+std::ostream& operator<<(std::ostream& os, const SE2& se2)
+{
+    os << se2.x << " " << se2.y << " " << se2.theta;
+    return os;
+}
 
 SE2::SE2(float _x, float _y, float _theta)
     : x(_x), y(_y), theta(_theta){}
