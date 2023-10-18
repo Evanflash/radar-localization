@@ -35,10 +35,12 @@ bool ICPRegistration::registration(SE2 &init_pose, int iterations_)
             kdtree.nearestKSearch(p, 1, nn_idx, nn_dis);
 
             if(nn_idx.size() > 0 && nn_dis[0] < max_dis2){
+                effective_num++;
+
                 Eigen::Matrix<double, 3, 2> J;
-                double ex = source_scan -> points[i].x * sin(cur_pose.get_theta()) + 
+                double ex = -source_scan -> points[i].x * sin(cur_pose.get_theta()) +
                     source_scan -> points[i].y * cos(cur_pose.get_theta());
-                double ey = source_scan -> points[i].x * cos(cur_pose.get_theta()) -
+                double ey = -source_scan -> points[i].x * cos(cur_pose.get_theta()) -
                     source_scan -> points[i].y * sin(cur_pose.get_theta());
                 J << 1, 0,
                      0, 1,
@@ -46,7 +48,7 @@ bool ICPRegistration::registration(SE2 &init_pose, int iterations_)
                 H += J * J.transpose();
                 Eigen::Matrix<double, 2, 1> e(p.x - target_scan -> points[nn_idx[0]].x,
                     p.y - target_scan -> points[nn_idx[0]].y);
-                b += J * e;
+                b += -J * e;
 
                 cost += e.dot(e);
             }
@@ -60,6 +62,8 @@ bool ICPRegistration::registration(SE2 &init_pose, int iterations_)
         // 收敛条件
         cost /= effective_num;
         if(iter > 0 && cost >= last_cost) break;
+
+        last_cost = cost;
 
         // 更新位姿
         cur_pose = SE2(dx[0], dx[1], dx[2]) * cur_pose;

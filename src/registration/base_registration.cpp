@@ -2,10 +2,18 @@
 #include "utils_func.h"
 
 namespace registration{
+
 std::ostream& operator<<(std::ostream& os, const SE2& se2)
 {
     os << se2.x << " " << se2.y << " " << se2.theta;
     return os;
+}
+
+SE2::SE2()
+{
+    x = 0;
+    y = 0;
+    theta = 0;
 }
 
 SE2::SE2(float _x, float _y, float _theta)
@@ -26,8 +34,8 @@ SE2& SE2::operator*(SE2 se2){
 
     this -> x = T_1(0, 2);
     this -> y = T_1(1, 2);
-    float sin_theta = T_1(1, 0);
-    float cos_theta = T_1(1, 1);
+    float cos_theta = T_1(0, 0);
+    float sin_theta = T_1(0, 1);
 
     this -> theta = utils::Utils::theta(sin_theta, cos_theta);
 
@@ -39,8 +47,8 @@ Mat3d SE2::get_trans() const
     Mat3d T;
     double cos_theta = cos(theta);
     double sin_theta = sin(theta);
-    T << -cos_theta, sin_theta, x,
-          sin_theta, cos_theta, y,
+    T <<  cos_theta, sin_theta, x,
+          -sin_theta, cos_theta, y,
           0, 0, 1;
     return T;
 }

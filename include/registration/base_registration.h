@@ -17,6 +17,8 @@ class SE2;
 class BaseRegistration
 {
 public:
+    BaseRegistration() = default;
+    virtual ~BaseRegistration() {};
     virtual bool registration(SE2 &init_pose, int iterations_) { return true; };
     virtual void set_target(CLOUD::Ptr target_scan_){
         target_scan = target_scan_;
@@ -33,7 +35,7 @@ protected:
 class SE2
 {
 public:
-    SE2() = default;
+    SE2();
     SE2(float _x, float _y, float _theta);
     POINT operator*(POINT p);
     SE2& operator*(SE2 se2);

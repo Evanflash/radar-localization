@@ -37,7 +37,7 @@ RadarData::CLOUDPTR RadarData::trans_to_point_cloud()
         for(size_t j = 0; j < cur_radar_data_raw.back().size(); ++j){
             if(cur_radar_data_flag[i][j]){
                 float dis = (j + 0.5) * 0.0438;
-                POINT point(dis * cos_theta, dis * sin_theta, 0.0, cur_radar_data_raw[i][j]);
+                POINT point(dis * sin_theta, dis * cos_theta, 0.0, cur_radar_data_raw[i][j]);
                 point_cloud -> push_back(point);
             }
         }

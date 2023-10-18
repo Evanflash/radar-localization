@@ -11,6 +11,7 @@ Registration::Registration(registration_model _rgm, int _iterators)
 Registration::~Registration()
 {
     delete registrationer;
+    registrationer = nullptr;
 }
 
 void Registration::set_target_cloud(CLOUD::Ptr target_cloud)
