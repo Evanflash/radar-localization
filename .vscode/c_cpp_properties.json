@@ -8,7 +8,8 @@
       "includePath": [
         "/opt/ros/humble/include/**",
         "/home/evan/code/radar-localization/include/**",
-        "/usr/include/**"
+        "/usr/include/**",
+        "/usr/local/include/**"
       ],
       "name": "ROS",
       "intelliSenseMode": "gcc-x64",

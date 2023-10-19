@@ -20,12 +20,12 @@ public:
     void set_target_cloud(CLOUD::Ptr target_cloud);
     void set_source_cloud(CLOUD::Ptr source_cloud);
 
-    inline SE2 get_cur_pose() const
+    inline Sophus::SE2d get_cur_pose() const
     {
         return cur_pose;
     }
 
-    inline void set_cur_pose(SE2 pose){
+    inline void set_cur_pose(Sophus::SE2d pose){
         cur_pose = pose;
     }
 
@@ -33,7 +33,7 @@ public:
 
 private:
     // 位姿
-    SE2 cur_pose;
+    Sophus::SE2d cur_pose;
 
     BaseRegistration *registrationer = nullptr;
     registration_model rgm;

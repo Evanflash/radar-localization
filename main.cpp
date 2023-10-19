@@ -27,25 +27,25 @@ void test_icp()
     CLOUD::Ptr source_cloud(new CLOUD());
     for(auto p : target_cloud -> points){
         p.x += 0.2;
-        p.y += 0.4;
+        p.y += 0.3;
         source_cloud -> push_back(p);
     }
     Registration r(Registration::ICP2D, 10);
     r.set_target_cloud(target_cloud);
     r.set_source_cloud(source_cloud);
     r.registration();
-    cout << r.get_cur_pose() << endl;
+    cout << r.get_cur_pose().translation().transpose() << " " << r.get_cur_pose().so2().log() << endl;
 }
 
 int main()
 {
-    // ShowPointCloud::show(run("/home/evan/code/radar-localization/test", "1547131046353776"),
-    //                 run("/home/evan/code/radar-localization/test", "1547131046606586"));
+    ShowPointCloud::show(run("/home/evan/code/radar-localization/test", "1547131046353776"),
+                    run("/home/evan/code/radar-localization/test", "1547131046606586"));
     // Registration r(Registration::ICP2D, 10);
     // r.set_target_cloud(run("/home/evan/code/radar-localization/test", "1547131046353776"));
     // r.set_source_cloud(run("/home/evan/code/radar-localization/test", "1547131046606586"));
     // r.registration();
     // std::cout << r.get_cur_pose() << endl;
-    test_icp();
+    // test_icp();
     return 0;
 }

@@ -7,8 +7,12 @@ project(radar-localization)
 
 find_package(OpenCV 4 REQUIRED)
 find_package(PCL REQUIRED)
+find_package(Sophus REQUIRED)
+find_package(Eigen REQUIRED)
+find_package(FMT REQUIRED)
 
 include_directories(
+    ${Sophus_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include/filter
     ${PROJECT_SOURCE_DIR}/include/raw_data
     ${PROJECT_SOURCE_DIR}/include/display
@@ -30,7 +34,6 @@ set(SRC_REGISTRATION
 )
 
 set(SRC_LIST
-    
     ${PROJECT_SOURCE_DIR}/src/raw_data/radar_data.cpp
     ${PROJECT_SOURCE_DIR}/src/display/show_point_cloud.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/utils_func.cpp
@@ -41,4 +44,5 @@ add_executable(MAIN main.cpp ${SRC_LIST} ${SRC_FILTER} ${SRC_REGISTRATION})
 target_link_libraries(MAIN
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
+    fmt::fmt
 )

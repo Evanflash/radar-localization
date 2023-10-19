@@ -9,7 +9,7 @@ class ICPRegistration : public BaseRegistration
 {
 public:
     ICPRegistration() = default;
-    bool registration(SE2 &init_pose, int iterations_) override;
+    bool registration(Sophus::SE2d &init_pose, int iterations_) override;
     void set_target(CLOUD::Ptr target_scan_) override;
 private:
     void build_target_kdtree();
