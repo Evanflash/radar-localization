@@ -19,7 +19,11 @@ void KStrongestFilter::filter()
     
     if(fm == threshold){
         for(size_t i = 0; i < radar_data_raw.size(); ++i){
-            float thred = utils::Utils::sum(radar_data_raw[i], 0, radar_data_raw[i].size()) / radar_data_raw[i].size();
+            int useful_num = 0;
+            for(size_t j = 0; j < radar_data_raw[i].size(); ++j){
+                if(radar_data_raw[i][j] > 0) useful_num++;
+            }
+            float thred = utils::Utils::sum(radar_data_raw[i], 0, radar_data_raw[i].size()) / useful_num;
             for(size_t j = 0; j < radar_data_raw.back().size(); ++j){
                 radar_data_flag[i][j] = radar_data_raw[i][j] > thred;
             }

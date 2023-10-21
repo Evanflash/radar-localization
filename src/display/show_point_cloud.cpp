@@ -57,6 +57,10 @@ void ShowPointCloud::show(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud_1,
             if(cur_x < 0 || cur_x >= 800 || cur_y < 800 || cur_y >= 1600) continue;
             image.at<uchar>(cur_x, cur_y) = (uchar)(point.intensity * 255.0);
         }
+        for(size_t i = 0; i < 800; ++i){
+            image.at<uchar>(i, 799) = (uchar)255;
+            image.at<uchar>(i, 800) = (uchar)255;
+        }
         cv::imshow("image", image);
         cv::waitKey(0);
 }
