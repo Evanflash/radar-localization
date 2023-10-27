@@ -86,6 +86,11 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "csignal": "cpp",
+        "any": "cpp",
+        "future": "cpp",
+        "valarray": "cpp",
+        "core": "cpp"
     }
 }

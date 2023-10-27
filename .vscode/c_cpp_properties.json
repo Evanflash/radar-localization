@@ -8,6 +8,7 @@
       "includePath": [
         "/opt/ros/humble/include/**",
         "/home/evan/code/radar-localization/include/**",
+        "/home/evan/code/radar-localization/test/**",
         "/usr/include/**",
         "/usr/local/include/**"
       ],
