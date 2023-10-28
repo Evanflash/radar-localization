@@ -29,6 +29,18 @@ struct spectrum
         : theta(_theta), timestamp(_timestamp){}
 };
 
+struct v_pose
+{
+    using ll = long long;
+    ll timestamp;
+    float x;
+    float y;
+    float yaw;
+    v_pose(){}
+    v_pose(ll _timestamp, float _x, float _y, float _yaw)
+        : timestamp(_timestamp), x(_x), y(_y), yaw(_yaw){}
+};
+
 struct radar_data
 {
     using ll = long long;
@@ -82,5 +94,14 @@ std::vector<long long> read_timestamp_file(const std::string &file_path);
 */
 void save_transformation(const std::string &file_path, Eigen::Matrix4f pose, long long timestamp);
 
+/**
+ * 读取gt文件
+*/
+std::vector<v_pose> read_gt_pose(const std::string file_path);
+
+/**
+ * 查找真值
+*/
+v_pose find_cloest_pose(std::vector<v_pose> &gt_pose, long long timestamp);
 
 #endif // _RADAR_LOCALIZATION_RADAR_UTILS

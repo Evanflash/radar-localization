@@ -104,3 +104,49 @@ void save_transformation(const std::string &file_path, Eigen::Matrix4f pose, lon
         pose.block<3, 3>(0, 0).eulerAngles(2, 1, 0)[0] << std::endl;
     output_file.close();
 }
+
+std::vector<v_pose> read_gt_pose(const std::string file_path)
+{
+    std::vector<v_pose> gt_pose;
+    std::fstream input_file(file_path.c_str(), std::ios::in);
+    std::string line;
+    getline(input_file, line);
+    while(getline(input_file, line)){
+        v_pose pose;
+        std::stringstream ss(line);
+        std::string str;
+        getline(ss, str, ',');
+        getline(ss, str, ',');
+
+        getline(ss, str, ',');
+        pose.x = std::stof(str);
+        getline(ss, str, ',');
+        pose.y = std::stof(str);
+
+        getline(ss, str, ',');
+        getline(ss, str, ',');
+        getline(ss, str, ',');
+
+        getline(ss, str, ',');
+        pose.yaw = std::stof(str);
+
+        getline(ss, str, ',');
+        pose.timestamp = std::stoll(str);
+        gt_pose.push_back(pose);
+    }
+    input_file.close();
+    return gt_pose;
+}
+
+v_pose find_cloest_pose(std::vector<v_pose> &gt_pose, long long timestamp)
+{
+    v_pose pose = gt_pose.front();
+    float min_num = std::abs(timestamp - pose.timestamp);
+    for(uint i = 0; i < gt_pose.size(); ++i){
+        if(std::abs(timestamp - gt_pose[i].timestamp) < min_num){
+            min_num = std::abs(timestamp - gt_pose[i].timestamp);
+            pose = gt_pose[i];
+        }
+    }
+    return pose;
+}

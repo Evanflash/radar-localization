@@ -31,7 +31,7 @@ void test_features_registration(const std::string timestamp_file_path, const std
         if(fm == kstrongest){
             k_strongest_features(rd.fft_data, 58, 12, rd.targets);
         } else if(fm == cen2018){
-            cen_2018_features(rd.fft_data, 3, 17, 58, rd.targets);
+            cen_2018_features(rd.fft_data, 4, 21, 58, rd.targets);
         }
 
         if(i <= 0){
@@ -49,4 +49,66 @@ void test_features_registration(const std::string timestamp_file_path, const std
 
         target_cloud = source_cloud;
     }
+}
+
+void find_best_config_for_cen_2018()
+{
+    using ll = long long;
+    std::vector<v_pose> gt_pose = read_gt_pose("/home/evan/extra/datasets/tiny/gt/radar_odometry.csv");
+    std::vector<ll> radar_timestamp = read_timestamp_file("/home/evan/extra/datasets/tiny/radar.txt");
+    std::string data_file_path = "/home/evan/extra/datasets/tiny/radar";
+    pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud(new pcl::PointCloud<pcl::PointXYZI>());
+    
+    std::fstream log_output("/home/evan/code/radar-localization/log/find_best_cen_config.txt", std::ios::out);
+
+    float min_error = 10000000000;
+    int best_zq = 1;
+    int best_sigma = 1;
+    for(int zq = 1; zq < 10; ++zq){
+        for(int sigma = 1; sigma < 50; sigma = sigma + 2){
+            float error = 0;
+            for(uint i = 0; i < radar_timestamp.size(); ++i){
+                radar_data rd;
+                radar_data_split(data_file_path, std::to_string(radar_timestamp[i]), rd);
+                cen_2018_features(rd.fft_data, zq, sigma, 58, rd.targets);
+
+                if(i <= 0){
+                    targets_to_point_cloud(rd, target_cloud);
+                    continue;
+                }
+                pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud(new pcl::PointCloud<pcl::PointXYZI>());
+                targets_to_point_cloud(rd, source_cloud);
+
+                Eigen::Matrix4f pose;
+                pose = pcl_icp_registration(source_cloud, target_cloud, 30);
+
+                v_pose gt = find_cloest_pose(gt_pose, radar_timestamp[i]);
+
+                float dx = gt.x - pose.block<3, 1>(0, 3)[0];
+                float dy = gt.y - pose.block<3, 1>(0, 3)[1];
+
+                error += std::sqrt(dx * dx + dy * dy);
+                // std::cout << gt.timestamp << std::endl;
+                target_cloud = source_cloud;
+            }
+            if(error < min_error){
+                best_zq = zq;
+                best_sigma = sigma;
+            }
+            std::cout << "cur zq = " << zq << "," << "cur sigma = " << sigma << ","
+                << "cur error = " << error << std::endl;
+            log_output << "cur zq = " << zq << "," << "cur sigma = " << sigma << ","
+                << "cur error = " << error << std::endl;
+        }
+    }
+    std::cout << best_zq << " " << best_sigma << std::endl;
+    std::fstream output("/home/evan/code/radar-localization/config/cen_2018.txt", std::ios::out);
+    output << best_zq << std::endl << best_sigma << std::endl;
+    output.close();
+    log_output.close();
+}
+
+void find_best_kstrongest_config()
+{
+    
 }
