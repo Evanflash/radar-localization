@@ -23,4 +23,8 @@ double cen_2018_features(cv::Mat fft_data, float zq, int sigma_gauss, int min_ra
 */
 double k_strongest_features(cv::Mat fft_data, int min_range, int k, Eigen::MatrixXd &targets);
 
+double my_features(cv::Mat fft_data, Eigen::MatrixXd &targets);
+
+
+
 #endif // _RADAR_LOCALIZATION_FEATURES

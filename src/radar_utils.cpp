@@ -78,6 +78,21 @@ cv::Mat targets_to_cartesian_points(radar_data &rd, int rows, int cols, float re
     return result;
 }
 
+cv::Mat pointcloud_to_cartesian_points(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, 
+    int rows, int cols, float resolution)
+{
+    cv::Mat result = cv::Mat::zeros(rows, cols, CV_8U);
+    int dx = rows / 2;
+    int dy = cols / 2;
+    for(uint i = 0; i < point_cloud -> size(); ++i){
+        int x_ind = point_cloud -> points[i].x / resolution + dx;
+        int y_ind = point_cloud -> points[i].y / resolution + dy;
+        if(x_ind < 0 || x_ind >= rows || y_ind < 0 || y_ind >= cols) continue;
+        result.at<uchar>(x_ind, y_ind) = (uchar)(point_cloud -> points[i].intensity * 255);
+    }
+    return result;
+}
+
 
 std::vector<long long> read_timestamp_file(const std::string &file_path)
 {

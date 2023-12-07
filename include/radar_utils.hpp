@@ -83,6 +83,12 @@ double targets_to_point_cloud(radar_data &rd, pcl::PointCloud<pcl::PointXYZI>::P
 */
 cv::Mat targets_to_cartesian_points(radar_data &rd, int rows, int cols, float resolution);
 
+/**
+ * pointcloud to cv::Mat 
+*/
+cv::Mat pointcloud_to_cartesian_points(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, 
+    int rows, int cols, float resolution);
+
 
 /**
  * 读取时间戳文件

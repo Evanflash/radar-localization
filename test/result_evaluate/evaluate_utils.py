@@ -71,3 +71,20 @@ def print_result_compare(result1, name1, result2, name2, fig, title):
     plt.plot(list(range(1, num2)), result2, label = name2)
     plt.title(title)
     plt.legend()
+
+def get_average(e):
+    l = len(e)
+    all_e = 0
+    for ei in e:
+        all_e = all_e + ei
+    
+    return all_e / l
+
+def calculate_percentage(e, s):
+    num = 0
+    for ei in e:
+        if ei <= s:
+            num = num + 1
+    
+    result = (num / len(e)) * 100
+    print("the percentage below " + str(s) + " is " + str(result) + "%")

@@ -10,6 +10,7 @@ find_package(PCL REQUIRED)
 find_package(Sophus REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(FMT REQUIRED)
+find_package(Ceres REQUIRED)
 
 include_directories(
     ${Sophus_INCLUDE_DIRS}
@@ -21,6 +22,7 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/features.cpp
     ${PROJECT_SOURCE_DIR}/src/registration.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
+    ${PROJECT_SOURCE_DIR}/src/filter.cpp
 )
 
 add_executable(MAIN main.cpp ${SRC_LIST} )
