@@ -4,8 +4,8 @@ $$
 T=
 \left[
 \begin{matrix}
-cos\alpha & -sin\alpha & x \\
-sin\alpha & cos\alpha & y \\
+cos\alpha & sin\alpha & x \\
+-sin\alpha & cos\alpha & y \\
 0 & 0 & 1
 \end{matrix}
 \right] \tag{1}
@@ -19,8 +19,8 @@ $$
 p=Tp^*=
 \left[
 \begin{matrix}
-x^*cos\alpha - y^*sin\alpha + x\\
-x^*sin\alpha + y^*cos\alpha + y
+x^*cos\alpha + y^*sin\alpha + x\\
+-x^*sin\alpha + y^*cos\alpha + y
 \end{matrix}
 \right]=
 \left[
@@ -81,7 +81,7 @@ $$
 \frac{\partial x_0}{\partial \xi}=
 \left[
 \begin{matrix}
-1 & 0 & -x^*sin\alpha - y^*cos\alpha 
+1 & 0 & -x^*sin\alpha + y^*cos\alpha 
 \end{matrix}
 \right]
 \tag{12}
@@ -90,7 +90,7 @@ $$
 \frac{\partial y_0}{\partial \xi}=
 \left[
 \begin{matrix}
-0 & 1 & x^*cos\alpha - y^*sin\alpha 
+0 & 1 & -x^*cos\alpha - y^*sin\alpha 
 \end{matrix}
 \right]
 \tag{13}
@@ -103,8 +103,8 @@ $$
 T_t = T_{t-1}=
 \left[
 \begin{matrix}
-cos\alpha & -sin\alpha & x \\
-sin\alpha & cos\alpha & y \\
+cos\alpha & sin\alpha & x \\
+-sin\alpha & cos\alpha & y \\
 0 & 0 & 1
 \end{matrix}
 \right]

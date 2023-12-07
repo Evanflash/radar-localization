@@ -1,5 +1,6 @@
 import csv
 import math
+import numpy as np
 import matplotlib.pyplot as plt
 
 def read_timestamps(file_path):
@@ -43,7 +44,7 @@ def read_result(result_file):
         data = f.readlines()
         for line in data:
             l = line.split()
-            result.append([int(l[0]), float(l[1]), float(l[2]), float(l[3])])
+            result.append([int(float(l[0])), float(l[1]), float(l[2]), float(l[3])])
     return result
 
 def calculate_error(gt_pose, result):
@@ -88,3 +89,51 @@ def calculate_percentage(e, s):
     
     result = (num / len(e)) * 100
     print("the percentage below " + str(s) + " is " + str(result) + "%")
+
+
+def calculate_final_pose(data):
+    result = []
+    result.append([0, 0])
+    T = np.eye(3, 3)
+    for one_data in  data:
+        T_t = get_transform(one_data[1], one_data[2], one_data[3])
+        T = np.matmul(T, T_t)
+        result.append([T[0][2], T[1][2]])
+    return result
+
+def show_route(route1, route2):
+    plt.figure(0)
+    route1 = list(map(list, zip(*route1)))	
+    route2 = list(map(list, zip(*route2)))
+
+    plt.plot(route1[0], route1[1])
+    plt.plot(route2[0], route2[1])
+    plt.show()
+
+
+def get_transform(x, y, yaw):
+    cos_theta = math.cos(yaw)
+    sin_theta = math.sin(yaw)
+    T = [[cos_theta, sin_theta, x], 
+        [-sin_theta, cos_theta, y], 
+        [0, 0, 1]]
+    T = np.array(T)
+    return T
+
+def calculate_error_by_matmul(gt_pose, result):
+    ex = []
+    ey = []
+    exy2 = []
+    eyaw = []
+    for pose in result:
+        t, x, y, yaw = find_gt_pose(gt_pose, pose[0])
+        T_ = get_transform(pose[1], pose[2], pose[3])
+        T = get_transform(x, y, yaw)
+
+        T_error = np.matmul(np.linalg.inv(T_), T)
+
+        ex.append(abs(T_error[0, 2]))
+        ey.append(abs(T_error[1, 2]))
+        exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
+        eyaw.append(abs(np.arccos(T_error[0, 0])))
+    return ex, ey, exy2, eyaw

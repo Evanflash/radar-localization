@@ -68,9 +68,9 @@ void test(){
 void test1()
 {
     radar_data rd1;
-    radar_data_split("/home/evan/code/radar-localization/test", "1547131050856549", rd1);
+    radar_data_split("/home/evan/code/radar-localization/test", "1547131046353776", rd1);
     radar_data rd2;
-    radar_data_split("/home/evan/code/radar-localization/test", "1547131051108813", rd2);
+    radar_data_split("/home/evan/code/radar-localization/test", "1547131046606586", rd2);
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr target_tmp_cloud = k_strongest_filter(rd1, 12, 0);
     pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_filter(rd2, 12, 0);
@@ -121,9 +121,9 @@ int main()
     // test_my_registration("/home/evan/extra/datasets/tiny/radar.txt", 
     //     "/home/evan/extra/datasets/tiny/radar", 
     //     "/home/evan/code/radar-localization/test/result");
-    test_features_registration("/home/evan/extra/datasets/20190110-114621/radar.timestamps", 
-    "/home/evan/extra/datasets/20190110-114621/radar", 
-    "/home/evan/code/radar-localization/test/result", 
-    kstrongest, icp);
+    // test_features_registration("/home/evan/extra/datasets/20190110-114621/radar.timestamps", 
+    // "/home/evan/extra/datasets/20190110-114621/radar", 
+    // "/home/evan/code/radar-localization/test/result", 
+    // kstrongest, icp);
     return 0;
 }

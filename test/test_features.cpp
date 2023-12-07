@@ -56,7 +56,7 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_big_data.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_big_data_dis5.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 0, 0);
@@ -71,10 +71,12 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
             
         if(i <= 0){
             target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
+            // target_cloud = k_strongest_value;
             continue;
         }
         pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud =
             extract_surf_point(k_strongest_value, 5, 2, 1);
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
 
         Eigen::Vector3f pose = 
             point_to_line_registration(source_cloud, target_cloud, last_pose);
@@ -145,9 +147,4 @@ void find_best_config_for_cen_2018()
     output << best_zq << std::endl << best_sigma << std::endl;
     output.close();
     log_output.close();
-}
-
-void find_best_kstrongest_config()
-{
-    
 }

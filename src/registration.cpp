@@ -34,8 +34,8 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
         float cos_theta = cos(result_pose[2]);
         float sin_theta = sin(result_pose[2]);
         Eigen::Matrix3f T;
-        T << cos_theta, -sin_theta, result_pose[0],
-             sin_theta,  cos_theta, result_pose[1],
+        T << cos_theta, sin_theta, result_pose[0],
+             -sin_theta,  cos_theta, result_pose[1],
              0, 0, 1;
         Eigen::Vector3f point_trans(point.x, point.y, 1);
         point_trans = T * point_trans;
@@ -57,7 +57,7 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
             std::vector<float> nn_distance(neighbor_num);
 
             kdtree_surf_points -> nearestKSearch(point_trans, neighbor_num, nn_idx, nn_distance);
-            if(nn_distance.back() < 10.0){
+            if(nn_distance.back() < 5.0){
                 float cx = 0, cy = 0;
                 for(int j = 0; j < neighbor_num; ++j){
                     cx += target_cloud -> points[nn_idx[j]].x;
@@ -121,9 +121,9 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
                     // 计算雅克比矩阵
                     float theta = result_pose[2];
                     Eigen::Vector3f dx0(1, 0, 
-                        -point_ori.x * sin(theta) - point_ori.y * cos(theta));
+                        -point_ori.x * sin(theta) + point_ori.y * cos(theta));
                     Eigen::Vector3f dy0(0, 1,
-                        point_ori.x * cos(theta) - point_ori.y * sin(theta));
+                        -point_ori.x * cos(theta) - point_ori.y * sin(theta));
 
                     Eigen::Vector3f da = (1 / a) * 
                         ((x0 - x1) * dx0 + (y0 - y1) * dy0);
@@ -148,7 +148,7 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
             }
             
         }
-        // std::cout << nums << std::endl;
+        
         // 求解 Hx = B
         Eigen::Vector3f dx = H.ldlt().solve(B);
         if(std::isnan(dx[0])){
@@ -156,6 +156,7 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
             break;
         }
         // std::cout << "------------------------------------------" << std::endl;
+        // std::cout << nums << std::endl;
         // std::cout << "cost = " << cost << std::endl;
 
         result_pose = result_pose + dx;
