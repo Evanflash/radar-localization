@@ -137,3 +137,10 @@ def calculate_error_by_matmul(gt_pose, result):
         exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
         eyaw.append(abs(np.arccos(T_error[0, 0])))
     return ex, ey, exy2, eyaw
+
+def gt_long(gt_pose):
+    result = 0
+    for pose in gt_pose:
+        result = result + math.sqrt(pose[1] * pose[1] + pose[2] * pose[2])
+
+    return result
