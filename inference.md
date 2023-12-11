@@ -122,13 +122,22 @@ v_x = \frac{x}{\delta t},
 v_y = \frac{y}{\delta t}
 \tag{3}
 $$
-设雷达扫描开始时刻的方向为$\theta_0$（雷达扫描角度为雷达扫描方向与车辆行驶方向的夹角），对于极坐标系中某一个数据点$p(r,\theta)$，首先将当前车辆坐标系的x,y轴与前一帧车辆坐标系对齐，则有：
+由于数据集中的毫米波雷达有400个方位角，根据匀速运动的假说，对于第$i$个方位来说，有：
 $$
-\theta^* = \theta - \frac{\theta - \theta_0}{2\pi}
+T_i =
+\left[
+\begin{matrix}
+cos\frac{i\alpha}{400} & sin\frac{i\alpha}{400} & \frac{ix}{400} \\
+-sin\frac{i\alpha}{400} & cos\frac{i\alpha}{400} &
+\frac{iy}{400} \\
+0 & 0 & 1
+\end{matrix}
+\right]
 \tag{4}
 $$
-再去除其由多普勒效应产生的距离测量误差：
+假设第$i$个方位角与车辆行驶方向的角度为$\theta_i$，则对于第$i$个方位角，多普勒效应可以表示为：
 $$
-r^*=r+\beta(v_xsin\theta^* + v_ycos\theta^*)
+\delta r = \beta (v_y * cos\theta_i + v_x * sin\theta_i) = \beta (\frac{y}{\delta t} * cos\theta_i + \frac{x}{\delta t} * sin\theta_i)
 \tag{5}
 $$
+其中，$\beta = \frac{f_t}{df/dt} = 0.049$

@@ -86,11 +86,15 @@ void test1()
     source_image.copyTo(image.colRange(800, 1600));
 
     Eigen::Matrix4f pose = pcl_icp_registration(source_cloud, target_cloud, 30);
+    std::cout << "pcl_icp_result" << std::endl;
     std::cout << pose.block<3, 1>(0, 3)[0] << " " << pose.block<3, 1>(0, 3)[1] << " " 
         << pose.block<3, 3>(0, 0).eulerAngles(2, 1, 0)[0] << std::endl;
 
-    point_to_line_registration(source_cloud, target_cloud, Eigen::Vector3f(0, 0, 0));
-
+    Eigen::Vector3f point_to_line_result = 
+        point_to_line_registration(source_cloud, target_cloud, Eigen::Vector3f(2.478813, -0.01321, -0.01224));
+    std::cout << "point_to_line_result" << std::endl;
+    std::cout << point_to_line_result[0] << " " << point_to_line_result[1] << " "
+        << point_to_line_result[2] << std::endl;
 
     cv::imshow("", image);
     cv::waitKey(0);

@@ -56,7 +56,7 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_big_data_dis5.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_big_data_doppler_motion.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 0, 0);
@@ -66,8 +66,10 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
     for(uint i = 0; i < radar_timestamp.size(); ++i){
         radar_data rd;
         radar_data_split(data_file_path, std::to_string(radar_timestamp[i]), rd);
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_value = 
+        //     k_strongest_filter(rd, 12, 0);
         pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_value = 
-            k_strongest_filter(rd, 12, 0);
+            k_strongest_filter(rd, 12, 0, last_pose);
             
         if(i <= 0){
             target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
@@ -84,7 +86,9 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
         output << rd.timestamp << " " << pose[1] << " " << 
             pose[0] << " " << pose[2] << std::endl;
 
-        target_cloud = source_cloud;
+        // target_cloud = source_cloud;
+        k_strongest_value = k_strongest_filter(rd, 12, 0, pose);
+        target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
         last_pose = pose;
     }
     output.close();
