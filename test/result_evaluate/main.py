@@ -13,13 +13,13 @@ if __name__ == '__main__':
     result1 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + first_file_name + ".txt")
     result2 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + second_file_name + ".txt")
     
-    # evo.calculate_seq_err(gt_pose1, result1, 100)
+    evo.calculate_seq_err(gt_pose1, result1, 100)
     # print(evaluate_utils.gt_long(gt_pose1))
 
-    # route_gt = evaluate_utils.calculate_final_pose(gt_pose)
-    # route_my = evaluate_utils.calculate_final_pose(result2)
+    route_gt = evaluate_utils.calculate_final_pose(gt_pose1)
+    route_my = evaluate_utils.calculate_final_pose(result1)
     
-    # evaluate_utils.show_route(route_gt, route_my)
+    evaluate_utils.show_route(route_gt, route_my)
 
     # ex1, ey1, exy21, eyaw1 = evaluate_utils.calculate_error(gt_pose1, result1)
     # ex2, ey2, exy22, eyaw2 = evaluate_utils.calculate_error(gt_pose1, result2)
