@@ -130,9 +130,10 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k,
         while(!pri_que.empty()){
             if(fft_data.at<float>(i, pri_que.top()) > least_power){
                 float distance = (pri_que.top() + 0.5) * 0.0438 - delta_d;
+                // motion distortion
                 pcl::PointXYZI point_ori = pcl::PointXYZI(distance * sin_theta, distance * cos_theta, 
                     0, fft_data.at<float>(i, pri_que.top()));
-                result_cloud -> push_back(motion_distortion(point_ori, i, init_pose[0], init_pose[1], init_pose[2]));
+                result_cloud -> push_back(motion_distortion(point_ori, i + 1, init_pose[0], init_pose[1], init_pose[2]));
             }
             pri_que.pop();
         }

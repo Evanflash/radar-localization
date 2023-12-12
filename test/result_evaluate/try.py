@@ -1,23 +1,24 @@
 import math
-
-def get_sin_sum(theta):
-    sum = 0
-    for i in range(1, 400):
-        sum = sum + math.sin(i * theta / 400)
-    return sum
-
-def get_cos_sum(theta):
-    sum = 0
-    for i in range(1, 400):
-        sum = sum + math.cos(i * theta / 400)
-    return sum
+import numpy as np
+import evaluation as evo
 
 if __name__ == "__main__":
-    theta = 0.115846
-    x = 0.15087
-    y = 1.020435
-    vx = x / get_sin_sum(theta) * 400 / 0.25
-    vy = y / get_cos_sum(theta) * 400 / 0.25
-    print(vx)
-    print(vy)
-    print(math.cos(0.115846))
+    data = np.loadtxt(
+        open("/home/evan/extra/datasets/20190110-114621/accuracy.csv"),
+        delimiter=",",
+        skiprows=1)
+    result = [[1547120787893007, 0, 0, 0]]
+    result_m = [[1547120787893007, 0, 0, 0]]
+    result_dm = [[1547120787893007, 0, 0, 0]]
+    gt_pose = [[1547120787893007, 0, 0, 0]]
+    for row in data:
+        gt_pose.append([row[7], row[3], row[4], row[5]])
+        result.append([row[7], row[0], row[1], row[2]])
+        result_m.append([row[7], row[8], row[9], row[10]])
+        result_dm.append([row[7], row[11], row[12], row[13]])
+    print("ransac")
+    evo.calculate_seq_err(gt_pose, result, 100)
+    print("ransac with motion distrotion")
+    evo.calculate_seq_err(gt_pose, result_m, 100)
+    print("ransac with motion distrotion and doppler")
+    evo.calculate_seq_err(gt_pose, result_dm, 100)
