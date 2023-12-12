@@ -56,7 +56,7 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_big_data_doppler_motion_without_surf.txt";
+    std::string output_file_pat = save_file_path + "/my_registration.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 0, 0);
