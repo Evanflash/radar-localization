@@ -159,12 +159,22 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
         // std::cout << nums << std::endl;
         // std::cout << "cost = " << cost << std::endl;
 
-        result_pose = result_pose + dx;
-
         // std::cout << "x = " << result_pose[0] << ", y = " << result_pose[1] << ", theta = " << result_pose[2] << std::endl;
 
+        cost = cost / nums;
+        if(iterCount > 0 && last_cost < cost) break;
+
+        result_pose = result_pose + dx;
         last_cost = cost;
     }
 
     return result_pose;
+}
+
+float huber_robust_core(float cost, float thres)
+{
+    if(cost > thres)
+        return (thres * (abs(cost) - 0.5 * thres));
+    else    
+        return cost * cost;
 }

@@ -131,11 +131,16 @@ def calculate_error_by_matmul(gt_pose, result):
         T = get_transform(x, y, yaw)
 
         T_error = np.matmul(np.linalg.inv(T_), T)
-
-        ex.append(abs(T_error[0, 2]))
-        ey.append(abs(T_error[1, 2]))
-        exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
-        eyaw.append(abs(np.arccos(T_error[0, 0])))
+        if 0:
+            ex.append(T_error[0, 2])
+            ey.append(T_error[1, 2])
+            exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
+            eyaw.append(np.arccos(T_error[0, 0]))
+        else:
+            ex.append(abs(T_error[0, 2]))
+            ey.append(abs(T_error[1, 2]))
+            exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
+            eyaw.append(abs(np.arccos(T_error[0, 0])))
     return ex, ey, exy2, eyaw
 
 def gt_long(gt_pose):
