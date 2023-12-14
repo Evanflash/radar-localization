@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import evaluation as evo
 
 if __name__ == '__main__':
-    first_file_name = "my_registration_big_data_doppler_motion_without_surf"
-    second_file_name = "my_registration_big_data_registration_limit"
-    big_data = True
+    first_file_name = "my_registration"
+    second_file_name = "my_registration_no_voxel_filter"
+    big_data = False
 
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/tiny/radar.txt")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/tiny/gt/radar_odometry.csv")
@@ -13,16 +13,16 @@ if __name__ == '__main__':
     result1 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + first_file_name + ".txt")
     result2 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + second_file_name + ".txt")
     
-    for i in range(0, len(result2) - 1):
-        result2[i][3] = gt_pose1[i][3]
+    # for i in range(0, len(result2) - 1):
+    #     result2[i][3] = gt_pose1[i][3]
 
-    evo.calculate_seq_err(gt_pose1, result2, 100)
-    # print(evaluate_utils.gt_long(gt_pose1))
+    # evo.calculate_seq_err(gt_pose1, result1, 100)
+    # # print(evaluate_utils.gt_long(gt_pose1))
 
-    route_gt = evaluate_utils.calculate_final_pose(gt_pose1)
-    route_my = evaluate_utils.calculate_final_pose(result2)
+    # route_gt = evaluate_utils.calculate_final_pose(gt_pose1)
+    # route_my = evaluate_utils.calculate_final_pose(result1)
     
-    evaluate_utils.show_route(route_gt, route_my)
+    # evaluate_utils.show_route(route_gt, route_my)
 
     # ex1, ey1, exy21, eyaw1 = evaluate_utils.calculate_error(gt_pose1, result1)
     # ex2, ey2, exy22, eyaw2 = evaluate_utils.calculate_error(gt_pose1, result2)

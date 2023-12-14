@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/filters/voxel_grid.h>
@@ -172,4 +173,82 @@ pcl::PointXYZI motion_distortion(pcl::PointXYZI point_ori, int ind, float x_offs
     Eigen::Vector3f p(point_ori.x, point_ori.y, 1);
     p = T * p;
     return pcl::PointXYZI(p[0], p[1], 0, point_ori.intensity);
+}
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
+    pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, float grid_size)
+{
+    struct point_flat{
+        pcl::PointXYZI point;
+        float flat;
+        point_flat(pcl::PointXYZI _point, float _flat)
+            : point(_point), flat(_flat){}
+        point_flat(){}
+    };
+
+    std::unordered_map<std::string, point_flat> hash_map;
+    pcl::KdTreeFLANN<pcl::PointXYZI>::Ptr kdtree_point_cloud(new pcl::KdTreeFLANN<pcl::PointXYZI>());
+    kdtree_point_cloud -> setInputCloud(point_cloud);
+
+    int neiber_num = 5;
+    float max_distance = 2;
+    float flat_thres = 1;
+    for(auto point : point_cloud -> points){
+        std::vector<int> nn_idx(neiber_num);
+        std::vector<float> nn_distance(neiber_num);
+        kdtree_point_cloud -> nearestKSearch(point, neiber_num, nn_idx, nn_distance);
+        if(nn_distance.back() <= max_distance){
+            int x_ind = point.x / grid_size;
+            int y_ind = point.y / grid_size;
+            std::string key = std::to_string(x_ind) + "+" + std::to_string(y_ind);
+
+            // 均值
+            float cx = 0, cy = 0;
+            for(int j = 0; j < neiber_num; ++j){
+                cx += point_cloud -> points[nn_idx[j]].x;
+                cy += point_cloud -> points[nn_idx[j]].y;
+            }
+            cx /= neiber_num;
+            cy /= neiber_num;
+            // 协方差
+            float a11 = 0, a12 = 0, a21 = 0, a22 = 0;
+            for(int j = 0; j < neiber_num; ++j){
+                float ax = point_cloud -> points[nn_idx[j]].x - cx;
+                float ay = point_cloud -> points[nn_idx[j]].y - cy;
+
+                a11 += ax * ax;
+                a12 += ax * ay;
+                a21 += ay * ax;
+                a22 += ay * ay;
+            }
+            a11 /= neiber_num;
+            a12 /= neiber_num;
+            a21 /= neiber_num;
+            a22 /= neiber_num;
+
+            // 计算特征值
+            Eigen::Matrix2f matA = Eigen::Matrix2f::Zero();
+            matA(0, 0) = a11;
+            matA(0, 1) = a12;
+            matA(1, 0) = a21;
+            matA(1, 1) = a22;
+
+            Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> esolver(matA);
+
+            Eigen::Matrix<float, 1, 2> matD = esolver.eigenvalues();
+
+            float flat = (matD[1] - matD[0]) / matD[0];
+
+            // 判断是否平坦
+            if(flat < flat_thres) continue;
+
+            if(hash_map.find(key) == hash_map.end() || flat > hash_map[key].flat)
+                hash_map[key] = point_flat(point, flat);
+        }
+    }
+    pcl::PointCloud<pcl::PointXYZI>::Ptr result_cloud(new pcl::PointCloud<pcl::PointXYZI>());
+    for(auto f : hash_map){
+        result_cloud -> push_back(f.second.point);
+    }
+    return result_cloud;
 }

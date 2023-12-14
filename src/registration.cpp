@@ -96,10 +96,10 @@ Eigen::Vector3f point_to_line_registration(CloudT::Ptr source_cloud, CloudT::Ptr
                 if(matD[1] > 2 * matD[0]){
                     float x0 = point_trans.x;
                     float y0 = point_trans.y;
-                    float x1 = cx + 0.5 * matV(0, 0);
-                    float y1 = cy + 0.5 * matV(0, 1);
-                    float x2 = cx - 0.5 * matV(0, 0);
-                    float y2 = cy - 0.5 * matV(0, 1);
+                    float x1 = cx + 2 * matV(0, 0);
+                    float y1 = cy + 2 * matV(0, 1);
+                    float x2 = cx - 2 * matV(0, 0);
+                    float y2 = cy - 2 * matV(0, 1);
                     
                     float a = sqrt((x0 - x1) * (x0 - x1) +
                                     (y0 - y1) * (y0 - y1));

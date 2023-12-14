@@ -34,4 +34,10 @@ float doppler_offset(float x_offset, float y_offset, float theta);
 */
 pcl::PointXYZI motion_distortion(pcl::PointXYZI point_ori, int ind, float x_offset, float y_offset, float theta);
 
+/**
+ * surf points extract
+*/
+pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
+    pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, float grid_size);
+
 #endif // _RADAR_LOCALIZATION_FILTER
