@@ -75,7 +75,7 @@ void test1()
     pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud = k_strongest_filter(rd1, 12, 0);
     pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_filter(rd2, 12, 0);
 
-    source_cloud = extract_flat_surf_points(source_cloud, 2);
+    source_cloud = extract_flat_surf_points(source_cloud, 1);
 
     // pcl::PointCloud<pcl::PointXYZI>::Ptr target_tmp_cloud = k_strongest_filter(rd1, 5, 0);
     // pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_filter(rd2, 5, 0);
@@ -96,7 +96,7 @@ void test1()
         << pose.block<3, 3>(0, 0).eulerAngles(2, 1, 0)[0] << std::endl;
 
     Eigen::Vector3f point_to_line_result = 
-        point_to_line_registration(source_cloud, target_cloud, Eigen::Vector3f(-0.01321, 2.478813, -0.01224));
+        common_P2L_registration(source_cloud, target_cloud, Eigen::Vector3f(-0.01321, 2.478813, -0.01224));
     std::cout << "point_to_line_result" << std::endl;
     std::cout << point_to_line_result[0] << " " << point_to_line_result[1] << " "
         << point_to_line_result[2] << std::endl;
@@ -124,12 +124,12 @@ int main()
     
     // find_best_config_for_cen_2018();
     // my_features(rd1.fft_data);
-    // test_my_registration("/home/evan/extra/datasets/20190110-114621/radar.timestamps", 
-    //     "/home/evan/extra/datasets/20190110-114621/radar", 
-    //     "/home/evan/code/radar-localization/test/result");
-    test_my_registration("/home/evan/extra/datasets/tiny/radar.txt", 
-        "/home/evan/extra/datasets/tiny/radar", 
+    test_my_registration("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
+        "/home/evan/extra/datasets/20190110-114621/radar", 
         "/home/evan/code/radar-localization/test/result");
+    // test_my_registration("/home/evan/extra/datasets/tiny/radar.txt", 
+    //     "/home/evan/extra/datasets/tiny/radar", 
+    //     "/home/evan/code/radar-localization/test/result");
     // test_my_registration_scan_to_map("/home/evan/extra/datasets/tiny/radar.txt", 
     //     "/home/evan/extra/datasets/tiny/radar", 
     //     "/home/evan/code/radar-localization/test/result");

@@ -57,10 +57,10 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_no_voxel_filter.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_big_data_surf.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
-    Eigen::Vector3f last_pose(0, 2.4, 0);
+    Eigen::Vector3f last_pose(0, 0, 0);
 
     std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
     pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud(new pcl::PointCloud<pcl::PointXYZI>());
@@ -80,10 +80,10 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
         // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud =
         //     extract_surf_point(k_strongest_value, 5, 2, 1);
 
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
 
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_value;
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = extract_flat_surf_points(source_tmp_cloud, 0.5);
+        pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_value;
+        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = extract_flat_surf_points(source_tmp_cloud, 0.5);
 
         Eigen::Vector3f pose = 
             point_to_line_registration(source_cloud, target_cloud, last_pose);

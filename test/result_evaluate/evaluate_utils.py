@@ -125,23 +125,41 @@ def calculate_error_by_matmul(gt_pose, result):
     ey = []
     exy2 = []
     eyaw = []
+    
     for pose in result:
         t, x, y, yaw = find_gt_pose(gt_pose, pose[0])
         T_ = get_transform(pose[1], pose[2], pose[3])
         T = get_transform(x, y, yaw)
+        
 
         T_error = np.matmul(np.linalg.inv(T_), T)
         if 0:
             ex.append(T_error[0, 2])
             ey.append(T_error[1, 2])
             exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
-            eyaw.append(np.arccos(T_error[0, 0]))
+            theta = np.arccos(T_error[0, 0])
+            if T_error[0, 1] < 0:
+                theta = -theta
+            eyaw.append(theta)
         else:
             ex.append(abs(T_error[0, 2]))
             ey.append(abs(T_error[1, 2]))
             exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
             eyaw.append(abs(np.arccos(T_error[0, 0])))
+    
     return ex, ey, exy2, eyaw
+
+def calculate_drift(gt_pose, result):
+    T_gt_all = np.eye(3, 3)
+    T_result_all = np.eye(3, 3)
+    for pose in result:
+        t, x, y, yaw = find_gt_pose(gt_pose, pose[0])
+        T_ = get_transform(pose[1], pose[2], pose[3])
+        T = get_transform(x, y, yaw)
+        T_gt_all = np.matmul(T_gt_all, T_)
+        T_result_all = np.matmul(T_result_all, T)
+    T_error = np.matmul(np.linalg.inv(T_result_all), T_gt_all)
+    return np.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2])
 
 def gt_long(gt_pose):
     result = 0
