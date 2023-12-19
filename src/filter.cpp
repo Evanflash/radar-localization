@@ -96,10 +96,10 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, f
         }
     }
 
-    pcl::VoxelGrid<pcl::PointXYZI>::Ptr voxel_filter(new pcl::VoxelGrid<pcl::PointXYZI>());
-    voxel_filter -> setInputCloud(result_cloud);
-    voxel_filter -> setLeafSize(0.2, 0.2, 0.2);
-    voxel_filter -> filter(*result_cloud);
+    // pcl::VoxelGrid<pcl::PointXYZI>::Ptr voxel_filter(new pcl::VoxelGrid<pcl::PointXYZI>());
+    // voxel_filter -> setInputCloud(result_cloud);
+    // voxel_filter -> setLeafSize(0.2, 0.2, 0.2);
+    // voxel_filter -> filter(*result_cloud);
 
     return result_cloud;
 }
@@ -161,7 +161,7 @@ float doppler_offset(float x_offset, float y_offset, float theta)
 pcl::PointXYZI motion_distortion(pcl::PointXYZI point_ori, int ind, float x_offset, float y_offset, float theta)
 {
     int num = 400;
-    float alpha = ind * theta / num;
+    float alpha = 0;//ind * theta / num;
     float x = ind * x_offset / num;
     float y = ind * y_offset / num;
     Eigen::Matrix3f T;
@@ -191,7 +191,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
     kdtree_point_cloud -> setInputCloud(point_cloud);
 
     int neiber_num = 5;
-    float max_distance = 2;
+    float max_distance = 3;
     float flat_thres = 1;
     for(auto point : point_cloud -> points){
         std::vector<int> nn_idx(neiber_num);
@@ -251,4 +251,24 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
         result_cloud -> push_back(f.second.point);
     }
     return result_cloud;
+}
+
+std::vector<std::vector<pcl::PointXYZI>> divide_into_grid(
+    pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud, float grid_size, int least_points_num)
+{
+    std::unordered_map<std::string, std::vector<pcl::PointXYZI>> hash_map;
+    for(auto point : source_cloud -> points){
+        int x_ind = point.x / grid_size;
+        int y_ind = point.y / grid_size;
+        std::string key = std::to_string(x_ind) + "+" + std::to_string(y_ind);
+        hash_map[key].push_back(point);
+    }
+
+    std::vector<std::vector<pcl::PointXYZI>> result;
+    for(auto point_set : hash_map){
+        if((int)point_set.second.size() < least_points_num) continue;
+        result.push_back(point_set.second);
+    }
+    
+    return result;
 }

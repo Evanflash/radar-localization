@@ -53,54 +53,7 @@ void test_features_registration(const std::string timestamp_file_path, const std
     }
 }
 
-void test_my_registration(const std::string timestamp_file_path, const std::string data_file_path,
-                const std::string save_file_path)
-{
-    using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_big_data_surf.txt";
-    std::fstream output(output_file_pat.c_str(), std::ios::out);
-
-    Eigen::Vector3f last_pose(0, 0, 0);
-
-    std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud(new pcl::PointCloud<pcl::PointXYZI>());
-    for(uint i = 0; i < radar_timestamp.size(); ++i){
-        radar_data rd;
-        radar_data_split(data_file_path, std::to_string(radar_timestamp[i]), rd);
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_value = 
-        //     k_strongest_filter(rd, 12, 0);
-        pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_value = 
-            k_strongest_filter(rd, 12, 0, last_pose);
-            
-        if(i <= 0){
-            // target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
-            target_cloud = k_strongest_value;
-            continue;
-        }
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud =
-        //     extract_surf_point(k_strongest_value, 5, 2, 1);
-
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
-
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_value;
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = extract_flat_surf_points(source_tmp_cloud, 0.5);
-
-        Eigen::Vector3f pose = 
-            point_to_line_registration(source_cloud, target_cloud, last_pose);
-
-        output << rd.timestamp << " " << pose[1] << " " << 
-            pose[0] << " " << pose[2] << std::endl;
-
-        // target_cloud = source_cloud;
-        k_strongest_value = k_strongest_filter(rd, 12, 0, pose);
-        target_cloud = k_strongest_value;
-        // target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
-        last_pose = pose;
-    }
-    output.close();
-}
-
-pcl::PointCloud<pcl::PointXYZI>::Ptr transform_to_cur_frame(
+pcl::PointCloud<pcl::PointXYZI>::Ptr transform_frame(
     pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, Eigen::Vector3f pose)
 {
     Eigen::Matrix3f T;
@@ -109,25 +62,20 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr transform_to_cur_frame(
     T << cos_theta, sin_theta, pose[0],
         -sin_theta, cos_theta, pose[1],
         0, 0, 1;
-    T = T.inverse().eval();
+
     pcl::PointCloud<pcl::PointXYZI>::Ptr result_cloud(new pcl::PointCloud<pcl::PointXYZI>());
     result_cloud -> reserve(point_cloud -> size());
 
     for(auto point : point_cloud -> points){
-        Eigen::Vector3f p(point.x, point.y, 0);
+        Eigen::Vector3f p(point.x, point.y, 1);
         p = T * p;
         result_cloud -> push_back(pcl::PointXYZI(p[0], p[1], 0, point.intensity));
     }
 
-    pcl::VoxelGrid<pcl::PointXYZI>::Ptr voxel_filter(new pcl::VoxelGrid<pcl::PointXYZI>());
-    voxel_filter -> setInputCloud(result_cloud);
-    voxel_filter -> setLeafSize(0.2, 0.2, 0.2);
-    voxel_filter -> filter(*result_cloud);
-
     return result_cloud;
 }
 
-void test_my_registration_scan_to_map(const std::string timestamp_file_path, const std::string data_file_path,
+void test_my_registration(const std::string timestamp_file_path, const std::string data_file_path,
                 const std::string save_file_path)
 {
     using ll = long long;
@@ -135,14 +83,11 @@ void test_my_registration_scan_to_map(const std::string timestamp_file_path, con
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 2.4, 0);
+    float filter_grid_size = 0.5;
 
     std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
     pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud(new pcl::PointCloud<pcl::PointXYZI>());
     for(uint i = 0; i < radar_timestamp.size(); ++i){
-        cv::Mat target_image = pointcloud_to_cartesian_points(target_cloud, 800, 800, 0.2);
-        cv::imshow("", target_image);
-        cv::waitKey(0);
-
         radar_data rd;
         radar_data_split(data_file_path, std::to_string(radar_timestamp[i]), rd);
         // pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_value = 
@@ -153,30 +98,86 @@ void test_my_registration_scan_to_map(const std::string timestamp_file_path, con
         if(i <= 0){
             // target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
             target_cloud = k_strongest_value;
+            // target_cloud = extract_flat_surf_points(k_strongest_value, filter_grid_size);
             continue;
         }
         // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud =
         //     extract_surf_point(k_strongest_value, 5, 2, 1);
 
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
+        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
 
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_value;
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = extract_flat_surf_points(source_tmp_cloud, 2);
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = 
+        //     extract_flat_surf_points(k_strongest_value, filter_grid_size);
 
         Eigen::Vector3f pose = 
-            point_to_line_registration(source_cloud, target_cloud, last_pose);
+            point_to_line_registration_weighted(source_cloud, target_cloud, last_pose);
 
         output << rd.timestamp << " " << pose[1] << " " << 
             pose[0] << " " << pose[2] << std::endl;
 
         // target_cloud = source_cloud;
-        k_strongest_value = k_strongest_filter(rd, 12, 0, pose);
-        source_cloud = extract_flat_surf_points(source_tmp_cloud, 2);
 
-        target_cloud = transform_to_cur_frame(target_cloud, pose);
-        *target_cloud += *source_cloud;
-        // target_cloud = extract_surf_point(k_strongest_value, 5, 2, 1);
+        k_strongest_value = k_strongest_filter(rd, 12, 0, pose);
+        target_cloud = k_strongest_value;
+        // target_cloud = extract_flat_surf_points(k_strongest_value, filter_grid_size);
         last_pose = pose;
+    }
+    output.close();
+}
+
+void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_path, const std::string data_file_path,
+                const std::string save_file_path)
+{
+    using ll = long long;
+    std::string output_file_pat = save_file_path + "/my_registration_big_data_mulkeyframes.txt";
+    std::fstream output(output_file_pat.c_str(), std::ios::out);
+
+    Eigen::Vector3f last_pose(0, 0, 0);
+    Eigen::Vector3f last_relative_pose(0, 0, 0);
+    Eigen::Vector3f last_keyframe_pose(0, 0, 0);
+
+    int keyframe_nums = 5;
+    float keyframe_min_dis = 1.5;
+
+    std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> target_clouds;
+
+    std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
+
+    for(uint i = 0; i < radar_timestamp.size(); ++i){
+        radar_data rd;
+        radar_data_split(data_file_path, std::to_string(radar_timestamp[i]), rd);
+        pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_value = 
+            k_strongest_filter(rd, 12, 0, last_relative_pose);
+            
+        if(i <= 0){
+            target_clouds.push(k_strongest_value);
+            continue;
+        }
+
+        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
+
+        Eigen::Vector3f pose = 
+            point_to_line_registration_weighted_mulkeyframe(source_cloud, target_clouds, last_pose + last_relative_pose);
+        // Eigen::Vector3f tmp = 
+        //     point_to_line_registration_weighted(
+        //         source_cloud, target_clouds.front(), last_pose + last_relative_pose) - last_pose;
+
+        // std::cout << tmp[0] << " " << tmp[1] << std::endl;
+        Eigen::Vector3f relative_pose = pose - last_pose;
+        output << rd.timestamp << " " << relative_pose[1] << " " << 
+            relative_pose[0] << " " << relative_pose[2] << std::endl;
+
+        if(sqrt((pose[0] - last_keyframe_pose[0]) * (pose[0] - last_keyframe_pose[0]) + 
+            (pose[1] - last_keyframe_pose[1]) * (pose[1] - last_keyframe_pose[1])) >= keyframe_min_dis)
+        {
+            k_strongest_value = k_strongest_filter(rd, 12, 0, relative_pose);
+            source_cloud = transform_frame(k_strongest_value, pose);
+            target_clouds.push(source_cloud);
+            if((int)target_clouds.size() > keyframe_nums) target_clouds.pop();
+            last_keyframe_pose = pose;
+        }
+        last_pose = pose;
+        last_relative_pose = relative_pose;
     }
     output.close();
 }

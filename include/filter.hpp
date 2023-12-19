@@ -40,4 +40,10 @@ pcl::PointXYZI motion_distortion(pcl::PointXYZI point_ori, int ind, float x_offs
 pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
     pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, float grid_size);
 
+/**
+ * 
+*/
+std::vector<std::vector<pcl::PointXYZI>> divide_into_grid(
+    pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud, float grid_size, int least_points_num);
+
 #endif // _RADAR_LOCALIZATION_FILTER

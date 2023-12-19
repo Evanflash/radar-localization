@@ -68,14 +68,16 @@ void test(){
 void test1()
 {
     radar_data rd1;
-    radar_data_split("/home/evan/code/radar-localization/test", "1547131046353776", rd1);
+    radar_data_split("/home/evan/code/radar-localization/test", "1547131050856549", rd1);
     radar_data rd2;
-    radar_data_split("/home/evan/code/radar-localization/test", "1547131046606586", rd2);
+    radar_data_split("/home/evan/code/radar-localization/test", "1547131051108813", rd2);
 
-    pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud = k_strongest_filter(rd1, 12, 0);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_filter(rd2, 12, 0);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud = k_strongest_filter(rd1, 12, 0, Eigen::Vector3f(0.006803, 0.864929, 0.001772));
+    pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_filter(rd2, 12, 0, Eigen::Vector3f(0.006803, 0.864929, 0.001772));
 
-    source_cloud = extract_flat_surf_points(source_cloud, 1);
+    float grid_size = 0.5;
+    // target_cloud = extract_flat_surf_points(target_cloud, grid_size);
+    // source_cloud = extract_flat_surf_points(source_cloud, grid_size);
 
     // pcl::PointCloud<pcl::PointXYZI>::Ptr target_tmp_cloud = k_strongest_filter(rd1, 5, 0);
     // pcl::PointCloud<pcl::PointXYZI>::Ptr source_tmp_cloud = k_strongest_filter(rd2, 5, 0);
@@ -96,7 +98,7 @@ void test1()
         << pose.block<3, 3>(0, 0).eulerAngles(2, 1, 0)[0] << std::endl;
 
     Eigen::Vector3f point_to_line_result = 
-        common_P2L_registration(source_cloud, target_cloud, Eigen::Vector3f(-0.01321, 2.478813, -0.01224));
+        point_to_line_registration_weighted(source_cloud, target_cloud, Eigen::Vector3f(0.006803, 0.864929, 0.001772));
     std::cout << "point_to_line_result" << std::endl;
     std::cout << point_to_line_result[0] << " " << point_to_line_result[1] << " "
         << point_to_line_result[2] << std::endl;
@@ -124,13 +126,16 @@ int main()
     
     // find_best_config_for_cen_2018();
     // my_features(rd1.fft_data);
-    test_my_registration("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
-        "/home/evan/extra/datasets/20190110-114621/radar", 
-        "/home/evan/code/radar-localization/test/result");
+    // test_my_registration("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
+    //     "/home/evan/extra/datasets/20190110-114621/radar", 
+    //     "/home/evan/code/radar-localization/test/result");
     // test_my_registration("/home/evan/extra/datasets/tiny/radar.txt", 
     //     "/home/evan/extra/datasets/tiny/radar", 
     //     "/home/evan/code/radar-localization/test/result");
-    // test_my_registration_scan_to_map("/home/evan/extra/datasets/tiny/radar.txt", 
+    test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
+        "/home/evan/extra/datasets/20190110-114621/radar", 
+        "/home/evan/code/radar-localization/test/result");
+    // test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/tiny/radar.txt", 
     //     "/home/evan/extra/datasets/tiny/radar", 
     //     "/home/evan/code/radar-localization/test/result");
     // test_features_registration("/home/evan/extra/datasets/20190110-114621/radar.timestamps", 
