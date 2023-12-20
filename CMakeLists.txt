@@ -25,9 +25,9 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/filter.cpp
 )
 
-add_executable(Odometry main.cpp ${SRC_LIST} )
+add_executable(test1 main.cpp ${SRC_LIST} )
 
-target_link_libraries(Odometry
+target_link_libraries(test1
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
     fmt::fmt

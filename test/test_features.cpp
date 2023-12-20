@@ -75,6 +75,19 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr transform_frame(
     return result_cloud;
 }
 
+std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> get_target_clouds
+    (std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> clouds, std::queue<Eigen::Vector3f> poses)
+{
+    std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> result;
+    Eigen::Vector3f tmp_poses = poses.front();
+    while(!clouds.empty()){
+        result.push(transform_frame(clouds.front(), poses.front() - tmp_poses));
+        clouds.pop();
+        poses.pop();
+    }
+    return result;
+}
+
 void test_my_registration(const std::string timestamp_file_path, const std::string data_file_path,
                 const std::string save_file_path)
 {
@@ -129,17 +142,18 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_big_data_mulkeyframes.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_big_data_3_keyframes.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 0, 0);
-    Eigen::Vector3f last_relative_pose(0, 0, 0);
+    Eigen::Vector3f last_relative_pose(0, 2.4, 0);
     Eigen::Vector3f last_keyframe_pose(0, 0, 0);
 
-    int keyframe_nums = 5;
+    int keyframe_nums = 3;
     float keyframe_min_dis = 1.5;
 
     std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> target_clouds;
+    std::queue<Eigen::Vector3f> target_poses;
 
     std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
 
@@ -151,33 +165,41 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
             
         if(i <= 0){
             target_clouds.push(k_strongest_value);
+            target_poses.push(Eigen::Vector3f(0, 0, 0));
             continue;
         }
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = k_strongest_value;
 
-        Eigen::Vector3f pose = 
-            point_to_line_registration_weighted_mulkeyframe(source_cloud, target_clouds, last_pose + last_relative_pose);
+        // 组装目标帧
+        std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> tmp = get_target_clouds(target_clouds, target_poses);
+
+        Eigen::Vector3f pose = point_to_line_registration_weighted_mulkeyframe(
+            source_cloud, tmp, last_pose + last_relative_pose - target_poses.front());
         // Eigen::Vector3f tmp = 
         //     point_to_line_registration_weighted(
         //         source_cloud, target_clouds.front(), last_pose + last_relative_pose) - last_pose;
 
         // std::cout << tmp[0] << " " << tmp[1] << std::endl;
-        Eigen::Vector3f relative_pose = pose - last_pose;
-        output << rd.timestamp << " " << relative_pose[1] << " " << 
-            relative_pose[0] << " " << relative_pose[2] << std::endl;
 
-        if(sqrt((pose[0] - last_keyframe_pose[0]) * (pose[0] - last_keyframe_pose[0]) + 
-            (pose[1] - last_keyframe_pose[1]) * (pose[1] - last_keyframe_pose[1])) >= keyframe_min_dis)
+        last_relative_pose = pose + target_poses.front() - last_pose;
+        last_pose = pose + target_poses.front();
+
+        output << rd.timestamp << " " << last_relative_pose[1] << " " << 
+            last_relative_pose[0] << " " << last_relative_pose[2] << std::endl;
+
+        if(sqrt((last_pose[0] - last_keyframe_pose[0]) * (last_pose[0] - last_keyframe_pose[0]) + 
+            (last_pose[1] - last_keyframe_pose[1]) * (last_pose[1] - last_keyframe_pose[1])) >= keyframe_min_dis)
         {
-            k_strongest_value = k_strongest_filter(rd, 12, 0, relative_pose);
-            source_cloud = transform_frame(k_strongest_value, pose);
-            target_clouds.push(source_cloud);
-            if((int)target_clouds.size() > keyframe_nums) target_clouds.pop();
-            last_keyframe_pose = pose;
+            k_strongest_value = k_strongest_filter(rd, 12, 0, last_relative_pose);
+            target_clouds.push(k_strongest_value);
+            target_poses.push(last_pose);
+            if((int)target_clouds.size() > keyframe_nums){
+               target_clouds.pop();
+               target_poses.pop(); 
+            }
+            last_keyframe_pose = last_pose;
         }
-        last_pose = pose;
-        last_relative_pose = relative_pose;
     }
     output.close();
 }

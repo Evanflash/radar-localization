@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import evaluation as evo
 
 if __name__ == '__main__':
-    first_file_name = "my_registration_no_voxel_filter"
+    first_file_name = "my_registration_big_data_mulkeyframes_1"
     second_file_name = "my_registration_big_data_mulkeyframes"
-    big_data = False
+    big_data =  False
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/tiny/radar.txt")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/tiny/gt/radar_odometry.csv")
     gt_pose1 = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/20190110-114621/gt/radar_odometry_change.csv")
