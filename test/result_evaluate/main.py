@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import evaluation as evo
 
 if __name__ == '__main__':
-    first_file_name = "my_registration_big_data_mulkeyframes_1"
-    second_file_name = "my_registration_big_data_mulkeyframes"
-    big_data =  False
+    first_file_name = "my_registration_big_data_doppler_motion_without_surf"
+    second_file_name = "my_registration_big_data_5_keyframes"
+    big_data =  True
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/tiny/radar.txt")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/tiny/gt/radar_odometry.csv")
     gt_pose1 = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/20190110-114621/gt/radar_odometry_change.csv")
@@ -19,10 +19,10 @@ if __name__ == '__main__':
     # for i in range(0, len(result1) - 1):
     #     result1[i][3] = gt_pose1[i][3]
 
-    # evo.calculate_seq_err(gt_pose1, result2, 100)
+    evo.calculate_seq_err(gt_pose1, result2, 100)
     # # print(evaluate_utils.gt_long(gt_pose1))
 
-    route_gt = evaluate_utils.calculate_final_pose(result1)
+    route_gt = evaluate_utils.calculate_final_pose(gt_pose1)
     route_my = evaluate_utils.calculate_final_pose(result2)
     evaluate_utils.show_route(route_gt, route_my)
 

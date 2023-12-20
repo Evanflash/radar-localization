@@ -25,9 +25,9 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/filter.cpp
 )
 
-add_executable(test1 main.cpp ${SRC_LIST} )
+add_executable(test3 main.cpp ${SRC_LIST} )
 
-target_link_libraries(test1
+target_link_libraries(test3
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
     fmt::fmt
