@@ -206,6 +206,7 @@ Eigen::Vector3f point_to_line_registration_weighted(CloudT::Ptr source_cloud, Cl
         return pcl::PointXYZI(point_trans[0], point_trans[1], 0, point.intensity);
     };
 
+    std::vector<std::vector<pcl::PointXYZI>> source_set = divide_into_grid(source_cloud, 2, 5);
     // 高斯迭代
     for(int iterCount = 0; iterCount < iterations; iterCount++){
         Eigen::Matrix3f H = Eigen::Matrix3f::Zero();
@@ -214,14 +215,17 @@ Eigen::Vector3f point_to_line_registration_weighted(CloudT::Ptr source_cloud, Cl
         cost = 0;    
         int nums = 0;
 
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud_tmp(new pcl::PointCloud<pcl::PointXYZI>());
-        source_cloud_tmp -> reserve(source_cloud -> size());
-        for(auto point : source_cloud -> points){
-            source_cloud_tmp -> push_back(transpose(point));
-        }
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud_tmp(new pcl::PointCloud<pcl::PointXYZI>());
+        // source_cloud_tmp -> reserve(source_cloud -> size());
+        // for(auto point : source_cloud -> points){
+        //     source_cloud_tmp -> push_back(transpose(point));
+        // }
 
-        std::vector<std::vector<pcl::PointXYZI>> source_set = divide_into_grid(source_cloud_tmp, 2, 5);
         for(auto one_set : source_set){
+            for(auto &set_point : one_set){
+                set_point = transpose(set_point);
+            }
+
             Eigen::Vector2f source_mean;
             Eigen::Matrix<float, 1, 2> source_matD;
             Eigen::Matrix2f source_matV;
@@ -234,7 +238,7 @@ Eigen::Vector3f point_to_line_registration_weighted(CloudT::Ptr source_cloud, Cl
             std::vector<float> nn_distance(neighbor_num);
 
             kdtree_surf_points -> nearestKSearch(point_trans, neighbor_num, nn_idx, nn_distance);
-            if(nn_distance.back() < 3.0){
+            if(nn_distance.back() < 5.0){
                 std::vector<pcl::PointXYZI> target_points_set;
                 for(auto ind : nn_idx){
                     target_points_set.push_back(target_cloud -> points[ind]);
@@ -366,13 +370,18 @@ Eigen::Vector3f point_to_line_registration_weighted_mulkeyframe(
         cost = 0;    
         int nums = 0;
 
-        pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud_tmp(new pcl::PointCloud<pcl::PointXYZI>());
-        source_cloud_tmp -> reserve(source_cloud -> size());
-        for(auto point : source_cloud -> points){
-            source_cloud_tmp -> push_back(transpose(point));
-        }
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud_tmp(new pcl::PointCloud<pcl::PointXYZI>());
+        // source_cloud_tmp -> reserve(source_cloud -> size());
+        // for(auto point : source_cloud -> points){
+        //     source_cloud_tmp -> push_back(transpose(point));
+        // }
 
-        std::vector<std::vector<pcl::PointXYZI>> source_set = divide_into_grid(source_cloud_tmp, 2, 5);
+        std::vector<std::vector<pcl::PointXYZI>> source_set = divide_into_grid(source_cloud, 2, 5);
+        for(auto &one_set : source_set){
+            for(auto &set_point : one_set){
+                set_point = transpose(set_point);
+            }
+        }
         
         for(auto target_cloud : target_clouds_vec){
             pcl::KdTreeFLANN<pcl::PointXYZI>::Ptr kdtree_surf_points(new pcl::KdTreeFLANN<pcl::PointXYZI>());
@@ -391,7 +400,7 @@ Eigen::Vector3f point_to_line_registration_weighted_mulkeyframe(
                 std::vector<float> nn_distance(neighbor_num);
 
                 kdtree_surf_points -> nearestKSearch(point_trans, neighbor_num, nn_idx, nn_distance);
-                if(nn_distance.back() < 3.0){
+                if(nn_distance.back() < 5.0){
                     std::vector<pcl::PointXYZI> target_points_set;
                     for(auto ind : nn_idx){
                         target_points_set.push_back(target_cloud -> points[ind]);

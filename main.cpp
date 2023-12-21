@@ -126,17 +126,17 @@ int main()
     
     // find_best_config_for_cen_2018();
     // my_features(rd1.fft_data);
-    test_my_registration("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
-        "/home/evan/extra/datasets/20190110-114621/radar", 
-        "/home/evan/code/radar-localization/test/result");
-    // test_my_registration("/home/evan/extra/datasets/tiny/radar.txt", 
-    //     "/home/evan/extra/datasets/tiny/radar", 
-    //     "/home/evan/code/radar-localization/test/result");
-    // test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
+    // test_my_registration("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
     //     "/home/evan/extra/datasets/20190110-114621/radar", 
     //     "/home/evan/code/radar-localization/test/result");
-    // test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/tiny/radar.txt", 
-    //     "/home/evan/extra/datasets/tiny/radar", 
+    // test_my_registration("/home/evan/extra/datasets/large/radar.timestamps", 
+    //     "/home/evan/extra/datasets/large/radar", 
+    //     "/home/evan/code/radar-localization/test/result");
+    test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
+        "/home/evan/extra/datasets/20190110-114621/radar", 
+        "/home/evan/code/radar-localization/test/result");
+    // test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/large/radar.timestamps", 
+    //     "/home/evan/extra/datasets/large/radar", 
     //     "/home/evan/code/radar-localization/test/result");
     // test_features_registration("/home/evan/extra/datasets/20190110-114621/radar.timestamps", 
     // "/home/evan/extra/datasets/20190110-114621/radar", 

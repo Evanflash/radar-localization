@@ -142,7 +142,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k,
 
     pcl::VoxelGrid<pcl::PointXYZI>::Ptr voxel_filter(new pcl::VoxelGrid<pcl::PointXYZI>());
     voxel_filter -> setInputCloud(result_cloud);
-    voxel_filter -> setLeafSize(0.2, 0.2, 0.2);
+    voxel_filter -> setLeafSize(0.1, 0.1, 0.1);
     voxel_filter -> filter(*result_cloud);
 
     return result_cloud;
