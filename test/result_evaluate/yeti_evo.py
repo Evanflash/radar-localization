@@ -103,7 +103,7 @@ def getStats(err):
     return t_err, r_err
 
 if __name__ == "__main__":
-    result_name = "my_registration_big_data_weighted"
+    result_name = "my_registration_1221_3_keyframes"
 
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/20190110-114621/gt/radar_odometry_change.csv")
     result = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + result_name + ".txt")
