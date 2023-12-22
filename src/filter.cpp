@@ -113,8 +113,8 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k,
     pcl::PointCloud<pcl::PointXYZI>::Ptr result_cloud(new pcl::PointCloud<pcl::PointXYZI>());
     for(int i = 0; i < fft_data.rows; ++i){
         // doppler
-        float delta_d = doppler_offset(init_pose[0], init_pose[1], spectrum_vec[i].theta);
-        // float delta_d = 0;
+        // float delta_d = doppler_offset(init_pose[0], init_pose[1], spectrum_vec[i].theta);
+        float delta_d = 0;
         auto cmp = [&](const int l_val, const int r_val)
         {
             return fft_data.at<float>(i, l_val) > fft_data.at<float>(i, r_val);

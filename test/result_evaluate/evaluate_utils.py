@@ -101,14 +101,13 @@ def calculate_final_pose(data):
         result.append([T[0][2], T[1][2]])
     return result
 
-def show_route(route1, route2):
+def show_route(route):
     plt.figure(0)
-    route1 = list(map(list, zip(*route1)))	
-    route2 = list(map(list, zip(*route2)))
-
-    plt.plot(route1[0], route1[1])
-    plt.plot(route2[0], route2[1])
+    for ind in range(0, len(route)):
+        one_route = list(map(list, zip(*route[ind])))
+        plt.plot(one_route[0], one_route[1], label = "第" + str(ind) + "条路径")
     plt.show()
+    plt.legend()
 
 
 def get_transform(x, y, yaw):

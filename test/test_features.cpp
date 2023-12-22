@@ -92,10 +92,10 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_1221_no_keyframes.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_try_0.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
-    Eigen::Vector3f last_pose(0, 0, 0);
+    Eigen::Vector3f last_pose(0, 2.4, 0);
     float filter_grid_size = 0.5;
 
     std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
@@ -142,15 +142,16 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_1121_3_keyframes.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_1222_4_keyframes.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 0, 0);
     Eigen::Vector3f last_relative_pose(0, 0, 0);
     Eigen::Vector3f last_keyframe_pose(0, 0, 0);
 
-    int keyframe_nums = 3;
-    float keyframe_min_dis = 1.5;
+    int keyframe_nums = 4;
+    float keyframe_min_dis = 2;
+    float keyframe_min_the = 0.09;
 
     std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> target_clouds;
     std::queue<Eigen::Vector3f> target_poses;
@@ -189,7 +190,8 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
             last_relative_pose[0] << " " << last_relative_pose[2] << std::endl;
 
         if(sqrt((last_pose[0] - last_keyframe_pose[0]) * (last_pose[0] - last_keyframe_pose[0]) + 
-            (last_pose[1] - last_keyframe_pose[1]) * (last_pose[1] - last_keyframe_pose[1])) >= keyframe_min_dis)
+            (last_pose[1] - last_keyframe_pose[1]) * (last_pose[1] - last_keyframe_pose[1])) >= keyframe_min_dis ||
+            abs(last_pose[2] - last_keyframe_pose[2]) >= keyframe_min_the)
         {
             k_strongest_value = k_strongest_filter(rd, 12, 0, last_relative_pose);
             target_clouds.push(k_strongest_value);

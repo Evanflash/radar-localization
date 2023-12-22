@@ -103,10 +103,17 @@ def getStats(err):
     return t_err, r_err
 
 if __name__ == "__main__":
-    result_name = "my_registration_1221_3_keyframes"
+    result_name = "my_registration_1222_1_keyframes"
+    gt_name = 1
+    if gt_name:
+        gt_name = "20190110-114621"
+    else:
+        gt_name = "large"
 
-    gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/20190110-114621/gt/radar_odometry_change.csv")
+    gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/" + gt_name + "/gt/radar_odometry_change.csv")
     result = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + result_name + ".txt")
+
+    gt_pose = gt_pose[0 : len(result) - 1]
 
     err = []
     ate = []
