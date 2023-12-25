@@ -103,7 +103,7 @@ def getStats(err):
     return t_err, r_err
 
 if __name__ == "__main__":
-    result_name = "my_registration_1222_3_keyframes_no_doppler"
+    result_name = "my_registration_1225_1_1.5"
     gt_name = 1
     if gt_name:
         gt_name = "20190110-114621"

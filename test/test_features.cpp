@@ -142,7 +142,7 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_1222_3_keyframes_no_doppler.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_1225_3_2.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
     Eigen::Vector3f last_pose(0, 0, 0);
@@ -150,7 +150,7 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
     Eigen::Vector3f last_keyframe_pose(0, 0, 0);
 
     int keyframe_nums = 3;
-    float keyframe_min_dis = 1.5;
+    float keyframe_min_dis = 2;
     float keyframe_min_the = 0.09;
 
     std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> target_clouds;

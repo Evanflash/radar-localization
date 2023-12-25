@@ -417,6 +417,8 @@ Eigen::Vector3f point_to_line_registration_weighted_mulkeyframe(
                         float weight = sqrt(abs(target_matV(0, 0) * source_matV(0, 0) + 
                             target_matV(1, 0) * source_matV(1, 0)));
 
+                        if(weight < 0.95) continue;
+
                         float x1 = target_mean[0] + weight * target_matV(0, 1);
                         float y1 = target_mean[1] + weight * target_matV(1, 1);
                         float x2 = target_mean[0] - weight * target_matV(0, 1);
