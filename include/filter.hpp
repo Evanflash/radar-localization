@@ -21,7 +21,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, f
 /**
  * k_strongest with doppler and motion distortion
 */
-pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, float least_power, Eigen::Vector3f init_pose);
+pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, float least_power, Eigen::Vector3d init_pose);
 
 
 /**

@@ -36,20 +36,20 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr extract_surf_point(pcl::PointCloud<pcl::Poi
         if(nn_distance.back() > linear_max){
             point_linear[i] = linear(i, 0);
         } else{
-            Eigen::Vector2f centroid = Eigen::Vector2f::Zero();
+            Eigen::Vector2d centroid = Eigen::Vector2d::Zero();
             for(int i = 1; i <= neighbor_points_num; ++i){
-                centroid += Eigen::Vector2f(point_cloud -> points[nn_idx[i]].x, point_cloud -> points[nn_idx[i]].y);
+                centroid += Eigen::Vector2d(point_cloud -> points[nn_idx[i]].x, point_cloud -> points[nn_idx[i]].y);
             }
             centroid /= neighbor_points_num;
 
-            Eigen::Matrix2f covraiance = Eigen::Matrix2f::Zero();
+            Eigen::Matrix2d covraiance = Eigen::Matrix2d::Zero();
             for(int i = 1; i <= neighbor_points_num; ++i){
-                Eigen::Vector2f tmp = Eigen::Vector2f(point_cloud -> points[nn_idx[i]].x, 
+                Eigen::Vector2d tmp = Eigen::Vector2d(point_cloud -> points[nn_idx[i]].x, 
                     point_cloud -> points[nn_idx[i]].y) - centroid;
                 covraiance += tmp * tmp.transpose();
             }
             covraiance /= neighbor_points_num;
-            Eigen::Vector2f eigenvalue = covraiance.eigenvalues().real();
+            Eigen::Vector2d eigenvalue = covraiance.eigenvalues().real();
             float value_larger = std::max(eigenvalue[0], eigenvalue[1]);
             float value_smaller = std::min(eigenvalue[0], eigenvalue[1]);
             point_linear[i] = linear(i, (value_larger - value_smaller) / (value_smaller + 0.001));
@@ -105,7 +105,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, f
 }
 
 pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, 
-    float least_power, Eigen::Vector3f init_pose)
+    float least_power, Eigen::Vector3d init_pose)
 {
     cv::Mat &fft_data = rd.fft_data; 
     std::vector<spectrum> &spectrum_vec = rd.spectrum_vec;
@@ -164,13 +164,13 @@ pcl::PointXYZI motion_distortion(pcl::PointXYZI point_ori, int ind, float x_offs
     float alpha = 0;//ind * theta / num;
     float x = ind * x_offset / num;
     float y = ind * y_offset / num;
-    Eigen::Matrix3f T;
+    Eigen::Matrix3d T;
     float cos_alpha = cos(alpha);
     float sin_alpha = sin(alpha);
     T << cos_alpha, sin_alpha, x,
         -sin_alpha, cos_alpha, y,
         0, 0, 1;
-    Eigen::Vector3f p(point_ori.x, point_ori.y, 1);
+    Eigen::Vector3d p(point_ori.x, point_ori.y, 1);
     p = T * p;
     return pcl::PointXYZI(p[0], p[1], 0, point_ori.intensity);
 }
@@ -227,17 +227,17 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
             a22 /= neiber_num;
 
             // 计算特征值
-            Eigen::Matrix2f matA = Eigen::Matrix2f::Zero();
+            Eigen::Matrix2d matA = Eigen::Matrix2d::Zero();
             matA(0, 0) = a11;
             matA(0, 1) = a12;
             matA(1, 0) = a21;
             matA(1, 1) = a22;
 
-            Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> esolver(matA);
+            Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> esolver(matA);
 
-            Eigen::Matrix<float, 1, 2> matD = esolver.eigenvalues();
+            Eigen::Matrix<double, 1, 2> matD = esolver.eigenvalues();
 
-            float flat = (matD[1] - matD[0]) / matD[0];
+           double flat = (matD[1] - matD[0]) / matD[0];
 
             // 判断是否平坦
             if(flat < flat_thres) continue;

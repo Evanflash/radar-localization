@@ -107,7 +107,6 @@ def show_route(route):
         one_route = list(map(list, zip(*route[ind])))
         plt.plot(one_route[0], one_route[1], label = "第" + str(ind) + "条路径")
     plt.show()
-    plt.legend()
 
 
 def get_transform(x, y, yaw):

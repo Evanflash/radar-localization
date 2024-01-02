@@ -54,11 +54,11 @@ void test_features_registration(const std::string timestamp_file_path, const std
 }
 
 pcl::PointCloud<pcl::PointXYZI>::Ptr transform_frame(
-    pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, Eigen::Vector3f pose)
+    pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, Eigen::Vector3d pose)
 {
-    Eigen::Matrix3f T;
-    float cos_theta = cos(pose[2]);
-    float sin_theta = sin(pose[2]);
+    Eigen::Matrix3d T;
+    double cos_theta = cos(pose[2]);
+    double sin_theta = sin(pose[2]);
     T << cos_theta, sin_theta, pose[0],
         -sin_theta, cos_theta, pose[1],
         0, 0, 1;
@@ -67,7 +67,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr transform_frame(
     result_cloud -> reserve(point_cloud -> size());
 
     for(auto point : point_cloud -> points){
-        Eigen::Vector3f p(point.x, point.y, 1);
+        Eigen::Vector3d p(point.x, point.y, 1);
         p = T * p;
         result_cloud -> push_back(pcl::PointXYZI(p[0], p[1], 0, point.intensity));
     }
@@ -76,10 +76,10 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr transform_frame(
 }
 
 std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> get_target_clouds
-    (std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> clouds, std::queue<Eigen::Vector3f> poses)
+    (std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> clouds, std::queue<Eigen::Vector3d> poses)
 {
     std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> result;
-    Eigen::Vector3f tmp_poses = poses.front();
+    Eigen::Vector3d tmp_poses = poses.front();
     while(!clouds.empty()){
         result.push(transform_frame(clouds.front(), poses.front() - tmp_poses));
         clouds.pop();
@@ -95,8 +95,8 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
     std::string output_file_pat = save_file_path + "/my_registration_try_0.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
-    Eigen::Vector3f last_pose(0, 2.4, 0);
-    float filter_grid_size = 0.5;
+    Eigen::Vector3d last_pose(0, 2.4, 0);
+    double filter_grid_size = 0.5;
 
     std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
     pcl::PointCloud<pcl::PointXYZI>::Ptr target_cloud(new pcl::PointCloud<pcl::PointXYZI>());
@@ -122,7 +122,7 @@ void test_my_registration(const std::string timestamp_file_path, const std::stri
         // pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud = 
         //     extract_flat_surf_points(k_strongest_value, filter_grid_size);
 
-        Eigen::Vector3f pose = 
+        Eigen::Vector3d pose = 
             point_to_line_registration_weighted(source_cloud, target_cloud, last_pose);
 
         output << rd.timestamp << " " << pose[1] << " " << 
@@ -142,19 +142,19 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
                 const std::string save_file_path)
 {
     using ll = long long;
-    std::string output_file_pat = save_file_path + "/my_registration_1225_3_2.txt";
+    std::string output_file_pat = save_file_path + "/my_registration_try_3_1.5.txt";
     std::fstream output(output_file_pat.c_str(), std::ios::out);
 
-    Eigen::Vector3f last_pose(0, 0, 0);
-    Eigen::Vector3f last_relative_pose(0, 0, 0);
-    Eigen::Vector3f last_keyframe_pose(0, 0, 0);
+    Eigen::Vector3d last_pose(0, 0, 0);
+    Eigen::Vector3d last_relative_pose(0, 2.4, 0);
+    Eigen::Vector3d last_keyframe_pose(0, 0, 0);
 
     int keyframe_nums = 3;
-    float keyframe_min_dis = 2;
-    float keyframe_min_the = 0.09;
+    double keyframe_min_dis = 1.5;
+    double keyframe_min_the = 0.09;
 
     std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> target_clouds;
-    std::queue<Eigen::Vector3f> target_poses;
+    std::queue<Eigen::Vector3d> target_poses;
 
     std::vector<ll> radar_timestamp = read_timestamp_file(timestamp_file_path);
 
@@ -166,7 +166,7 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
             
         if(i <= 0){
             target_clouds.push(k_strongest_value);
-            target_poses.push(Eigen::Vector3f(0, 0, 0));
+            target_poses.push(Eigen::Vector3d(0, 0, 0));
             continue;
         }
 
@@ -175,9 +175,9 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
         // 组装目标帧
         std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> tmp = get_target_clouds(target_clouds, target_poses);
 
-        Eigen::Vector3f pose = point_to_line_registration_weighted_mulkeyframe(
+        Eigen::Vector3d pose = point_to_line_registration_weighted_mulkeyframe_cauchy(
             source_cloud, tmp, last_pose + last_relative_pose - target_poses.front());
-        // Eigen::Vector3f tmp = 
+        // Eigen::Vector3d tmp = 
         //     point_to_line_registration_weighted(
         //         source_cloud, target_clouds.front(), last_pose + last_relative_pose) - last_pose;
 
@@ -216,12 +216,12 @@ void find_best_config_for_cen_2018()
     
     std::fstream log_output("/home/evan/code/radar-localization/log/find_best_cen_k_config.txt", std::ios::out);
 
-    float min_error = 10000000000;
+    double min_error = 10000000000;
     int best_zq = 1;
     int best_sigma = 1;
     for(int zq = 1; zq < 10; ++zq){
         for(int sigma = 1; sigma < 50; sigma = sigma + 2){
-            float error = 0;
+            double error = 0;
             for(uint i = 0; i < radar_timestamp.size(); ++i){
                 radar_data rd;
                 radar_data_split(data_file_path, std::to_string(radar_timestamp[i]), rd);
@@ -239,8 +239,8 @@ void find_best_config_for_cen_2018()
 
                 v_pose gt = find_cloest_pose(gt_pose, radar_timestamp[i]);
 
-                float dx = gt.x - pose.block<3, 1>(0, 3)[0];
-                float dy = gt.y - pose.block<3, 1>(0, 3)[1];
+                double dx = gt.x - pose.block<3, 1>(0, 3)[0];
+                double dy = gt.y - pose.block<3, 1>(0, 3)[1];
 
                 error += std::sqrt(dx * dx + dy * dy);
                 // std::cout << gt.timestamp << std::endl;

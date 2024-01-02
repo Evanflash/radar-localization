@@ -54,6 +54,6 @@ def calculate_seq_err(gt_pose, result_pose, length):
             T_result = np.matmul(T_result, T_result_)
         one_err = translation_error(np.matmul(np.linalg.inv(T_result), T_gt))
         seq_err.append(one_err / acc_length[t_ind])
-    ave_error = calculate_ave_error(seq_err) * length
+    ave_error = calculate_ave_error(seq_err) * 100
     print(ave_error)
     return ave_error
