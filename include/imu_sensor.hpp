@@ -29,6 +29,7 @@ struct imu_data
 class IMUSensor
 {
 public:
+    IMUSensor() = default;
     IMUSensor(const std::string imu_data_file_path);
     void search(ll timestamp, size_t &start, size_t &end);
     Vec3d get_imu_data_by_timestamp(ll timestamp);

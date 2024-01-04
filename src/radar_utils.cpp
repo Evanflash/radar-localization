@@ -88,7 +88,7 @@ cv::Mat pointcloud_to_cartesian_points(pcl::PointCloud<pcl::PointXYZI>::Ptr poin
         int x_ind = point_cloud -> points[i].x / resolution + dx;
         int y_ind = point_cloud -> points[i].y / resolution + dy;
         if(x_ind < 0 || x_ind >= rows || y_ind < 0 || y_ind >= cols) continue;
-        result.at<uchar>(x_ind, y_ind) = (uchar)(point_cloud -> points[i].intensity * 255);
+        result.at<uchar>(x_ind, y_ind) = (uchar)(255);
     }
     return result;
 }

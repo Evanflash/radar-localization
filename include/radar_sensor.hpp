@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <opencv2/core.hpp>
+#include <opencv2/opencv.hpp>
 #include <Eigen/Core>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -14,28 +15,37 @@ namespace radar
 
 using ll = long long;
 using Vec3d = Eigen::Vector3d;
-using Vec2d = Eigen::Vector2d;
+using Mat3d = Eigen::Matrix3d;
 using POINT = pcl::PointXYZI;
 using CLOUD = pcl::PointCloud<POINT>;
 
-class RadarSensor
-{
-public:
-    enum model{
+enum model{
       normal,
-      motion  
+      motion,
+      doppler,
+      motion_doppler,  
     };
+
+class RadarSensor
+{   
 public:
-    RadarSensor(const std::string radar_file_path);
-    void update_radar_data(const std::string radar_file_path);
-    void k_strongest_filter(cv::Mat fft_data);
+    RadarSensor() = default;
+    RadarSensor(const std::string radar_file_path, ll timestamp);
+    void update_radar_data(const std::string radar_file_path, ll timestamp);
+    void k_strongest_filter(int k);
     void motion_compensation(Vec3d relative_pose);
     CLOUD::Ptr get_radar_point_cloud(model md);
+
+private:
+    Mat3d pose_to_transformation(Vec3d pose);
+    void transform_point(Mat3d &T, POINT &point);
+
 private:
     ll timestamp;
     cv::Mat fft_data;
     std::vector<float> all_theta;
-    std::vector<Vec2d> motion;
+    std::vector<Mat3d> motion;
+    std::vector<float> doppler;
     Eigen::MatrixXd targets;
 }; // class RadarSensor
 

@@ -25,11 +25,11 @@ include_directories(
 #     ${PROJECT_SOURCE_DIR}/src/filter.cpp
 # )
 set(SRC_LIST
-    ${PROJECT_SOURCE_DIR}/src/imu_sensor.cpp
+    ${PROJECT_SOURCE_DIR}/src/radar_sensor.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
 )
 
-add_executable(test test/test_imu.cpp ${SRC_LIST} )
+add_executable(test test/test_radar.cpp ${SRC_LIST} )
 
 target_link_libraries(test
     ${PCL_LIBRARIES}
