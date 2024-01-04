@@ -5,7 +5,7 @@ import evaluation as evo
 
 if __name__ == '__main__':
     first_file_name = "my_registration_1228_2_2"
-    second_file_name = "ins"
+    second_file_name = "imu"
     big_data = True
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar.timestamps")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/large/gt/radar_odometry_change.csv")

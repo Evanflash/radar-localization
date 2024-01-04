@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 
 namespace imu
 {
@@ -29,6 +30,7 @@ class IMUSensor
 {
 public:
     IMUSensor(const std::string imu_data_file_path);
+    void search(ll timestamp, size_t &start, size_t &end);
     Vec3d get_imu_data_by_timestamp(ll timestamp);
     Vec3d get_relative_pose(Vec3d pre_pose_w, Vec3d nxt_pose_w);
     Vec3d get_relative_pose(ll pre_time, ll nxt_time);

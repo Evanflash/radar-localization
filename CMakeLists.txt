@@ -18,14 +18,18 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/test
 )
 
+# set(SRC_LIST
+#     ${PROJECT_SOURCE_DIR}/src/features.cpp
+#     ${PROJECT_SOURCE_DIR}/src/registration.cpp
+#     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
+#     ${PROJECT_SOURCE_DIR}/src/filter.cpp
+# )
 set(SRC_LIST
-    ${PROJECT_SOURCE_DIR}/src/features.cpp
-    ${PROJECT_SOURCE_DIR}/src/registration.cpp
+    ${PROJECT_SOURCE_DIR}/src/imu_sensor.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
-    ${PROJECT_SOURCE_DIR}/src/filter.cpp
 )
 
-add_executable(test main.cpp ${SRC_LIST} )
+add_executable(test test/test_imu.cpp ${SRC_LIST} )
 
 target_link_libraries(test
     ${PCL_LIBRARIES}
