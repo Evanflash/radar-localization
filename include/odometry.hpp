@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <fstream>
 
 #include "imu_sensor.hpp"
 #include "radar_sensor.hpp"
@@ -21,6 +22,7 @@ public:
     ~Odometry();
 
     void read_timestamps(const std::string radar_timestamp_file_path);
+    void laser_cloud_handler();
     void update_initial_guess();
     void extract_surrounding_keyframes();
     void scan_to_mulkeframes_optimization();
@@ -28,8 +30,11 @@ public:
     void correct_poses();
 
 private:
+    const std::string radar_file_path;
     std::vector<ll> timestamps;
 
+    imu::IMUSensor imu_sensor;
+    radar::RadarSensor radar_sensor;
 };
 
 } // namespace odometry

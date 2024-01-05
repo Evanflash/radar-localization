@@ -66,7 +66,7 @@ void RadarSensor::motion_compensation(Vec3d relative_pose)
 {
     motion.resize(fft_data.rows, Mat3d::Zero());
     for(int i = 0; i < fft_data.rows; ++i){
-        motion[i] = pose_to_transformation(((i + 1) / fft_data.rows) * relative_pose);
+        motion[i] = pose_to_transformation(((float)(i + 1) / fft_data.rows) * relative_pose);
     }
 }
 
