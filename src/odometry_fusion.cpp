@@ -11,6 +11,12 @@ Odometry::Odometry(const std::string radar_data_file_path, const std::string rad
 {
     read_timestamps(radar_timestamp_file_path);
 
+    // gtsam init
+    gtsam::ISAM2Params parameters;
+    parameters.relinearizeThreshold = 0.1;
+    parameters.relinearizeSkip = 1;
+    isam = new gtsam::ISAM2(parameters);
+
     // init
     cloud_key_pose_2d.reset(new CLOUD());
 }
@@ -22,8 +28,6 @@ Odometry::~Odometry()
 
 void Odometry::laser_cloud_handler()
 {
-    ll pre_timestamp = 0;
-    ll cur_timestamp = 0;
     for(size_t i = 0; i < timestamps.size(); ++i){
         if(i <= 0){
 
@@ -33,7 +37,10 @@ void Odometry::laser_cloud_handler()
         Vec3d init_pose = obtain_relative_pose(pre_timestamp, cur_timestamp);
         radar_sensor.k_strongest_filter(config.k);
         radar_sensor.motion_compensation(init_pose);
-        CLOUD::Ptr source_cloud = radar_sensor.get_radar_point_cloud(radar::motion);
+        source_cloud = radar_sensor.get_radar_point_cloud(radar::motion);
+
+        cur_relative_pose = obtain_relative_pose(keyframe_timestamps.back(), cur_timestamp);
+
     }
 }
 
@@ -79,6 +86,32 @@ void Odometry::extract_surrounding_keyframes()
     }
 }
 
+void Odometry::divide_into_grid(float grid_size, int least_points_num)
+{
+    std::unordered_map<std::string, std::vector<POINT>> hash_map;
+    for(auto point : source_cloud -> points)
+    {
+        int x_ind = point.x / grid_size;
+        int y_ind = point.y / grid_size;
+        std::string key = std::to_string(x_ind) + "+" + std::to_string(y_ind);
+        hash_map[key].push_back(point);
+    }
+
+    for(auto point_set : hash_map)
+    {
+        if((int)point_set.second.size() < least_points_num)
+            continue;
+        source_feature_set.push_back(point_set.second);
+    }
+}
+
+void Odometry::scan_to_mulkeframes_optimization()
+{
+    // 周围信息提取
+    divide_into_grid(config.grid_size, config.least_point_num);
+    
+}
+
 bool Odometry::is_keyframes(ll cur_timestamp)
 {
     if(cloud_key_pose_2d -> empty()){
@@ -94,6 +127,23 @@ bool Odometry::is_keyframes(ll cur_timestamp)
         return false;
     }
     return true;
+}
+
+void Odometry::save_keyframes_and_factor(ll cur_timestamp)
+{
+    if(is_keyframes(cur_timestamp) == false){
+        return;
+    }
+    
+    // 因子图更新
+    add_odom_factor();
+    add_gps_factor();
+    add_loop_factor();
+
+    // update iSAM
+    isam -> update(gtsam_graph, initial_estimate);
+    isam -> update();
+
 }
 
 Mat3d Odometry::pose_to_transformation(Vec3d pose)
