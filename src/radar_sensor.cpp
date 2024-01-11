@@ -64,6 +64,7 @@ void RadarSensor::k_strongest_filter(int k)
 
 void RadarSensor::motion_compensation(Vec3d relative_pose)
 {
+    relative_pose[2] = 0;
     motion.resize(fft_data.rows, Mat3d::Zero());
     for(int i = 0; i < fft_data.rows; ++i){
         motion[i] = pose_to_transformation(((float)(i + 1) / fft_data.rows) * relative_pose);
@@ -93,6 +94,11 @@ CLOUD::Ptr RadarSensor::get_radar_point_cloud(model md)
         transform_point(tmp_motion[targets(0, i)], cur_point);
         result_point_cloud -> push_back(cur_point);
     }
+
+    pcl::VoxelGrid<pcl::PointXYZI>::Ptr voxel_filter(new pcl::VoxelGrid<pcl::PointXYZI>());
+    voxel_filter -> setInputCloud(result_point_cloud);
+    voxel_filter -> setLeafSize(0.1, 0.1, 0.1);
+    voxel_filter -> filter(*result_point_cloud);
     return result_point_cloud;
 }
 
@@ -109,7 +115,7 @@ Mat3d RadarSensor::pose_to_transformation(Vec3d pose)
 
 void RadarSensor::transform_point(Mat3d &T, POINT &point)
 {
-    Vec3d p(point.x, point.y, point.z);
+    Vec3d p(point.x, point.y, 1);
     p = T * p;
     point.x = p[0];
     point.y = p[1];

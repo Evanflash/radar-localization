@@ -149,8 +149,8 @@ void test_my_registration_scan_to_mulkeyframes(const std::string timestamp_file_
     Eigen::Vector3d last_relative_pose(0, 2.4, 0);
     Eigen::Vector3d last_keyframe_pose(0, 0, 0);
 
-    int keyframe_nums = 3;
-    double keyframe_min_dis = 1.5;
+    int keyframe_nums = 2;
+    double keyframe_min_dis = 2;
     double keyframe_min_the = 0.09;
 
     std::queue<pcl::PointCloud<pcl::PointXYZI>::Ptr> target_clouds;

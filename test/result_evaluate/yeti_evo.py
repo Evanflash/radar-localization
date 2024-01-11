@@ -103,8 +103,8 @@ def getStats(err):
     return t_err, r_err
 
 if __name__ == "__main__":
-    result_name = "imu"
-    gt_name = 1
+    result_name = "my_registration_try_3_1.5"
+    gt_name = 0
     if gt_name:
         gt_name = "20190110-114621"
     else:

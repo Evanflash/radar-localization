@@ -698,7 +698,7 @@ Eigen::Vector3d point_to_line_registration_weighted_mulkeyframe_cauchy(
     };
 
     // 高斯迭代
-    std::vector<std::vector<pcl::PointXYZI>> source_set = divide_into_grid(source_cloud, 2, 5);
+    std::vector<std::vector<pcl::PointXYZI>> const_source_set = divide_into_grid(source_cloud, 2, 5);
     for(int iterCount = 0; iterCount < iterations; iterCount++){
         Eigen::Matrix3d H = Eigen::Matrix3d::Zero();
         Eigen::Vector3d B = Eigen::Vector3d::Zero();
@@ -711,7 +711,7 @@ Eigen::Vector3d point_to_line_registration_weighted_mulkeyframe_cauchy(
         // for(auto point : source_cloud -> points){
         //     source_cloud_tmp -> push_back(transpose(point));
         // }
-
+        std::vector<std::vector<pcl::PointXYZI>> source_set = const_source_set;
         for(auto &one_set : source_set){
             for(auto &set_point : one_set){
                 set_point = transpose(set_point);
@@ -722,20 +722,22 @@ Eigen::Vector3d point_to_line_registration_weighted_mulkeyframe_cauchy(
             pcl::KdTreeFLANN<pcl::PointXYZI>::Ptr kdtree_surf_points(new pcl::KdTreeFLANN<pcl::PointXYZI>());
             kdtree_surf_points -> setInputCloud(target_cloud);
 
-            for(auto one_set : source_set){
+            for(size_t i = 0; i < source_set.size(); ++i){
+                Eigen::Vector2d source_ori;
                 Eigen::Vector2d source_mean;
                 Eigen::Matrix<double, 1, 2> source_matD;
                 Eigen::Matrix2d source_matV;
-                calculate_mean_and_cov(one_set, source_mean, source_matD, source_matV);
+                calculate_mean_and_cov(const_source_set[i], source_ori, source_matD, source_matV);
+                calculate_mean_and_cov(source_set[i], source_mean, source_matD, source_matV);
 
-                pcl::PointXYZI point_ori = pcl::PointXYZI(source_mean[0], source_mean[1], 0, 0);
-                pcl::PointXYZI point_trans = point_ori;//transpose(point_ori);
+                pcl::PointXYZI point_ori = pcl::PointXYZI(source_ori[0], source_ori[1], 0, 0);
+                pcl::PointXYZI point_trans = pcl::PointXYZI(source_mean[0], source_mean[1], 0, 0);
 
                 std::vector<int> nn_idx(neighbor_num);
                 std::vector<float> nn_distance(neighbor_num);
 
                 kdtree_surf_points -> nearestKSearch(point_trans, neighbor_num, nn_idx, nn_distance);
-                if(/*nn_distance.back() < 5.0*/1){
+                if(nn_distance.back() < 5.0){
                     std::vector<pcl::PointXYZI> target_points_set;
                     for(auto ind : nn_idx){
                         target_points_set.push_back(target_cloud -> points[ind]);
@@ -771,7 +773,7 @@ Eigen::Vector3d point_to_line_registration_weighted_mulkeyframe_cauchy(
                         double S = sqrt(l * (l - a) * (l - b) * (l - c));
 
                         double error = S;
-                        std::cout << error << std::endl;
+                        // std::cout << error << std::endl;
                         double control = 1;
                         double dp = 1 / (1 + S * S / (control * control));
                         double d2p = -dp * dp / (control * control);

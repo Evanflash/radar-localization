@@ -7,13 +7,12 @@ project(radar-localization)
 
 find_package(OpenCV 4 REQUIRED)
 find_package(PCL REQUIRED)
-find_package(Sophus REQUIRED)
 find_package(Eigen REQUIRED)
-find_package(FMT REQUIRED)
 find_package(Ceres REQUIRED)
+find_package(GTSAM REQUIRED)
 
 include_directories(
-    ${Sophus_INCLUDE_DIRS}
+    ${GTSAM_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/test
 )
@@ -26,13 +25,15 @@ include_directories(
 # )
 set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/radar_sensor.cpp
+    ${PROJECT_SOURCE_DIR}/src/imu_sensor.cpp
+    ${PROJECT_SOURCE_DIR}/src/odometry_fusion.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
 )
 
-add_executable(test test/test_radar.cpp ${SRC_LIST} )
+add_executable(test test/test_odometry.cpp ${SRC_LIST} )
 
 target_link_libraries(test
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
-    fmt::fmt
+    gtsam
 )

@@ -19,6 +19,7 @@ public:
     int iterations;
     float grid_size;
     int least_point_num;
+    std::string save_file_path;
 }; // class Config
 
 #endif // _RADAR_LOCALIZATION_ODOMETRY_CONFIG

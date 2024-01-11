@@ -109,7 +109,7 @@ void test1()
 
 int main()
 {
-    test1();
+    // test1();
     // radar_data rd1;
     // radar_data_split("/home/evan/code/radar-localization/test", "1547131050856549", rd1);
     // cen_2018_features(rd1.fft_data.clone(), 1, 9, 58, rd1.targets);
@@ -135,9 +135,9 @@ int main()
     // test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps", 
     //     "/home/evan/extra/datasets/20190110-114621/radar", 
     //     "/home/evan/code/radar-localization/test/result");
-    // test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/large/radar.timestamps", 
-    //     "/home/evan/extra/datasets/large/radar", 
-    //     "/home/evan/code/radar-localization/test/result");
+    test_my_registration_scan_to_mulkeyframes("/home/evan/extra/datasets/large/radar.timestamps", 
+        "/home/evan/extra/datasets/large/radar", 
+        "/home/evan/code/radar-localization/test/result");
     // test_features_registration("/home/evan/extra/datasets/20190110-114621/radar.timestamps", 
     // "/home/evan/extra/datasets/20190110-114621/radar", 
     // "/home/evan/code/radar-localization/test/result", 
