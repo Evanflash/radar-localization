@@ -79,7 +79,7 @@ Vec3d IMUSensor::get_relative_pose(Vec3d pre_pose_w, Vec3d nxt_pose_w)
     Mat3d T_nxt = pose_to_transform(nxt_pose_w);
     Mat3d T = T_pre * T_nxt;
     double yaw = nxt_pose_w[2] - pre_pose_w[2];
-    return Vec3d(T(1, 2), T(0, 2), yaw);
+    return Vec3d(T(0, 2), T(1, 2), yaw);
 }
     
 Vec3d IMUSensor::get_relative_pose(ll pre_time, ll nxt_time)

@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     data = np.loadtxt(
-        open("/home/evan/code/radar-localization/test/result/my_registration_try.txt"),
+        open("/home/evan/extra/datasets/20190110-114621/gps/ins.csv"),
         str,
-        delimiter=" ",
+        delimiter=",",
         skiprows=1)
     result_raw = []
     for row in data:
-        result_raw.append([float(row[0]), float(row[1]), -float(row[2]), float(row[3])])
+        result_raw.append([float(row[0]), float(row[10]), float(row[9]), float(row[14])])
 
     
     result_w = []
@@ -21,12 +21,12 @@ if __name__ == "__main__":
     cur_y = 0
     cur_yaw = 0
     for p in result_raw:
-        cur_x = cur_x + p[2] * 0.02
-        cur_y = cur_y + p[1] * 0.02
+        cur_x = cur_x + p[1] * 0.02
+        cur_y = cur_y + p[2] * 0.02
         cur_yaw = p[3] - np.pi / 2
         result_w.append([p[0], cur_x, cur_y, cur_yaw])
 
-    gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/large/gt/radar_odometry_change.csv")
+    gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/20190110-114621/gt/radar_odometry.csv")
     
     result_final_w = []
     cur = 0

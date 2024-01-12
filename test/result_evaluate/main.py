@@ -23,9 +23,11 @@ if __name__ == '__main__':
     # evo.calculate_seq_err(gt_pose1, result2, 100)
     # print(evaluate_utils.gt_long(gt_pose1))
 
+    gt_pose = gt_pose[0 : len(timestamps) - 1]
+
     route_my2 = []
     for i in range(0, len(result2) - 1):
-        route_my2.append([result2[i][2], -result2[i][1]])
+        route_my2.append([result2[i][1], result2[i][2]])
 
     route_gt = evaluate_utils.calculate_final_pose(gt_pose)
     route_my1 = evaluate_utils.calculate_final_pose(result1)

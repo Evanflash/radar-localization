@@ -64,7 +64,6 @@ void RadarSensor::k_strongest_filter(int k)
 
 void RadarSensor::motion_compensation(Vec3d relative_pose)
 {
-    relative_pose[2] = 0;
     motion.resize(fft_data.rows, Mat3d::Zero());
     for(int i = 0; i < fft_data.rows; ++i){
         motion[i] = pose_to_transformation(((float)(i + 1) / fft_data.rows) * relative_pose);
@@ -90,7 +89,7 @@ CLOUD::Ptr RadarSensor::get_radar_point_cloud(model md)
         double distance = (targets(1, i) + 0.5) * 0.0438 + tmp_doppler[targets(0, i)];
         double sin_theta = sin(theta);
         double cos_theta = cos(theta);
-        POINT cur_point(distance * sin_theta, distance * cos_theta, 0, 0);
+        POINT cur_point(distance * cos_theta, -distance * sin_theta, 0, 0);
         transform_point(tmp_motion[targets(0, i)], cur_point);
         result_point_cloud -> push_back(cur_point);
     }
