@@ -91,6 +91,9 @@
         "any": "cpp",
         "future": "cpp",
         "valarray": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "*.ipp": "cpp",
+        "lu": "cpp",
+        "*.txx": "cpp"
     }
 }

@@ -14,6 +14,7 @@ Odometry::Odometry(const std::string radar_data_file_path, const std::string rad
     gtsam::ISAM2Params parameters;
     parameters.relinearizeThreshold = 0.1;
     parameters.relinearizeSkip = 1;
+    parameters.factorization = gtsam::ISAM2Params::QR;
     isam = new gtsam::ISAM2(parameters);
 
     // init
@@ -29,7 +30,10 @@ Odometry::Odometry(const std::string radar_data_file_path, const std::string rad
     iterations = 10;
     grid_size = 2;
     least_point_num = 5;
-    save_file_path = "/home/evan/code/radar-localization/test/result/my_registration_try.txt";
+    save_file_path = "/home/evan/code/radar-localization/test/result/my_registration_try_2.txt";
+
+    aLoopIsClosed = false;
+    last_keyframe_index = 0;
 }
 
 Odometry::~Odometry()
@@ -56,20 +60,20 @@ void Odometry::laser_cloud_handler()
             source_cloud = radar_sensor.get_radar_point_cloud(radar::motion);
 
             cur_relative_pose = obtain_relative_pose(keyframe_timestamps.back(), cur_timestamp);    
-            std::cout << "-----------------------" << std::endl;
-            std::cout << "init" << std::endl;
-            std::cout << cur_relative_pose[0] << " " << cur_relative_pose[1] << " " <<
-                cur_relative_pose[2] << std::endl;
+            // std::cout << "-----------------------" << std::endl;
+            // std::cout << "init" << std::endl;
+            // std::cout << cur_relative_pose[0] << " " << cur_relative_pose[1] << " " <<
+            //     cur_relative_pose[2] << std::endl;
             extract_surrounding_keyframes();
 
             scan_to_mulkeframes_optimization();
 
             save_keyframes_and_factor();
-            std::cout << "final" << std::endl;
-            std::cout << cur_relative_pose[0] << " " << cur_relative_pose[1] << " " <<
-                cur_relative_pose[2] << std::endl;
+            // std::cout << "final" << std::endl;
+            // std::cout << cur_relative_pose[0] << " " << cur_relative_pose[1] << " " <<
+            //     cur_relative_pose[2] << std::endl;
         }
-
+        correct_poses();
         pre_timestamp = cur_timestamp;
     }
 }
@@ -332,10 +336,54 @@ void Odometry::add_odom_factor()
 {
     if(cloud_key_pose_2d -> empty()){
         gtsam::noiseModel::Diagonal::shared_ptr prior_noise = 
-            gtsam::noiseModel::Diagonal::Variances((
-                gtsam::Vector(6) << 1e-2, 1e-2, M_PI * M_PI, 1e8, 1e8, 1e8).finished());
+            gtsam::noiseModel::Diagonal::Variances((gtsam::Vector(6) << 1e-8, 1e-8, 1e-8, 1e-8, 1e-8, 1e-8).finished());
+        gtsam_graph.add(gtsam::PriorFactor<gtsam::Pose3>(
+            0, vec_to_gtsam_pose(relative_to_absolute_pose(cur_relative_pose)), prior_noise));
+        initial_estimate.insert(0, vec_to_gtsam_pose(relative_to_absolute_pose(cur_relative_pose)));
     }else{
+        gtsam::noiseModel::Diagonal::shared_ptr odom_noise = 
+            gtsam::noiseModel::Diagonal::Variances((gtsam::Vector(6) << 1e-8, 1e-8, 1e-4, 0.25, 0.25, 1e-8).finished());
+        gtsam::Pose3 pose_from = vec_to_gtsam_pose(keyframe_poses.back());
+        gtsam::Pose3 pose_to = vec_to_gtsam_pose(relative_to_absolute_pose(cur_relative_pose));
+        gtsam_graph.add(gtsam::BetweenFactor<gtsam::Pose3>(
+            cloud_key_pose_2d -> size() - 1, cloud_key_pose_2d -> size(), pose_from.between(pose_to), odom_noise
+        ));
+        // gtsam::Pose2 between = pose_from.between(pose_to);
+        // std::cout << between.translation().x() << " " << between.translation().y() << " " <<
+        //     between.rotation().theta() << std::endl;
+        // std::cout << cur_relative_pose[0] << " " << cur_relative_pose[1] << " " <<
+        //     cur_relative_pose[2] << std::endl;
+        // gtsam::Pose2 pose_from = vec_to_gtsam_pose(imu_sensor.get_imu_data_by_timestamp(keyframe_timestamps.back()));
+        // gtsam::Pose2 pose_to0 = vec_to_gtsam_pose(imu_sensor.get_imu_data_by_timestamp(cur_timestamp));
+        // gtsam::Pose2 between = pose_from.between(pose_to0);
+        // Vec3d relative = imu_sensor.get_relative_pose(keyframe_timestamps.back(), cur_timestamp);
+        // std::cout << between.translation().x() << " " << between.translation().y() << " " <<
+        //     between.rotation().theta() << std::endl;
+        // std::cout << relative[0] << " " << relative[1] << " " <<
+        //     relative[2] << std::endl;
+        // gtsam_graph.add(gtsam::BetweenFactor<gtsam::Pose2>(
+        //     cloud_key_pose_2d -> size() - 1, cloud_key_pose_2d -> size(), 
+        //     vec_to_gtsam_pose(imu_sensor.get_relative_pose(keyframe_timestamps.back(), cur_timestamp)), odom_noise
+        // ));
+        initial_estimate.insert(cloud_key_pose_2d -> size(), pose_to);
+    }
+}
 
+void Odometry::add_gps_factor()
+{
+    if((int)cloud_key_pose_2d -> size() - last_keyframe_index < 5){
+        return;
+    }else{
+        gtsam::noiseModel::Diagonal::shared_ptr gps_noise = 
+            gtsam::noiseModel::Diagonal::Variances((gtsam::Vector(3) << 4, 4, 1e-8).finished());
+        Vec3d between = imu_sensor.get_relative_pose(keyframe_timestamps.front(), cur_timestamp);
+        std::cout << between[0] << " " << between[1] << " " << between[2] << std::endl;
+        gtsam::GPSFactor gps_factor(
+            cloud_key_pose_2d -> size(), 
+            gtsam::Point3(between[0], between[1], 0), gps_noise);
+        gtsam_graph.add(gps_factor);
+        aLoopIsClosed = true;
+        last_keyframe_index = cloud_key_pose_2d -> size();
     }
 }
 
@@ -347,19 +395,32 @@ void Odometry::save_keyframes_and_factor()
     
     // 因子图更新
     add_odom_factor();
-    // add_gps_factor();
+    add_gps_factor();
     // add_loop_factor();
 
     // update iSAM
     isam -> update(gtsam_graph, initial_estimate);
     isam -> update();
 
+    if (aLoopIsClosed == true)
+    {
+        isam->update();
+        isam->update();
+        isam->update();
+        isam->update();
+        isam->update();
+    }
+
+    gtsam_graph.resize(0);
+    initial_estimate.clear();
+
     // save
     POINT cur_pose_2d;
     Vec3d cur_absolute_pose;
-    gtsam::Pose2 latest_estimate;
+    gtsam::Pose3 latest_estimate;
 
-    latest_estimate = vec_to_gtsam_pose(relative_to_absolute_pose(cur_relative_pose));
+    isam_current_estimate = isam -> calculateEstimate();
+    latest_estimate = isam_current_estimate.at<gtsam::Pose3>(isam_current_estimate.size() - 1);
 
     // 更新关键帧点云
     cur_pose_2d.x = latest_estimate.translation().x();
@@ -371,24 +432,51 @@ void Odometry::save_keyframes_and_factor()
     // 更新关键帧位姿
     cur_absolute_pose[0] = cur_pose_2d.x;
     cur_absolute_pose[1] = cur_pose_2d.y;
-    cur_absolute_pose[2] = latest_estimate.rotation().theta();
+    cur_absolute_pose[2] = -latest_estimate.rotation().yaw();
 
     // 更新状态
     keyframe_clouds.push_back(source_cloud);
     keyframe_poses.push_back(cur_absolute_pose);
     keyframe_timestamps.push_back(cur_timestamp);
 
-    // 保存
+    // // 保存
+    // save_path(save_file_path);
+}
+
+void Odometry::correct_poses()
+{
+    if(cloud_key_pose_2d -> empty() || aLoopIsClosed == false)
+        return;
+    
+    int num_poses = isam_current_estimate.size();
+
+    for(int i = 0; i < num_poses; ++i){
+        cloud_key_pose_2d -> points[i].x = isam_current_estimate.at<gtsam::Pose3>(i).translation().x();
+        cloud_key_pose_2d -> points[i].y = isam_current_estimate.at<gtsam::Pose3>(i).translation().y();
+
+        keyframe_poses[i][0] = cloud_key_pose_2d -> points[i].x;
+        keyframe_poses[i][1] = cloud_key_pose_2d -> points[i].y;
+        keyframe_poses[i][2] = -isam_current_estimate.at<gtsam::Pose3>(i).rotation().yaw();
+    }
+
+    aLoopIsClosed = false;
     save_path(save_file_path);
 }
 
 void Odometry::save_path(const std::string save_file_path)
 {
-    std::fstream output(save_file_path.c_str(), std::ios::out | std::ios::app);
-    output << std::to_string(keyframe_timestamps.back()) << " " << 
-        std::to_string(keyframe_poses.back()[0]) << " " << 
-        std::to_string(keyframe_poses.back()[1]) << " " <<
-        std::to_string(keyframe_poses.back()[2]) << " " << std::endl;
+    // std::fstream output(save_file_path.c_str(), std::ios::out | std::ios::app);
+    // output << std::to_string(keyframe_timestamps.back()) << " " << 
+    //     std::to_string(keyframe_poses.back()[0]) << " " << 
+    //     std::to_string(keyframe_poses.back()[1]) << " " <<
+    //     std::to_string(keyframe_poses.back()[2]) << " " << std::endl;
+    std::fstream output(save_file_path.c_str(), std::ios::out);
+    for(size_t i = 0; i < keyframe_timestamps.size(); ++i){
+        output << std::to_string(keyframe_timestamps[i]) << " " << 
+        std::to_string(keyframe_poses[i][0]) << " " << 
+        std::to_string(keyframe_poses[i][1]) << " " <<
+        std::to_string(keyframe_poses[i][2]) << " " << std::endl;
+    }
     output.close();
 }
 
@@ -408,9 +496,9 @@ Vec3d Odometry::relative_to_absolute_pose(Vec3d pose)
     }
 }
 
-gtsam::Pose2 Odometry::vec_to_gtsam_pose(Vec3d pose)
+gtsam::Pose3 Odometry::vec_to_gtsam_pose(Vec3d pose)
 {
-    return gtsam::Pose2(gtsam::Rot2(pose[2]), gtsam::Point2(pose[0], pose[1]));
+    return gtsam::Pose3(gtsam::Rot3::RzRyRx(0, 0, -pose[2]), gtsam::Point3(pose[0], pose[1], 0));
 }
 
 Mat3d Odometry::pose_to_transformation(Vec3d pose)

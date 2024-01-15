@@ -14,8 +14,11 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Rot2.h>
+#include <gtsam/geometry/Pose3.h>
+#include <gtsam/geometry/Rot3.h>
 #include <gtsam/slam/PriorFactor.h>
 #include <gtsam/slam/BetweenFactor.h>
+#include <gtsam/navigation/GPSFactor.h>
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
 #include <gtsam/nonlinear/Marginals.h>
@@ -78,7 +81,7 @@ private:
     POINT transform_point(POINT point, Mat3d pose);
     CLOUD::Ptr transform_cloud(CLOUD::Ptr cloud, Mat3d T);
     Vec3d relative_to_absolute_pose(Vec3d pose);
-    gtsam::Pose2 vec_to_gtsam_pose(Vec3d pose);
+    gtsam::Pose3 vec_to_gtsam_pose(Vec3d pose);
 private:
     // gtsam
     gtsam::NonlinearFactorGraph gtsam_graph;
@@ -122,6 +125,9 @@ private:
     float grid_size;
     int least_point_num;
     std::string save_file_path;
+
+    bool aLoopIsClosed;
+    int last_keyframe_index;
 };
 
 } // namespace odometry

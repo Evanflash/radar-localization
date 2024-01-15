@@ -4,9 +4,9 @@
 #include "radar_utils.hpp"
 int main()
 {
-    std::vector<long long> timestamps = read_timestamp_file("/home/evan/extra/datasets/20190110-114621/radar_change.timestamps");
+    std::vector<long long> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar.timestamps");
     long long target = timestamps[0];
-    imu::IMUSensor imu_sensor("/home/evan/extra/datasets/20190110-114621/gps/ins.csv");
+    imu::IMUSensor imu_sensor("/home/evan/extra/datasets/large/gps/ins.csv");
     std::fstream output("/home/evan/code/radar-localization/test/result/imu.txt", std::ios::out);
     for(size_t i = 1; i < timestamps.size(); ++i){
         long long source = timestamps[i];

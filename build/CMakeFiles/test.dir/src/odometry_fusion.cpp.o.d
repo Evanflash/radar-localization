@@ -997,16 +997,23 @@ CMakeFiles/test.dir/src/odometry_fusion.cpp.o: \
  /usr/include/c++/11/bits/random.tcc /usr/include/c++/11/numeric \
  /usr/include/c++/11/bits/stl_numeric.h \
  /usr/include/c++/11/pstl/glue_numeric_defs.h \
- /usr/local/include/gtsam/slam/PriorFactor.h \
- /usr/local/include/gtsam/nonlinear/PriorFactor.h \
- /usr/local/include/gtsam/nonlinear/NonlinearFactor.h \
- /usr/local/include/gtsam/nonlinear/Values.h \
- /usr/local/include/gtsam/base/FastDefaultAllocator.h \
- /usr/include/tbb/tbb_allocator.h /usr/include/oneapi/tbb/tbb_allocator.h \
- /usr/include/oneapi/tbb/detail/_namespace_injection.h \
- /usr/local/include/gtsam/base/GenericValue.h \
- /usr/local/include/gtsam/base/Value.h \
- /usr/include/boost/serialization/assume_abstract.hpp \
+ /usr/local/include/gtsam/geometry/Pose3.h \
+ /usr/local/include/gtsam/geometry/Point3.h \
+ /usr/local/include/gtsam/base/VectorSerialization.h \
+ /usr/include/boost/serialization/array.hpp \
+ /usr/include/boost/serialization/array_wrapper.hpp \
+ /usr/include/boost/serialization/split_member.hpp \
+ /usr/include/boost/serialization/collection_size_type.hpp \
+ /usr/include/boost/serialization/is_bitwise_serializable.hpp \
+ /usr/include/boost/serialization/array_optimization.hpp \
+ /usr/local/include/gtsam/geometry/Rot3.h \
+ /usr/local/include/gtsam/geometry/Unit3.h /usr/include/c++/11/mutex \
+ /usr/include/c++/11/bits/unique_lock.h \
+ /usr/local/include/gtsam/geometry/Quaternion.h \
+ /usr/local/include/gtsam/base/concepts.h \
+ /usr/local/include/gtsam/geometry/SO3.h \
+ /usr/local/include/gtsam/geometry/SOn.h \
+ /usr/local/include/gtsam/base/make_shared.h \
  /usr/include/boost/make_shared.hpp \
  /usr/include/boost/smart_ptr/make_shared.hpp \
  /usr/include/boost/smart_ptr/make_shared_object.hpp \
@@ -1047,10 +1054,20 @@ CMakeFiles/test.dir/src/odometry_fusion.cpp.o: \
  /usr/include/boost/type_traits/extent.hpp \
  /usr/include/boost/type_traits/is_bounded_array.hpp \
  /usr/include/boost/type_traits/is_unbounded_array.hpp \
+ /usr/local/include/gtsam/geometry/SOn-inl.h \
+ /usr/local/include/gtsam/slam/PriorFactor.h \
+ /usr/local/include/gtsam/nonlinear/PriorFactor.h \
+ /usr/local/include/gtsam/nonlinear/NonlinearFactor.h \
+ /usr/local/include/gtsam/nonlinear/Values.h \
+ /usr/local/include/gtsam/base/FastDefaultAllocator.h \
+ /usr/include/tbb/tbb_allocator.h /usr/include/oneapi/tbb/tbb_allocator.h \
+ /usr/include/oneapi/tbb/detail/_namespace_injection.h \
+ /usr/local/include/gtsam/base/GenericValue.h \
+ /usr/local/include/gtsam/base/Value.h \
+ /usr/include/boost/serialization/assume_abstract.hpp \
  /usr/include/boost/pool/pool_alloc.hpp \
  /usr/include/boost/pool/poolfwd.hpp \
- /usr/include/boost/pool/detail/mutex.hpp /usr/include/c++/11/mutex \
- /usr/include/c++/11/bits/unique_lock.h \
+ /usr/include/boost/pool/detail/mutex.hpp \
  /usr/include/boost/pool/singleton_pool.hpp \
  /usr/include/boost/pool/pool.hpp \
  /usr/include/boost/integer/common_factor_ct.hpp \
@@ -1074,14 +1091,12 @@ CMakeFiles/test.dir/src/odometry_fusion.cpp.o: \
  /usr/include/boost/serialization/optional.hpp \
  /usr/include/boost/serialization/item_version_type.hpp \
  /usr/include/boost/integer_traits.hpp \
- /usr/include/boost/serialization/is_bitwise_serializable.hpp \
  /usr/include/boost/serialization/library_version_type.hpp \
  /usr/include/boost/serialization/detail/stack_constructor.hpp \
  /usr/include/boost/aligned_storage.hpp \
  /usr/include/boost/serialization/detail/is_default_constructible.hpp \
  /usr/include/boost/serialization/list.hpp \
  /usr/include/boost/serialization/collections_save_imp.hpp \
- /usr/include/boost/serialization/collection_size_type.hpp \
  /usr/include/boost/serialization/collections_load_imp.hpp \
  /usr/include/boost/serialization/collection_traits.hpp \
  /usr/local/include/gtsam/base/FastMap.h \
@@ -1201,10 +1216,6 @@ CMakeFiles/test.dir/src/odometry_fusion.cpp.o: \
  /usr/local/include/gtsam/inference/Factor.h \
  /usr/local/include/gtsam/base/VerticalBlockMatrix.h \
  /usr/local/include/gtsam/base/MatrixSerialization.h \
- /usr/include/boost/serialization/array.hpp \
- /usr/include/boost/serialization/array_wrapper.hpp \
- /usr/include/boost/serialization/split_member.hpp \
- /usr/include/boost/serialization/array_optimization.hpp \
  /usr/local/include/gtsam/inference/VariableSlots.h \
  /usr/local/include/gtsam/base/timing.h \
  /usr/include/boost/smart_ptr/weak_ptr.hpp \
@@ -1220,6 +1231,8 @@ CMakeFiles/test.dir/src/odometry_fusion.cpp.o: \
  /usr/include/boost/mp11/integer_sequence.hpp \
  /usr/include/boost/mp11/version.hpp \
  /usr/local/include/gtsam/slam/BetweenFactor.h \
+ /usr/local/include/gtsam/navigation/GPSFactor.h \
+ /usr/local/include/gtsam/navigation/NavState.h \
  /usr/local/include/gtsam/nonlinear/NonlinearFactorGraph.h \
  /usr/local/include/gtsam/nonlinear/GraphvizFormatting.h \
  /usr/local/include/gtsam/inference/DotWriter.h \

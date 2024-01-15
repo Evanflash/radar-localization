@@ -103,7 +103,7 @@ def getStats(err):
     return t_err, r_err
 
 if __name__ == "__main__":
-    result_name = "my_registration_try"
+    result_name = "my_registration_try_2"
     gt_name = 0
     keyframe = 0
     if gt_name:

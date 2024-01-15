@@ -4,7 +4,7 @@ import evaluation as evo
 
 
 if __name__ == '__main__':
-    first_file_name = "my_registration_try_2_2"
+    first_file_name = "my_registration_try_2"
     second_file_name = "my_registration_try"
     big_data = False
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar.timestamps")
@@ -25,12 +25,16 @@ if __name__ == '__main__':
 
     gt_pose = gt_pose[0 : len(timestamps) - 1]
 
+    route_my1 = []
+    for i in range(0, len(result1) - 1):
+        route_my1.append([result1[i][1], result1[i][2]])
+
     route_my2 = []
     for i in range(0, len(result2) - 1):
         route_my2.append([result2[i][1], result2[i][2]])
 
     route_gt = evaluate_utils.calculate_final_pose(gt_pose)
-    route_my1 = evaluate_utils.calculate_final_pose(result1)
+    # route_my1 = evaluate_utils.calculate_final_pose(result1)
     # route_my2 = evaluate_utils.calculate_final_pose(result2)
     route = [route_gt, route_my1, route_my2]
     evaluate_utils.show_route(route)
