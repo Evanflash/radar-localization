@@ -27,6 +27,9 @@ IMUSensor::IMUSensor(const std::string imu_data_file_path)
         y_coor += 0.02 * std::stof(strs[9]);
         this -> all_imu_data.push_back(imu_data(std::stoll(strs[0]), 
                                         x_coor, y_coor, std::stof(strs[14]) - M_PI / 2));
+        if(strs[1] == "INS_BAD_GPS_AGREEMENT"){
+            bad_gps_value.insert(std::stoll(strs[0]));
+        }
     }
 
     input_file.close();
@@ -54,6 +57,8 @@ Vec3d IMUSensor::get_imu_data_by_timestamp(ll timestamp)
     size_t i = 0;
     size_t j = all_imu_data.size() - 1;
     search(timestamp, i, j);
+    check_timestamp(all_imu_data[i].timestamp);
+    check_timestamp(all_imu_data[j].timestamp);
     // 时间点
     if(i == j){
         imu_data cur = all_imu_data[i];
@@ -84,6 +89,7 @@ Vec3d IMUSensor::get_relative_pose(Vec3d pre_pose_w, Vec3d nxt_pose_w)
     
 Vec3d IMUSensor::get_relative_pose(ll pre_time, ll nxt_time)
 {
+    bad_gps = false;
     Vec3d pre_pose_w = get_imu_data_by_timestamp(pre_time);
     Vec3d nxt_pose_w = get_imu_data_by_timestamp(nxt_time);
     return get_relative_pose(pre_pose_w, nxt_pose_w);
@@ -98,6 +104,11 @@ Mat3d IMUSensor::pose_to_transform(Vec3d pose)
         -sin_theta, cos_theta, pose[1],
         0, 0, 1;
     return T;
+}
+
+void IMUSensor::check_timestamp(ll timestamp)
+{
+    bad_gps = bad_gps || (bad_gps_value.find(timestamp) != bad_gps_value.end());
 }
 
 } // namespace imu

@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/test.dir/src/gps_sensor.cpp.o"
+  "CMakeFiles/test.dir/src/gps_sensor.cpp.o.d"
   "CMakeFiles/test.dir/src/imu_sensor.cpp.o"
   "CMakeFiles/test.dir/src/imu_sensor.cpp.o.d"
   "CMakeFiles/test.dir/src/odometry_fusion.cpp.o"

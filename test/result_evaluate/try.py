@@ -12,10 +12,26 @@ if __name__ == "__main__":
         delimiter=",",
         skiprows=1)
     result_raw = []
+    gps = []
+
     for row in data:
         result_raw.append([float(row[0]), float(row[10]), float(row[9]), float(row[14])])
-
+        gps.append([float(row[6]), float(row[5])])
     
+    theta = -result_raw[0][3] + np.pi / 2
+    cos_theta = np.cos(theta)
+    sin_theta = np.sin(theta)
+    for i in range(1, len(gps)):
+        gps[i][0] = gps[i][0] - gps[0][0]
+        gps[i][1] = gps[i][1] - gps[0][1]
+        x = cos_theta * gps[i][0] + sin_theta * gps[i][1]
+        y = -sin_theta * gps[i][0] + cos_theta * gps[i][1]
+        gps[i][0] = x
+        gps[i][1] = y
+    gps[0][0] = 0
+    gps[0][1] = 0
+    
+
     result_w = []
     cur_x = 0
     cur_y = 0
@@ -63,7 +79,7 @@ if __name__ == "__main__":
 
     route_gt = evaluate_utils.calculate_final_pose(gt_pose)
     route_ins = evaluate_utils.calculate_final_pose(result)
-    route = [route_gt, route_ins]
+    route = [route_gt, route_ins, gps]
     evaluate_utils.show_route(route)
 
     # f = open("/home/evan/code/radar-localization/test/result/ins.txt", "w")

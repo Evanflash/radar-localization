@@ -26,6 +26,7 @@ include_directories(
 set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/radar_sensor.cpp
     ${PROJECT_SOURCE_DIR}/src/imu_sensor.cpp
+    ${PROJECT_SOURCE_DIR}/src/gps_sensor.cpp
     ${PROJECT_SOURCE_DIR}/src/odometry_fusion.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
 )

@@ -60,7 +60,7 @@ def translationError(pose_error):
 
 def calcSequenceErrors(poses_gt, poses_res):
     err = []
-    step_size = 1 # Every second
+    step_size = 4 # Every second
     # Pre-compute distances from ground truth as reference
     dist = trajectoryDistances(poses_gt)
     print(dist[-1])
@@ -102,16 +102,17 @@ def getStats(err):
     r_err /= float(len(err))
     return t_err, r_err
 
+
 if __name__ == "__main__":
-    result_name = "my_registration_try_2"
-    gt_name = 0
+    result_name = "my_registration_0121"
+    gt_name = 1
     keyframe = 0
     if gt_name:
         gt_name = "20190110-114621"
     else:
         gt_name = "large"
 
-    timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/" + gt_name + "/radar.timestamps")
+    timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/" + gt_name + "/radar_change.timestamps")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/" + gt_name + "/gt/radar_odometry_change.csv")
     result = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + result_name + ".txt")
 
@@ -123,6 +124,8 @@ if __name__ == "__main__":
 
     poses_gt = []
     poses_res = []
+
+    timestamps.remove(timestamps[len(timestamps) - 1])
 
     if keyframe:
         # 所有帧都保存

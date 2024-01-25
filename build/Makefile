@@ -129,6 +129,30 @@ test/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
 .PHONY : test/fast
 
+src/gps_sensor.o: src/gps_sensor.cpp.o
+.PHONY : src/gps_sensor.o
+
+# target to build an object file
+src/gps_sensor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/gps_sensor.cpp.o
+.PHONY : src/gps_sensor.cpp.o
+
+src/gps_sensor.i: src/gps_sensor.cpp.i
+.PHONY : src/gps_sensor.i
+
+# target to preprocess a source file
+src/gps_sensor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/gps_sensor.cpp.i
+.PHONY : src/gps_sensor.cpp.i
+
+src/gps_sensor.s: src/gps_sensor.cpp.s
+.PHONY : src/gps_sensor.s
+
+# target to generate assembly for a file
+src/gps_sensor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/gps_sensor.cpp.s
+.PHONY : src/gps_sensor.cpp.s
+
 src/imu_sensor.o: src/imu_sensor.cpp.o
 .PHONY : src/imu_sensor.o
 
@@ -258,6 +282,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... test"
+	@echo "... src/gps_sensor.o"
+	@echo "... src/gps_sensor.i"
+	@echo "... src/gps_sensor.s"
 	@echo "... src/imu_sensor.o"
 	@echo "... src/imu_sensor.i"
 	@echo "... src/imu_sensor.s"

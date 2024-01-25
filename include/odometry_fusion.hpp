@@ -28,6 +28,7 @@
 
 #include "imu_sensor.hpp"
 #include "radar_sensor.hpp"
+#include "gps_sensor.hpp"
 #include "odometry_config.hpp"
 #include "radar_utils.hpp"
 
@@ -35,6 +36,7 @@ namespace odometry
 {
 
 using ll = long long;
+using Vec2d = Eigen::Vector2d;
 using Vec3d = Eigen::Vector3d;
 using Mat3d = Eigen::Matrix3d;
 using POINT = pcl::PointXYZI;
@@ -44,7 +46,7 @@ class Odometry
 {
 public:
     Odometry(const std::string radar_data_file_path, const std::string radar_timestamp_file_path,
-        const std::string imu_data_file_path);
+        const std::string imu_data_file_path, const std::string gps_data_file_path);
     ~Odometry();
 
     void laser_cloud_handler();
@@ -82,6 +84,8 @@ private:
     CLOUD::Ptr transform_cloud(CLOUD::Ptr cloud, Mat3d T);
     Vec3d relative_to_absolute_pose(Vec3d pose);
     gtsam::Pose3 vec_to_gtsam_pose(Vec3d pose);
+    Vec3d sum_pose(Vec3d absolute, Vec3d relative);
+    Vec3d sub_pose(Vec3d first, Vec3d second);
 private:
     // gtsam
     gtsam::NonlinearFactorGraph gtsam_graph;
@@ -89,12 +93,15 @@ private:
     gtsam::Values optimized_estimate;
     gtsam::ISAM2 *isam;
     gtsam::Values isam_current_estimate;
+    Eigen::MatrixXd poseCovariance;
     // 基本信息
     const std::string radar_file_path;
     std::vector<ll> timestamps;
     // 配置
     imu::IMUSensor imu_sensor;
     radar::RadarSensor radar_sensor;
+    gps::GPSSensor gps_sensor;
+
 
     // 全局关键帧
     CLOUD::Ptr cloud_key_pose_2d;
@@ -109,6 +116,7 @@ private:
     ll pre_timestamp;
     ll cur_timestamp;
     Vec3d cur_relative_pose; //当前帧与上一关键帧之间的相对位姿
+    Vec3d last_keyframe_pose;
 
     // 特征点及周围信息
     CLOUD::Ptr source_cloud;
@@ -125,6 +133,7 @@ private:
     float grid_size;
     int least_point_num;
     std::string save_file_path;
+    float poseCovThreshold;
 
     bool aLoopIsClosed;
     int last_keyframe_index;
