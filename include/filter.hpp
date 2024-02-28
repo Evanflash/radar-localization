@@ -46,4 +46,5 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr extract_flat_surf_points(
 std::vector<std::vector<pcl::PointXYZI>> divide_into_grid(
     pcl::PointCloud<pcl::PointXYZI>::Ptr source_cloud, float grid_size, int least_points_num);
 
+
 #endif // _RADAR_LOCALIZATION_FILTER

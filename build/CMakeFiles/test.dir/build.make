@@ -69,19 +69,19 @@ include CMakeFiles/test.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/test.dir/flags.make
 
-CMakeFiles/test.dir/test/test_odometry.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/test/test_odometry.cpp.o: ../test/test_odometry.cpp
-CMakeFiles/test.dir/test/test_odometry.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/test.dir/test/test_odometry.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/test/test_odometry.cpp.o -MF CMakeFiles/test.dir/test/test_odometry.cpp.o.d -o CMakeFiles/test.dir/test/test_odometry.cpp.o -c /home/evan/code/radar-localization/test/test_odometry.cpp
+CMakeFiles/test.dir/test/test_radar.cpp.o: CMakeFiles/test.dir/flags.make
+CMakeFiles/test.dir/test/test_radar.cpp.o: ../test/test_radar.cpp
+CMakeFiles/test.dir/test/test_radar.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/test.dir/test/test_radar.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/test/test_radar.cpp.o -MF CMakeFiles/test.dir/test/test_radar.cpp.o.d -o CMakeFiles/test.dir/test/test_radar.cpp.o -c /home/evan/code/radar-localization/test/test_radar.cpp
 
-CMakeFiles/test.dir/test/test_odometry.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/test/test_odometry.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/test/test_odometry.cpp > CMakeFiles/test.dir/test/test_odometry.cpp.i
+CMakeFiles/test.dir/test/test_radar.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/test/test_radar.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/test/test_radar.cpp > CMakeFiles/test.dir/test/test_radar.cpp.i
 
-CMakeFiles/test.dir/test/test_odometry.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/test/test_odometry.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/test/test_odometry.cpp -o CMakeFiles/test.dir/test/test_odometry.cpp.s
+CMakeFiles/test.dir/test/test_radar.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/test/test_radar.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/test/test_radar.cpp -o CMakeFiles/test.dir/test/test_radar.cpp.s
 
 CMakeFiles/test.dir/src/radar_sensor.cpp.o: CMakeFiles/test.dir/flags.make
 CMakeFiles/test.dir/src/radar_sensor.cpp.o: ../src/radar_sensor.cpp
@@ -97,80 +97,48 @@ CMakeFiles/test.dir/src/radar_sensor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/radar_sensor.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/radar_sensor.cpp -o CMakeFiles/test.dir/src/radar_sensor.cpp.s
 
-CMakeFiles/test.dir/src/imu_sensor.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/src/imu_sensor.cpp.o: ../src/imu_sensor.cpp
-CMakeFiles/test.dir/src/imu_sensor.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/test.dir/src/imu_sensor.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/imu_sensor.cpp.o -MF CMakeFiles/test.dir/src/imu_sensor.cpp.o.d -o CMakeFiles/test.dir/src/imu_sensor.cpp.o -c /home/evan/code/radar-localization/src/imu_sensor.cpp
+CMakeFiles/test.dir/src/normal_feature.cpp.o: CMakeFiles/test.dir/flags.make
+CMakeFiles/test.dir/src/normal_feature.cpp.o: ../src/normal_feature.cpp
+CMakeFiles/test.dir/src/normal_feature.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/test.dir/src/normal_feature.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/normal_feature.cpp.o -MF CMakeFiles/test.dir/src/normal_feature.cpp.o.d -o CMakeFiles/test.dir/src/normal_feature.cpp.o -c /home/evan/code/radar-localization/src/normal_feature.cpp
 
-CMakeFiles/test.dir/src/imu_sensor.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/imu_sensor.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/imu_sensor.cpp > CMakeFiles/test.dir/src/imu_sensor.cpp.i
+CMakeFiles/test.dir/src/normal_feature.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/normal_feature.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/normal_feature.cpp > CMakeFiles/test.dir/src/normal_feature.cpp.i
 
-CMakeFiles/test.dir/src/imu_sensor.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/imu_sensor.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/imu_sensor.cpp -o CMakeFiles/test.dir/src/imu_sensor.cpp.s
+CMakeFiles/test.dir/src/normal_feature.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/normal_feature.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/normal_feature.cpp -o CMakeFiles/test.dir/src/normal_feature.cpp.s
 
-CMakeFiles/test.dir/src/gps_sensor.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/src/gps_sensor.cpp.o: ../src/gps_sensor.cpp
-CMakeFiles/test.dir/src/gps_sensor.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/test.dir/src/gps_sensor.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/gps_sensor.cpp.o -MF CMakeFiles/test.dir/src/gps_sensor.cpp.o.d -o CMakeFiles/test.dir/src/gps_sensor.cpp.o -c /home/evan/code/radar-localization/src/gps_sensor.cpp
+CMakeFiles/test.dir/src/ceres_registration.cpp.o: CMakeFiles/test.dir/flags.make
+CMakeFiles/test.dir/src/ceres_registration.cpp.o: ../src/ceres_registration.cpp
+CMakeFiles/test.dir/src/ceres_registration.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/test.dir/src/ceres_registration.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/ceres_registration.cpp.o -MF CMakeFiles/test.dir/src/ceres_registration.cpp.o.d -o CMakeFiles/test.dir/src/ceres_registration.cpp.o -c /home/evan/code/radar-localization/src/ceres_registration.cpp
 
-CMakeFiles/test.dir/src/gps_sensor.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/gps_sensor.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/gps_sensor.cpp > CMakeFiles/test.dir/src/gps_sensor.cpp.i
+CMakeFiles/test.dir/src/ceres_registration.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/ceres_registration.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/ceres_registration.cpp > CMakeFiles/test.dir/src/ceres_registration.cpp.i
 
-CMakeFiles/test.dir/src/gps_sensor.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/gps_sensor.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/gps_sensor.cpp -o CMakeFiles/test.dir/src/gps_sensor.cpp.s
-
-CMakeFiles/test.dir/src/odometry_fusion.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/src/odometry_fusion.cpp.o: ../src/odometry_fusion.cpp
-CMakeFiles/test.dir/src/odometry_fusion.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/test.dir/src/odometry_fusion.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/odometry_fusion.cpp.o -MF CMakeFiles/test.dir/src/odometry_fusion.cpp.o.d -o CMakeFiles/test.dir/src/odometry_fusion.cpp.o -c /home/evan/code/radar-localization/src/odometry_fusion.cpp
-
-CMakeFiles/test.dir/src/odometry_fusion.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/odometry_fusion.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/odometry_fusion.cpp > CMakeFiles/test.dir/src/odometry_fusion.cpp.i
-
-CMakeFiles/test.dir/src/odometry_fusion.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/odometry_fusion.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/odometry_fusion.cpp -o CMakeFiles/test.dir/src/odometry_fusion.cpp.s
-
-CMakeFiles/test.dir/src/radar_utils.cpp.o: CMakeFiles/test.dir/flags.make
-CMakeFiles/test.dir/src/radar_utils.cpp.o: ../src/radar_utils.cpp
-CMakeFiles/test.dir/src/radar_utils.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/test.dir/src/radar_utils.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/radar_utils.cpp.o -MF CMakeFiles/test.dir/src/radar_utils.cpp.o.d -o CMakeFiles/test.dir/src/radar_utils.cpp.o -c /home/evan/code/radar-localization/src/radar_utils.cpp
-
-CMakeFiles/test.dir/src/radar_utils.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/radar_utils.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/radar_utils.cpp > CMakeFiles/test.dir/src/radar_utils.cpp.i
-
-CMakeFiles/test.dir/src/radar_utils.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/radar_utils.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/radar_utils.cpp -o CMakeFiles/test.dir/src/radar_utils.cpp.s
+CMakeFiles/test.dir/src/ceres_registration.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/ceres_registration.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/ceres_registration.cpp -o CMakeFiles/test.dir/src/ceres_registration.cpp.s
 
 # Object files for target test
 test_OBJECTS = \
-"CMakeFiles/test.dir/test/test_odometry.cpp.o" \
+"CMakeFiles/test.dir/test/test_radar.cpp.o" \
 "CMakeFiles/test.dir/src/radar_sensor.cpp.o" \
-"CMakeFiles/test.dir/src/imu_sensor.cpp.o" \
-"CMakeFiles/test.dir/src/gps_sensor.cpp.o" \
-"CMakeFiles/test.dir/src/odometry_fusion.cpp.o" \
-"CMakeFiles/test.dir/src/radar_utils.cpp.o"
+"CMakeFiles/test.dir/src/normal_feature.cpp.o" \
+"CMakeFiles/test.dir/src/ceres_registration.cpp.o"
 
 # External object files for target test
 test_EXTERNAL_OBJECTS =
 
-test: CMakeFiles/test.dir/test/test_odometry.cpp.o
+test: CMakeFiles/test.dir/test/test_radar.cpp.o
 test: CMakeFiles/test.dir/src/radar_sensor.cpp.o
-test: CMakeFiles/test.dir/src/imu_sensor.cpp.o
-test: CMakeFiles/test.dir/src/gps_sensor.cpp.o
-test: CMakeFiles/test.dir/src/odometry_fusion.cpp.o
-test: CMakeFiles/test.dir/src/radar_utils.cpp.o
+test: CMakeFiles/test.dir/src/normal_feature.cpp.o
+test: CMakeFiles/test.dir/src/ceres_registration.cpp.o
 test: CMakeFiles/test.dir/build.make
 test: /usr/lib/x86_64-linux-gnu/libpcl_apps.so
 test: /usr/lib/x86_64-linux-gnu/libpcl_outofcore.so
@@ -316,7 +284,7 @@ test: /usr/lib/x86_64-linux-gnu/libboost_timer.so.1.74.0
 test: /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.74.0
 test: /usr/local/lib/libmetis-gtsam.so
 test: CMakeFiles/test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -129,77 +129,53 @@ test/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
 .PHONY : test/fast
 
-src/gps_sensor.o: src/gps_sensor.cpp.o
-.PHONY : src/gps_sensor.o
+src/ceres_registration.o: src/ceres_registration.cpp.o
+.PHONY : src/ceres_registration.o
 
 # target to build an object file
-src/gps_sensor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/gps_sensor.cpp.o
-.PHONY : src/gps_sensor.cpp.o
+src/ceres_registration.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.o
+.PHONY : src/ceres_registration.cpp.o
 
-src/gps_sensor.i: src/gps_sensor.cpp.i
-.PHONY : src/gps_sensor.i
+src/ceres_registration.i: src/ceres_registration.cpp.i
+.PHONY : src/ceres_registration.i
 
 # target to preprocess a source file
-src/gps_sensor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/gps_sensor.cpp.i
-.PHONY : src/gps_sensor.cpp.i
+src/ceres_registration.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.i
+.PHONY : src/ceres_registration.cpp.i
 
-src/gps_sensor.s: src/gps_sensor.cpp.s
-.PHONY : src/gps_sensor.s
+src/ceres_registration.s: src/ceres_registration.cpp.s
+.PHONY : src/ceres_registration.s
 
 # target to generate assembly for a file
-src/gps_sensor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/gps_sensor.cpp.s
-.PHONY : src/gps_sensor.cpp.s
+src/ceres_registration.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.s
+.PHONY : src/ceres_registration.cpp.s
 
-src/imu_sensor.o: src/imu_sensor.cpp.o
-.PHONY : src/imu_sensor.o
+src/normal_feature.o: src/normal_feature.cpp.o
+.PHONY : src/normal_feature.o
 
 # target to build an object file
-src/imu_sensor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.o
-.PHONY : src/imu_sensor.cpp.o
+src/normal_feature.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/normal_feature.cpp.o
+.PHONY : src/normal_feature.cpp.o
 
-src/imu_sensor.i: src/imu_sensor.cpp.i
-.PHONY : src/imu_sensor.i
-
-# target to preprocess a source file
-src/imu_sensor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.i
-.PHONY : src/imu_sensor.cpp.i
-
-src/imu_sensor.s: src/imu_sensor.cpp.s
-.PHONY : src/imu_sensor.s
-
-# target to generate assembly for a file
-src/imu_sensor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.s
-.PHONY : src/imu_sensor.cpp.s
-
-src/odometry_fusion.o: src/odometry_fusion.cpp.o
-.PHONY : src/odometry_fusion.o
-
-# target to build an object file
-src/odometry_fusion.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/odometry_fusion.cpp.o
-.PHONY : src/odometry_fusion.cpp.o
-
-src/odometry_fusion.i: src/odometry_fusion.cpp.i
-.PHONY : src/odometry_fusion.i
+src/normal_feature.i: src/normal_feature.cpp.i
+.PHONY : src/normal_feature.i
 
 # target to preprocess a source file
-src/odometry_fusion.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/odometry_fusion.cpp.i
-.PHONY : src/odometry_fusion.cpp.i
+src/normal_feature.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/normal_feature.cpp.i
+.PHONY : src/normal_feature.cpp.i
 
-src/odometry_fusion.s: src/odometry_fusion.cpp.s
-.PHONY : src/odometry_fusion.s
+src/normal_feature.s: src/normal_feature.cpp.s
+.PHONY : src/normal_feature.s
 
 # target to generate assembly for a file
-src/odometry_fusion.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/odometry_fusion.cpp.s
-.PHONY : src/odometry_fusion.cpp.s
+src/normal_feature.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/normal_feature.cpp.s
+.PHONY : src/normal_feature.cpp.s
 
 src/radar_sensor.o: src/radar_sensor.cpp.o
 .PHONY : src/radar_sensor.o
@@ -225,53 +201,29 @@ src/radar_sensor.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_sensor.cpp.s
 .PHONY : src/radar_sensor.cpp.s
 
-src/radar_utils.o: src/radar_utils.cpp.o
-.PHONY : src/radar_utils.o
+test/test_radar.o: test/test_radar.cpp.o
+.PHONY : test/test_radar.o
 
 # target to build an object file
-src/radar_utils.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.o
-.PHONY : src/radar_utils.cpp.o
+test/test_radar.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_radar.cpp.o
+.PHONY : test/test_radar.cpp.o
 
-src/radar_utils.i: src/radar_utils.cpp.i
-.PHONY : src/radar_utils.i
-
-# target to preprocess a source file
-src/radar_utils.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.i
-.PHONY : src/radar_utils.cpp.i
-
-src/radar_utils.s: src/radar_utils.cpp.s
-.PHONY : src/radar_utils.s
-
-# target to generate assembly for a file
-src/radar_utils.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.s
-.PHONY : src/radar_utils.cpp.s
-
-test/test_odometry.o: test/test_odometry.cpp.o
-.PHONY : test/test_odometry.o
-
-# target to build an object file
-test/test_odometry.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_odometry.cpp.o
-.PHONY : test/test_odometry.cpp.o
-
-test/test_odometry.i: test/test_odometry.cpp.i
-.PHONY : test/test_odometry.i
+test/test_radar.i: test/test_radar.cpp.i
+.PHONY : test/test_radar.i
 
 # target to preprocess a source file
-test/test_odometry.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_odometry.cpp.i
-.PHONY : test/test_odometry.cpp.i
+test/test_radar.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_radar.cpp.i
+.PHONY : test/test_radar.cpp.i
 
-test/test_odometry.s: test/test_odometry.cpp.s
-.PHONY : test/test_odometry.s
+test/test_radar.s: test/test_radar.cpp.s
+.PHONY : test/test_radar.s
 
 # target to generate assembly for a file
-test/test_odometry.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_odometry.cpp.s
-.PHONY : test/test_odometry.cpp.s
+test/test_radar.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_radar.cpp.s
+.PHONY : test/test_radar.cpp.s
 
 # Help Target
 help:
@@ -282,24 +234,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... test"
-	@echo "... src/gps_sensor.o"
-	@echo "... src/gps_sensor.i"
-	@echo "... src/gps_sensor.s"
-	@echo "... src/imu_sensor.o"
-	@echo "... src/imu_sensor.i"
-	@echo "... src/imu_sensor.s"
-	@echo "... src/odometry_fusion.o"
-	@echo "... src/odometry_fusion.i"
-	@echo "... src/odometry_fusion.s"
+	@echo "... src/ceres_registration.o"
+	@echo "... src/ceres_registration.i"
+	@echo "... src/ceres_registration.s"
+	@echo "... src/normal_feature.o"
+	@echo "... src/normal_feature.i"
+	@echo "... src/normal_feature.s"
 	@echo "... src/radar_sensor.o"
 	@echo "... src/radar_sensor.i"
 	@echo "... src/radar_sensor.s"
-	@echo "... src/radar_utils.o"
-	@echo "... src/radar_utils.i"
-	@echo "... src/radar_utils.s"
-	@echo "... test/test_odometry.o"
-	@echo "... test/test_odometry.i"
-	@echo "... test/test_odometry.s"
+	@echo "... test/test_radar.o"
+	@echo "... test/test_radar.i"
+	@echo "... test/test_radar.s"
 .PHONY : help
 
 

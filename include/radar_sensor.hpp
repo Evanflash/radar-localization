@@ -34,6 +34,7 @@ public:
     RadarSensor(const std::string radar_file_path, ll timestamp);
     void update_radar_data(const std::string radar_file_path, ll timestamp);
     void k_strongest_filter(int k);
+    void scan_denoise(int range, float sigma);
     void motion_compensation(Vec3d relative_pose);
     CLOUD::Ptr get_radar_point_cloud(model md);
 

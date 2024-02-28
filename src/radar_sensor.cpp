@@ -62,6 +62,49 @@ void RadarSensor::k_strongest_filter(int k)
     }
 }
 
+void RadarSensor::scan_denoise(int range, float sigma)
+{
+    std::vector<std::vector<cv::Point2f>> t(fft_data.rows);
+    for(int i = 0; i < fft_data.rows; ++i){
+        int index = 0;
+        float value = 0;
+        float mean = 0;
+        for(int j = 0; j < fft_data.cols; ++j){
+            mean += fft_data.at<float>(i, j);
+            if(value < fft_data.at<float>(i, j))
+            {
+                index = j;
+                value = fft_data.at<float>(i, j);
+            }   
+        }
+        mean /= fft_data.cols;
+        for(int ind = index; ind >= index - range && ind >= 0; --ind)
+        {
+            if(fft_data.at<float>(i, ind) > sigma * mean)
+                t[i].push_back(cv::Point2f(i, ind));
+        }
+        for(int ind = index + 1; ind <= index + range && ind < fft_data.cols; ++ind)
+        {
+            if(fft_data.at<float>(i, ind) > sigma * mean)
+                t[i].push_back(cv::Point2f(i, ind));
+        }
+    }
+
+    int size = 0;
+    for (uint i = 0; i < t.size(); ++i) {
+        size += t[i].size();
+    }
+    targets = Eigen::MatrixXd::Ones(3, size);
+    int u = 0;
+    for (uint i = 0; i < t.size(); ++i) {
+        for (uint j = 0; j < t[i].size(); ++j) {
+            targets(0, u) = t[i][j].x;
+            targets(1, u) = t[i][j].y;
+            u++;
+        }
+    }
+}
+
 void RadarSensor::motion_compensation(Vec3d relative_pose)
 {
     motion.resize(fft_data.rows, Mat3d::Zero());

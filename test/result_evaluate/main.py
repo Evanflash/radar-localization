@@ -4,10 +4,10 @@ import evaluation as evo
 
 
 if __name__ == '__main__':
-    first_file_name = "my_registration_0121"
+    first_file_name = "my_registration_denoise_5_7"
     second_file_name = "gps"
     big_data = True
-    timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar.timestamps")
+    timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar_change.timestamps")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/large/gt/radar_odometry_change.csv")
     gt_pose1 = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/20190110-114621/gt/radar_odometry_change.csv")
     result1 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + first_file_name + ".txt")

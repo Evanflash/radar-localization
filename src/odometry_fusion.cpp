@@ -25,17 +25,17 @@ Odometry::Odometry(const std::string radar_data_file_path, const std::string rad
     k = 12;
     keyframes_search_radius = 10;
     save_keyframes_time_length = 1000000;
-    save_keyframes_pose_dis = 1.5;
+    save_keyframes_pose_dis = 1;
     save_keyframes_pose_yaw = 0.05;
     neighbor_num = 5;
     iterations = 10;
     grid_size = 2;
     least_point_num = 5;
-    save_file_path = "/home/evan/code/radar-localization/test/result/my_registration_0122.txt";
+    save_file_path = "/home/evan/code/radar-localization/test/result/my_registration_denoise_5_7.txt";
 
     aLoopIsClosed = false;
     last_keyframe_index = 0;
-    poseCovThreshold = 25;
+    poseCovThreshold = 16;
 }
 
 Odometry::~Odometry()
@@ -45,12 +45,13 @@ Odometry::~Odometry()
 
 void Odometry::laser_cloud_handler()
 {
-    Vec3d last_relative_pose(0, 0, 0);
+    Vec3d last_relative_pose(2.4, 0, 0);
     for(size_t i = 0; i < timestamps.size(); ++i){
         if(i <= 0){
             cur_timestamp = timestamps[i];
             radar_sensor.update_radar_data(radar_file_path, cur_timestamp);
-            radar_sensor.k_strongest_filter(k);
+            // radar_sensor.k_strongest_filter(k);
+            radar_sensor.scan_denoise(5, 7);
             source_cloud = radar_sensor.get_radar_point_cloud(radar::motion);
             cur_relative_pose = Vec3d::Zero();
             last_keyframe_pose = Vec3d::Zero();
@@ -59,13 +60,15 @@ void Odometry::laser_cloud_handler()
             cur_timestamp = timestamps[i];
             radar_sensor.update_radar_data(radar_file_path, cur_timestamp);
             Vec3d init_pose = obtain_relative_pose(pre_timestamp, cur_timestamp);
-            radar_sensor.k_strongest_filter(k);
-            // radar_sensor.motion_compensation(init_pose);
-            radar_sensor.motion_compensation(last_relative_pose);
+            // 滤波方案
+            // radar_sensor.k_strongest_filter(k);
+            radar_sensor.scan_denoise(5, 7);
+            radar_sensor.motion_compensation(init_pose);
+            // radar_sensor.motion_compensation(last_relative_pose);
             source_cloud = radar_sensor.get_radar_point_cloud(radar::motion);
             
-            cur_relative_pose = sum_pose(last_keyframe_pose, last_relative_pose);
-            // cur_relative_pose = obtain_relative_pose(keyframe_timestamps.back(), cur_timestamp);    
+            // cur_relative_pose = sum_pose(last_keyframe_pose, last_relative_pose);
+            cur_relative_pose = obtain_relative_pose(keyframe_timestamps.back(), cur_timestamp);    
             // std::cout << "-----------------------" << std::endl;
             // std::cout << "init" << std::endl;
             // std::cout << cur_relative_pose[0] << " " << cur_relative_pose[1] << " " <<
@@ -109,37 +112,37 @@ Vec3d Odometry::obtain_relative_pose(ll pre_timestamp, ll nxt_timestamp)
 void Odometry::extract_surrounding_keyframes()
 {
     // 时间方面最近值
-    // Mat3d base_transformation = pose_to_transformation(keyframe_poses.back());
-    // base_transformation = base_transformation.inverse().eval();
-    // surrounding_keyframe_clouds.clear();
-    // int size = keyframe_poses.size();
-    // for(int i = size - 1; i > size - 3 && i >= 0; --i){
-    //     Mat3d cur_T = base_transformation * pose_to_transformation(keyframe_poses[i]);
-    //     surrounding_keyframe_clouds.push_back(transform_cloud(keyframe_clouds[i], cur_T));
-    // }
-
-
-    std::vector<int> point_search_ind;
-    std::vector<float> point_search_dis;
-    // // create kd-tree
-    pcl::KdTreeFLANN<POINT>::Ptr kd_tree(new pcl::KdTreeFLANN<POINT>());
-    kd_tree -> setInputCloud(cloud_key_pose_2d);
-    Vec3d absolute_pose = sum_pose(keyframe_poses.back(), cur_relative_pose);
-    POINT init_pose(absolute_pose[0], absolute_pose[1], 0);
-    kd_tree -> radiusSearch(init_pose, keyframes_search_radius,
-        point_search_ind, point_search_dis);
-
-    surrounding_keyframe_clouds.clear();
     Mat3d base_transformation = pose_to_transformation(keyframe_poses.back());
     base_transformation = base_transformation.inverse().eval();
-
-    CLOUD::Ptr show(new CLOUD());
-    for(auto ind : point_search_ind){
-        Mat3d cur_T = base_transformation * pose_to_transformation(keyframe_poses[ind]);
-        // Mat3d cur_T = pose_to_transformation(keyframe_poses[ind] - keyframe_poses.back());
-        surrounding_keyframe_clouds.push_back(transform_cloud(keyframe_clouds[ind], cur_T));
-        *show += *surrounding_keyframe_clouds.back();
+    surrounding_keyframe_clouds.clear();
+    int size = keyframe_poses.size();
+    for(int i = size - 1; i > size - 3 && i >= 0; --i){
+        Mat3d cur_T = base_transformation * pose_to_transformation(keyframe_poses[i]);
+        surrounding_keyframe_clouds.push_back(transform_cloud(keyframe_clouds[i], cur_T));
     }
+
+
+    // std::vector<int> point_search_ind;
+    // std::vector<float> point_search_dis;
+    // // // create kd-tree
+    // pcl::KdTreeFLANN<POINT>::Ptr kd_tree(new pcl::KdTreeFLANN<POINT>());
+    // kd_tree -> setInputCloud(cloud_key_pose_2d);
+    // Vec3d absolute_pose = sum_pose(keyframe_poses.back(), cur_relative_pose);
+    // POINT init_pose(absolute_pose[0], absolute_pose[1], 0);
+    // kd_tree -> radiusSearch(init_pose, keyframes_search_radius,
+    //     point_search_ind, point_search_dis);
+
+    // surrounding_keyframe_clouds.clear();
+    // Mat3d base_transformation = pose_to_transformation(keyframe_poses.back());
+    // base_transformation = base_transformation.inverse().eval();
+
+    // CLOUD::Ptr show(new CLOUD());
+    // for(auto ind : point_search_ind){
+    //     Mat3d cur_T = base_transformation * pose_to_transformation(keyframe_poses[ind]);
+    //     // Mat3d cur_T = pose_to_transformation(keyframe_poses[ind] - keyframe_poses.back());
+    //     surrounding_keyframe_clouds.push_back(transform_cloud(keyframe_clouds[ind], cur_T));
+    //     *show += *surrounding_keyframe_clouds.back();
+    // }
     // std::cout << surrounding_keyframe_clouds.size() << std::endl;
     // cv::Mat n_image = pointcloud_to_cartesian_points(show, 800, 800, 0.2);
     // cv::Mat m_image = pointcloud_to_cartesian_points(source_cloud, 800, 800, 0.2);
@@ -362,7 +365,7 @@ void Odometry::add_odom_factor()
         initial_estimate.insert(0, vec_to_gtsam_pose(relative_to_absolute_pose(cur_relative_pose)));
     }else{
         gtsam::noiseModel::Diagonal::shared_ptr odom_noise = 
-            gtsam::noiseModel::Diagonal::Variances((gtsam::Vector(6) << 1e-8, 1e-8, 1e-6, 1e-4, 1e-4, 1e-8).finished());
+            gtsam::noiseModel::Diagonal::Variances((gtsam::Vector(6) << 1e-8, 1e-8, 1e-4, 1e-2, 1e-2, 1e-8).finished());
         gtsam::Pose3 pose_from = vec_to_gtsam_pose(keyframe_poses.back());
         gtsam::Pose3 pose_to = vec_to_gtsam_pose(relative_to_absolute_pose(cur_relative_pose));
         gtsam_graph.add(gtsam::BetweenFactor<gtsam::Pose3>(
