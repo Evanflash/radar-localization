@@ -1,5 +1,6 @@
 #include "radar_sensor.hpp"
 #include "radar_utils.hpp"
+#include "filter.hpp"
 
 #include <iostream>
 #include <string>
@@ -331,17 +332,24 @@ void test5()
 // 测试ceres配准函数
 void test6()
 {
-    string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131051108813.png";
-    CloudTypePtr source_cloud = scan_denoise(radar_file_path1, 1, 5);
+    // string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
+    // CloudTypePtr source_cloud = scan_denoise(radar_file_path1, 1, 5);
 
-    string radar_file_path2 = "/home/evan/code/radar-localization/test/1547131050856549.png";
-    CloudTypePtr target_cloud = scan_denoise(radar_file_path2, 1, 5);
+    // string radar_file_path2 = "/home/evan/code/radar-localization/test/1547131046353776.png";
+    // CloudTypePtr target_cloud = scan_denoise(radar_file_path2, 1, 5);
+
+    radar_data target_rd;
+    radar_data_split("/home/evan/extra/datasets/large/radar", "1547131046353776", target_rd);
+    CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
+    radar_data source_rd;
+    radar_data_split("/home/evan/extra/datasets/large/radar", "1547131046606586", source_rd);
+    CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
 
     cv::Mat image = pointcloud_to_cartesian_points(source_cloud, 800, 800, 0.2);
     cv::imshow("", image);
     cv::waitKey(0);
 
-    vector<double> result = P2PRegisterTest(target_cloud, source_cloud);
+    vector<double> result = P2PRegisterTest(target_cloud, source_cloud, vector<double>{0, 0, 0});
 
     cout << "x = " << result[0] << ", y = " << result[1] << ", yaw = " << result[2] << endl;
 }
@@ -354,6 +362,7 @@ void test7()
     vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
     ll pre_timestamps = 0;
     ll cur_timestamps = 0;
+    vector<double> pre_result = vector<double>{0, 0, 0};
     for(uint i = 0; i < timestamps.size(); ++i)
     {
         cur_timestamps = timestamps[i];
@@ -361,11 +370,18 @@ void test7()
         {
             // scan denoise
             string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
-            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 5);
+            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 2);
             string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
-            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 5);
-            vector<double> result = P2PRegisterTest(target_cloud, source_cloud);
+            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 2);
+            // radar_data target_rd;
+            // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+            // CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
+            // radar_data source_rd;
+            // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+            // CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
+            vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result);
             output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << endl;
+            pre_result = result;
         }
         pre_timestamps = cur_timestamps;
     }

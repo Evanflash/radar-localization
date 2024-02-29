@@ -18,7 +18,7 @@ using PointType = pcl::PointXYZI;
 using CloudType = pcl::PointCloud<pcl::PointXYZI>;
 using CloudTypePtr = pcl::PointCloud<pcl::PointXYZI>::Ptr;
 
-std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources);
+std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, std::vector<double> init_pose);
 
 class RegistrationCost
 {
@@ -32,8 +32,8 @@ protected:
         const T cos_yaw = ceres::cos(par[2]);
         const T sin_yaw = ceres::sin(par[2]);
         Eigen::Matrix<T, 2, 2> rot;
-        rot << cos_yaw, -sin_yaw,
-               sin_yaw, cos_yaw;
+        rot << cos_yaw, sin_yaw,
+               -sin_yaw, cos_yaw;
         return rot;
     }
     // 生成平移矩阵

@@ -22,6 +22,7 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/normal_feature.cpp
     ${PROJECT_SOURCE_DIR}/src/ceres_registration.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
+    ${PROJECT_SOURCE_DIR}/src/filter.cpp
 )
 
 # set(SRC_LIST

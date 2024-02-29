@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/test.dir/src/ceres_registration.cpp.o"
   "CMakeFiles/test.dir/src/ceres_registration.cpp.o.d"
+  "CMakeFiles/test.dir/src/filter.cpp.o"
+  "CMakeFiles/test.dir/src/filter.cpp.o.d"
   "CMakeFiles/test.dir/src/normal_feature.cpp.o"
   "CMakeFiles/test.dir/src/normal_feature.cpp.o.d"
   "CMakeFiles/test.dir/src/radar_sensor.cpp.o"

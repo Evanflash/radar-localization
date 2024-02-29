@@ -89,7 +89,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr k_strongest_filter(radar_data &rd, int k, f
         while(!pri_que.empty()){
             if(fft_data.at<float>(i, pri_que.top()) > least_power){
                 float distance = (pri_que.top() + 0.5) * 0.0438;
-                result_cloud -> push_back(pcl::PointXYZI(distance * sin_theta, distance * cos_theta, 
+                result_cloud -> push_back(pcl::PointXYZI(distance * cos_theta, -distance * sin_theta, 
                     0, fft_data.at<float>(i, pri_que.top())));
             }
             pri_que.pop();

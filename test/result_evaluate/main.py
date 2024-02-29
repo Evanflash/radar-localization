@@ -4,8 +4,8 @@ import evaluation as evo
 
 
 if __name__ == '__main__':
-    first_file_name = "ceres_registration"
-    second_file_name = "gps"
+    first_file_name = "ceres_registration_1_4"
+    second_file_name = "ceres_registration_2_4"
     big_data = False
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar_change.timestamps")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/large/gt/radar_odometry_change.csv")
@@ -18,8 +18,8 @@ if __name__ == '__main__':
     #     for ind in range(len(result2), len(result1) - 1):
     #         result2.append(result1[ind])
 
-    for i in range(0, len(result1) - 1):
-        result1[i][3] = -result1[i][3]
+    # for i in range(0, len(result1) - 1):
+    #     result1[i][3] = -result1[i][3]
 
     # evo.calculate_seq_err(gt_pose1, result2, 100)
     # print(evaluate_utils.gt_long(gt_pose1))
@@ -30,14 +30,14 @@ if __name__ == '__main__':
     # for i in range(0, len(result1) - 1):
     #     route_my1.append([result1[i][1], result1[i][2]])
 
-    route_my2 = []
-    for i in range(0, len(result2) - 1):
-        route_my2.append([result2[i][1], result2[i][2]])
+    # route_my2 = []
+    # for i in range(0, len(result2) - 1):
+    #     route_my2.append([result2[i][1], result2[i][2]])
 
     route_gt = evaluate_utils.calculate_final_pose(gt_pose)
     route_my1 = evaluate_utils.calculate_final_pose(result1)
-    # route_my2 = evaluate_utils.calculate_final_pose(result2)
-    route = [route_gt, route_my1]
+    route_my2 = evaluate_utils.calculate_final_pose(result2)
+    route = [route_gt, route_my1, route_my2]
     evaluate_utils.show_route(route)
 
     # 矩阵相乘计算误差
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         drift1 = evaluate_utils.calculate_drift(gt_pose, result1)
         drift2 = evaluate_utils.calculate_drift(gt_pose, result2)
     
-    # print("------------------" + first_file_name + "--------------------------")
+    print("------------------" + first_file_name + "--------------------------")
     print(str(evaluate_utils.get_average(ex1)) + " " + 
         str(evaluate_utils.get_average(ey1)) + " " + str(evaluate_utils.get_average(exy21)) + 
         " " + str(evaluate_utils.get_average(eyaw1)) + " " + str(drift1))
@@ -67,20 +67,20 @@ if __name__ == '__main__':
     evaluate_utils.calculate_percentage(exy21, 0.8)
     evaluate_utils.calculate_percentage(exy21, 0.9)
     evaluate_utils.calculate_percentage(exy21, 1)
-    # print("------------------" + second_file_name + "--------------------------")
-    # print(str(evaluate_utils.get_average(ex2)) + " " + 
-    #     str(evaluate_utils.get_average(ey2)) + " " + str(evaluate_utils.get_average(exy22)) + 
-    #     " " + str(evaluate_utils.get_average(eyaw2)) + " " + str(drift2))
-    # evaluate_utils.calculate_percentage(exy22, 0.1)
-    # evaluate_utils.calculate_percentage(exy22, 0.2)
-    # evaluate_utils.calculate_percentage(exy22, 0.3)
-    # evaluate_utils.calculate_percentage(exy22, 0.4)
-    # evaluate_utils.calculate_percentage(exy22, 0.5)
-    # evaluate_utils.calculate_percentage(exy22, 0.6)
-    # evaluate_utils.calculate_percentage(exy22, 0.7)
-    # evaluate_utils.calculate_percentage(exy22, 0.8)
-    # evaluate_utils.calculate_percentage(exy22, 0.9)
-    # evaluate_utils.calculate_percentage(exy22, 1)
+    print("------------------" + second_file_name + "--------------------------")
+    print(str(evaluate_utils.get_average(ex2)) + " " + 
+        str(evaluate_utils.get_average(ey2)) + " " + str(evaluate_utils.get_average(exy22)) + 
+        " " + str(evaluate_utils.get_average(eyaw2)) + " " + str(drift2))
+    evaluate_utils.calculate_percentage(exy22, 0.1)
+    evaluate_utils.calculate_percentage(exy22, 0.2)
+    evaluate_utils.calculate_percentage(exy22, 0.3)
+    evaluate_utils.calculate_percentage(exy22, 0.4)
+    evaluate_utils.calculate_percentage(exy22, 0.5)
+    evaluate_utils.calculate_percentage(exy22, 0.6)
+    evaluate_utils.calculate_percentage(exy22, 0.7)
+    evaluate_utils.calculate_percentage(exy22, 0.8)
+    evaluate_utils.calculate_percentage(exy22, 0.9)
+    evaluate_utils.calculate_percentage(exy22, 1)
     # evaluate_utils.print_result_compare(ex1, first_file_name, ex2, second_file_name, 1, "x")
     # evaluate_utils.print_result_compare(ey1, first_file_name, ey2, second_file_name, 2, "y")
     # evaluate_utils.print_result_compare(eyaw1, first_file_name, eyaw2, second_file_name, 3, "yaw")

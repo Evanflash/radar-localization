@@ -9,12 +9,13 @@
 #include "normal_feature.hpp"
 #include "radar_utils.hpp"
 
-vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources)
+vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vector<double> init_pose)
 {
-    MapFeatures targets_map = MapFeatures(targets, 3, 4);
-    MapFeatures sources_map = MapFeatures(sources, 3, 4);
+    MapFeatures targets_map = MapFeatures(targets, 1, 4);
+    MapFeatures sources_map = MapFeatures(sources, 1, 4);
 
-    vector<double> parameters = vector<double>{0, 0, 0};
+    // vector<double> parameters = vector<double>{0, 0, 0};
+    vector<double> parameters = init_pose;
     vector<double> target_para = vector<double>{0, 0, 0};
 
     double pre_score = 0;
@@ -39,8 +40,8 @@ vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources)
             double cos_yaw = cos(parameters[2]);
 
             Eigen::Matrix3d T;
-            T << cos_yaw, -sin_yaw, parameters[0],
-                sin_yaw, cos_yaw, parameters[1],
+            T << cos_yaw, sin_yaw, parameters[0],
+                -sin_yaw, cos_yaw, parameters[1],
                 0, 0, 1;
 
             GridFeatures s = sources_map.GetGrid(i);

@@ -153,6 +153,30 @@ src/ceres_registration.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.s
 .PHONY : src/ceres_registration.cpp.s
 
+src/filter.o: src/filter.cpp.o
+.PHONY : src/filter.o
+
+# target to build an object file
+src/filter.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.o
+.PHONY : src/filter.cpp.o
+
+src/filter.i: src/filter.cpp.i
+.PHONY : src/filter.i
+
+# target to preprocess a source file
+src/filter.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.i
+.PHONY : src/filter.cpp.i
+
+src/filter.s: src/filter.cpp.s
+.PHONY : src/filter.s
+
+# target to generate assembly for a file
+src/filter.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.s
+.PHONY : src/filter.cpp.s
+
 src/normal_feature.o: src/normal_feature.cpp.o
 .PHONY : src/normal_feature.o
 
@@ -261,6 +285,9 @@ help:
 	@echo "... src/ceres_registration.o"
 	@echo "... src/ceres_registration.i"
 	@echo "... src/ceres_registration.s"
+	@echo "... src/filter.o"
+	@echo "... src/filter.i"
+	@echo "... src/filter.s"
 	@echo "... src/normal_feature.o"
 	@echo "... src/normal_feature.i"
 	@echo "... src/normal_feature.s"
