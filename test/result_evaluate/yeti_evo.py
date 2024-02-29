@@ -104,9 +104,9 @@ def getStats(err):
 
 
 if __name__ == "__main__":
-    result_name = "my_registration_denoise_5_7"
-    gt_name = 1
-    keyframe = 0
+    result_name = "ceres_registration"
+    gt_name = 0
+    keyframe = 1
     if gt_name:
         gt_name = "20190110-114621"
     else:

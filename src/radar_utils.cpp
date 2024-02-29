@@ -165,3 +165,25 @@ v_pose find_cloest_pose(std::vector<v_pose> &gt_pose, long long timestamp)
     }
     return pose;
 }
+
+cv::Mat pointcloud_to_arrow_image(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, 
+    int rows, int cols, float resolution)
+{
+    cv::Mat result = cv::Mat::zeros(rows, cols, CV_8U);
+    int dx = rows / 2;
+    int dy = cols / 2;
+    for(uint i = 0; i < point_cloud -> size(); ++i){
+        int x_ind = point_cloud -> points[i].x / resolution + dx;
+        int y_ind = point_cloud -> points[i].y / resolution + dy;
+        if(x_ind < 0 || x_ind >= rows || y_ind < 0 || y_ind >= cols) continue;
+        result.at<uchar>(x_ind, y_ind) = (uchar)(255);
+
+        int x_ind_end = (point_cloud -> points[i].x + 5 * point_cloud -> points[i].z) / resolution + dx;
+        int y_ind_end = (point_cloud -> points[i].y + 5 * point_cloud -> points[i].intensity) / resolution + dy;
+        if(x_ind_end < 0 || x_ind_end >= rows || y_ind_end < 0 || y_ind_end >= cols) continue;
+
+        cv::arrowedLine(result, cv::Point(y_ind, x_ind), cv::Point(y_ind_end, x_ind_end),
+            cv::Scalar(255), 1, 8, 0, 0.1);
+    }
+    return result;
+}

@@ -21,6 +21,7 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/radar_sensor.cpp
     ${PROJECT_SOURCE_DIR}/src/normal_feature.cpp
     ${PROJECT_SOURCE_DIR}/src/ceres_registration.cpp
+    ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
 )
 
 # set(SRC_LIST
@@ -43,5 +44,6 @@ add_executable(test test/test_radar.cpp ${SRC_LIST})
 target_link_libraries(test
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
+    ${CERES_LIBRARIES}
     gtsam
 )

@@ -125,12 +125,27 @@ CMakeFiles/test.dir/src/ceres_registration.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/ceres_registration.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/ceres_registration.cpp -o CMakeFiles/test.dir/src/ceres_registration.cpp.s
 
+CMakeFiles/test.dir/src/radar_utils.cpp.o: CMakeFiles/test.dir/flags.make
+CMakeFiles/test.dir/src/radar_utils.cpp.o: ../src/radar_utils.cpp
+CMakeFiles/test.dir/src/radar_utils.cpp.o: CMakeFiles/test.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/test.dir/src/radar_utils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test.dir/src/radar_utils.cpp.o -MF CMakeFiles/test.dir/src/radar_utils.cpp.o.d -o CMakeFiles/test.dir/src/radar_utils.cpp.o -c /home/evan/code/radar-localization/src/radar_utils.cpp
+
+CMakeFiles/test.dir/src/radar_utils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/test.dir/src/radar_utils.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/evan/code/radar-localization/src/radar_utils.cpp > CMakeFiles/test.dir/src/radar_utils.cpp.i
+
+CMakeFiles/test.dir/src/radar_utils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/test.dir/src/radar_utils.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/evan/code/radar-localization/src/radar_utils.cpp -o CMakeFiles/test.dir/src/radar_utils.cpp.s
+
 # Object files for target test
 test_OBJECTS = \
 "CMakeFiles/test.dir/test/test_radar.cpp.o" \
 "CMakeFiles/test.dir/src/radar_sensor.cpp.o" \
 "CMakeFiles/test.dir/src/normal_feature.cpp.o" \
-"CMakeFiles/test.dir/src/ceres_registration.cpp.o"
+"CMakeFiles/test.dir/src/ceres_registration.cpp.o" \
+"CMakeFiles/test.dir/src/radar_utils.cpp.o"
 
 # External object files for target test
 test_EXTERNAL_OBJECTS =
@@ -139,6 +154,7 @@ test: CMakeFiles/test.dir/test/test_radar.cpp.o
 test: CMakeFiles/test.dir/src/radar_sensor.cpp.o
 test: CMakeFiles/test.dir/src/normal_feature.cpp.o
 test: CMakeFiles/test.dir/src/ceres_registration.cpp.o
+test: CMakeFiles/test.dir/src/radar_utils.cpp.o
 test: CMakeFiles/test.dir/build.make
 test: /usr/lib/x86_64-linux-gnu/libpcl_apps.so
 test: /usr/lib/x86_64-linux-gnu/libpcl_outofcore.so
@@ -183,6 +199,7 @@ test: /usr/lib/x86_64-linux-gnu/libopencv_viz.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_wechat_qrcode.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_xobjdetect.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_xphoto.so.4.5.4d
+test: /usr/local/lib/libceres.a
 test: /usr/local/lib/libgtsam.so.4.2.0
 test: /usr/lib/x86_64-linux-gnu/libpcl_surface.so
 test: /usr/lib/x86_64-linux-gnu/libpcl_keypoints.so
@@ -258,7 +275,6 @@ test: /usr/lib/x86_64-linux-gnu/libvtkCommonTransforms-9.1.so.9.1.0
 test: /usr/lib/x86_64-linux-gnu/libvtkCommonMath-9.1.so.9.1.0
 test: /usr/lib/x86_64-linux-gnu/libvtkkissfft-9.1.so.9.1.0
 test: /usr/lib/x86_64-linux-gnu/libvtkCommonCore-9.1.so.9.1.0
-test: /usr/lib/x86_64-linux-gnu/libtbb.so.12.5
 test: /usr/lib/x86_64-linux-gnu/libvtksys-9.1.so.9.1.0
 test: /usr/lib/x86_64-linux-gnu/libopencv_optflow.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_ximgproc.so.4.5.4d
@@ -273,6 +289,19 @@ test: /usr/lib/x86_64-linux-gnu/libopencv_flann.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.5.4d
 test: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.5.4d
+test: /usr/lib/x86_64-linux-gnu/libglog.so.0.4.0
+test: /usr/lib/x86_64-linux-gnu/libunwind.so
+test: /usr/lib/x86_64-linux-gnu/libgflags.so.2.2.2
+test: /usr/lib/x86_64-linux-gnu/libspqr.so
+test: /usr/lib/x86_64-linux-gnu/libtbb.so.12.5
+test: /usr/lib/x86_64-linux-gnu/libcholmod.so
+test: /usr/lib/x86_64-linux-gnu/libamd.so
+test: /usr/lib/x86_64-linux-gnu/libcamd.so
+test: /usr/lib/x86_64-linux-gnu/libccolamd.so
+test: /usr/lib/x86_64-linux-gnu/libcolamd.so
+test: /usr/lib/x86_64-linux-gnu/libsuitesparseconfig.so
+test: /usr/lib/x86_64-linux-gnu/liblapack.so
+test: /usr/lib/x86_64-linux-gnu/libblas.so
 test: /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
 test: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.74.0
 test: /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.74.0
@@ -284,7 +313,7 @@ test: /usr/lib/x86_64-linux-gnu/libboost_timer.so.1.74.0
 test: /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.74.0
 test: /usr/local/lib/libmetis-gtsam.so
 test: CMakeFiles/test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/evan/code/radar-localization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

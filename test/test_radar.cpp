@@ -1,4 +1,5 @@
 #include "radar_sensor.hpp"
+#include "radar_utils.hpp"
 
 #include <iostream>
 #include <string>
@@ -122,12 +123,12 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         vector<int> valid_points;
         for(int ind = index; ind >= index - range && ind >= 0; --ind)
         {
-            if(radar_datas[i][ind] > /*threshold +*/8 * radar_means[i])
+            if(radar_datas[i][ind] > /*threshold +*/2 * radar_means[i])
                 valid_points.push_back(ind);
         }
         for(int ind = index + 1; ind <= index + range && ind < (int)radar_datas[i].size(); ++ind)
         {
-            if(radar_datas[i][ind] > /*threshold +*/8 * radar_means[i])
+            if(radar_datas[i][ind] > /*threshold +*/2 * radar_means[i])
                 valid_points.push_back(ind);
         }
         // 转换到笛卡尔坐标系中
@@ -145,19 +146,19 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     return point_cloud_valid;
 }
 
-cv::Mat pointcloud_to_cartesian_points(CloudTypePtr point_cloud, int rows, int cols, float resolution)
-{
-    cv::Mat result = cv::Mat::zeros(rows, cols, CV_8U);
-    int dx = rows / 2;
-    int dy = cols / 2;
-    for(uint i = 0; i < point_cloud -> size(); ++i){
-        int x_ind = point_cloud -> points[i].x / resolution + dx;
-        int y_ind = point_cloud -> points[i].y / resolution + dy;
-        if(x_ind < 0 || x_ind >= rows || y_ind < 0 || y_ind >= cols) continue;
-        result.at<uchar>(x_ind, y_ind) = (uchar)(255);
-    }
-    return result;
-}
+// cv::Mat pointcloud_to_cartesian_points(CloudTypePtr point_cloud, int rows, int cols, float resolution)
+// {
+//     cv::Mat result = cv::Mat::zeros(rows, cols, CV_8U);
+//     int dx = rows / 2;
+//     int dy = cols / 2;
+//     for(uint i = 0; i < point_cloud -> size(); ++i){
+//         int x_ind = point_cloud -> points[i].x / resolution + dx;
+//         int y_ind = point_cloud -> points[i].y / resolution + dy;
+//         if(x_ind < 0 || x_ind >= rows || y_ind < 0 || y_ind >= cols) continue;
+//         result.at<uchar>(x_ind, y_ind) = (uchar)(255);
+//     }
+//     return result;
+// }
 
 // 分割网格并计算方向和中心点
 vector<feature> extract_features(CloudTypePtr cloud, float grid_resolution, int least_num)
@@ -285,6 +286,9 @@ void test4()
         PointType point(f.point.x, f.point.y, 0, 0);
         feature_cloud -> push_back(point);
     }
+
+    cout << feature_cloud -> size() << endl;
+
     cv::Mat image1 = pointcloud_to_cartesian_points(cloud, 800, 800, 0.2);
     cv::Mat image2 = pointcloud_to_cartesian_points(feature_cloud, 800, 800, 0.2);
 
@@ -327,19 +331,49 @@ void test5()
 // 测试ceres配准函数
 void test6()
 {
-    string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
-    CloudTypePtr source_cloud = scan_denoise(radar_file_path1, 8, 5);
+    string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131051108813.png";
+    CloudTypePtr source_cloud = scan_denoise(radar_file_path1, 1, 5);
 
-    string radar_file_path2 = "/home/evan/code/radar-localization/test/1547131046353776.png";
-    CloudTypePtr target_cloud = scan_denoise(radar_file_path2, 8, 5);
+    string radar_file_path2 = "/home/evan/code/radar-localization/test/1547131050856549.png";
+    CloudTypePtr target_cloud = scan_denoise(radar_file_path2, 1, 5);
+
+    cv::Mat image = pointcloud_to_cartesian_points(source_cloud, 800, 800, 0.2);
+    cv::imshow("", image);
+    cv::waitKey(0);
 
     vector<double> result = P2PRegisterTest(target_cloud, source_cloud);
 
     cout << "x = " << result[0] << ", y = " << result[1] << ", yaw = " << result[2] << endl;
 }
 
+// 大数据量测试
+void test7()
+{
+    const string save_path = "/home/evan/code/radar-localization/test/result/ceres_registration.txt";
+    fstream output(save_path.c_str(), std::ios::out);
+    vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
+    ll pre_timestamps = 0;
+    ll cur_timestamps = 0;
+    for(uint i = 0; i < timestamps.size(); ++i)
+    {
+        cur_timestamps = timestamps[i];
+        if(i > 0)
+        {
+            // scan denoise
+            string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
+            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 5);
+            string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
+            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 5);
+            vector<double> result = P2PRegisterTest(target_cloud, source_cloud);
+            output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << endl;
+        }
+        pre_timestamps = cur_timestamps;
+    }
+    output.close();
+}
+
 int main()
 {
-    test6();
+    test7();
     return 0;
 }

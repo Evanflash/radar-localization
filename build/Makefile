@@ -201,6 +201,30 @@ src/radar_sensor.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_sensor.cpp.s
 .PHONY : src/radar_sensor.cpp.s
 
+src/radar_utils.o: src/radar_utils.cpp.o
+.PHONY : src/radar_utils.o
+
+# target to build an object file
+src/radar_utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.o
+.PHONY : src/radar_utils.cpp.o
+
+src/radar_utils.i: src/radar_utils.cpp.i
+.PHONY : src/radar_utils.i
+
+# target to preprocess a source file
+src/radar_utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.i
+.PHONY : src/radar_utils.cpp.i
+
+src/radar_utils.s: src/radar_utils.cpp.s
+.PHONY : src/radar_utils.s
+
+# target to generate assembly for a file
+src/radar_utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.s
+.PHONY : src/radar_utils.cpp.s
+
 test/test_radar.o: test/test_radar.cpp.o
 .PHONY : test/test_radar.o
 
@@ -243,6 +267,9 @@ help:
 	@echo "... src/radar_sensor.o"
 	@echo "... src/radar_sensor.i"
 	@echo "... src/radar_sensor.s"
+	@echo "... src/radar_utils.o"
+	@echo "... src/radar_utils.i"
+	@echo "... src/radar_utils.s"
 	@echo "... test/test_radar.o"
 	@echo "... test/test_radar.i"
 	@echo "... test/test_radar.s"

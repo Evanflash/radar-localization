@@ -110,4 +110,8 @@ std::vector<v_pose> read_gt_pose(const std::string file_path);
 */
 v_pose find_cloest_pose(std::vector<v_pose> &gt_pose, long long timestamp);
 
+// 绘制带箭头的图像
+cv::Mat pointcloud_to_arrow_image(pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud, 
+    int rows, int cols, float resolution);
+
 #endif // _RADAR_LOCALIZATION_RADAR_UTILS
