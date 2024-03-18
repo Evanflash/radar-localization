@@ -177,6 +177,30 @@ src/filter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.s
 .PHONY : src/filter.cpp.s
 
+src/imu_sensor.o: src/imu_sensor.cpp.o
+.PHONY : src/imu_sensor.o
+
+# target to build an object file
+src/imu_sensor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.o
+.PHONY : src/imu_sensor.cpp.o
+
+src/imu_sensor.i: src/imu_sensor.cpp.i
+.PHONY : src/imu_sensor.i
+
+# target to preprocess a source file
+src/imu_sensor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.i
+.PHONY : src/imu_sensor.cpp.i
+
+src/imu_sensor.s: src/imu_sensor.cpp.s
+.PHONY : src/imu_sensor.s
+
+# target to generate assembly for a file
+src/imu_sensor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.s
+.PHONY : src/imu_sensor.cpp.s
+
 src/normal_feature.o: src/normal_feature.cpp.o
 .PHONY : src/normal_feature.o
 
@@ -288,6 +312,9 @@ help:
 	@echo "... src/filter.o"
 	@echo "... src/filter.i"
 	@echo "... src/filter.s"
+	@echo "... src/imu_sensor.o"
+	@echo "... src/imu_sensor.i"
+	@echo "... src/imu_sensor.s"
 	@echo "... src/normal_feature.o"
 	@echo "... src/normal_feature.i"
 	@echo "... src/normal_feature.s"

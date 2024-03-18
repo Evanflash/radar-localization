@@ -1,6 +1,7 @@
 #include "radar_sensor.hpp"
 #include "radar_utils.hpp"
 #include "filter.hpp"
+#include "imu_sensor.hpp"
 
 #include <iostream>
 #include <string>
@@ -22,10 +23,15 @@
 
 using namespace std;
 using ll = long long;
+using Mat3d = Eigen::Matrix3d;
 using PointType = pcl::PointXYZI;
 using CloudType = pcl::PointCloud<pcl::PointXYZI>;
 using CloudTypePtr = pcl::PointCloud<pcl::PointXYZI>::Ptr;
 using FeaturePoint = pcl::PointXY;
+
+static string imu_data_file_path = "/home/evan/extra/datasets/large/gps/ins.csv";
+
+enum model {normal, md, mdad};
 
 struct feature
 {
@@ -40,6 +46,16 @@ struct feature
     }
 };
 
+Mat3d vec_to_transformation(Vec3d v)
+{
+    Eigen::Matrix3d T;
+    double cos_t = cos(v[2]);
+    double sin_t = sin(v[2]);
+    T << cos_t, sin_t, v[0],
+        -sin_t, cos_t, v[1],
+        0, 0, 1;
+    return T;
+}
 
 void test_radar_timestamps(const string radar_file_path, const string save_file_path)
 {
@@ -56,7 +72,7 @@ void test_radar_timestamps(const string radar_file_path, const string save_file_
     all_azimuth_timestamps_file.close();
 }
 
-CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range)
+CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range, model mdl)
 {
     // 读取雷达图像数据
     vector<ll> radar_timestamps;
@@ -89,6 +105,25 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         }
     }
 
+    // 运动去畸变
+    Mat3d T_pre = Mat3d::Identity();
+    vector<Mat3d> motion_distortion_vector{T_pre};
+    imu::IMUSensor imu_sensor(imu_data_file_path);
+    for(uint i = 1; i < radar_timestamps.size(); ++i)
+    {
+        Mat3d T_cur = T_pre * vec_to_transformation(imu_sensor.get_relative_pose(radar_timestamps[i - 1], radar_timestamps[i]));
+        motion_distortion_vector.push_back(T_cur);
+        T_pre = T_cur;
+    }
+    vector<vector<double>> doppler_offset_vector;
+    for(uint i = 0; i < radar_timestamps.size() - 1; ++i)
+    {
+        Vec3d offset = imu_sensor.get_relative_pose(radar_timestamps[i], radar_timestamps[i + 1]);
+        double time = (radar_timestamps[i + 1] - radar_timestamps[i]) * 0.000001;
+        doppler_offset_vector.push_back(vector<double>{offset[0] / time, offset[1] / time});
+    }
+    doppler_offset_vector.push_back(doppler_offset_vector.back());
+
     // 计算各个方位角上的均值，找到最小的均值作为阈值
     vector<float> radar_means;
     for(uint i = 0; i < radar_datas.size(); ++i)
@@ -111,6 +146,16 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     const float resolution = 0.0438;
     for(uint i = 0; i < radar_datas.size(); i++)
     {
+        // 获得变换矩阵
+        Mat3d T;
+        if(mdl == normal)
+        {
+            T = Mat3d::Identity();
+        }else if(mdl == md)
+        {
+            T = motion_distortion_vector[i];
+        }
+
         int index = 0;
         float value = 0;
         for(uint j = 0; j < radar_datas[i].size(); ++j){
@@ -139,7 +184,9 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
             float azimuths = radar_azimuths[i];
             float cos_theta = cos(azimuths);
             float sin_theta = sin(azimuths);
-            PointType point(distance * cos_theta, -distance * sin_theta, 0, 0);
+            Vec3d p(distance * cos_theta, -distance * sin_theta, 1);
+            p = T * p;
+            PointType point(p[0], p[1], 0, 0);
             point_cloud_valid -> push_back(point);
         }
     }
@@ -242,7 +289,7 @@ void test1()
 void test2()
 {
     string radar_file_path = "/home/evan/code/radar-localization/test/1547120953445209.png";
-    CloudTypePtr cloud = scan_denoise(radar_file_path, 10, 5);
+    CloudTypePtr cloud = scan_denoise(radar_file_path, 10, 5, normal);
     cv::Mat image = pointcloud_to_cartesian_points(cloud, 800, 800, 0.2);
     cv::imshow(to_string(cloud -> size()), image);
     cv::waitKey(0);
@@ -279,7 +326,7 @@ void test3()
 void test4()
 {
     string radar_file_path = "/home/evan/code/radar-localization/test/1547120953445209.png";
-    CloudTypePtr cloud = scan_denoise(radar_file_path, 10, 5);
+    CloudTypePtr cloud = scan_denoise(radar_file_path, 10, 5, normal);
     vector<feature> features = extract_features(cloud, 2, 5);
     CloudTypePtr feature_cloud(new CloudType());
     for(auto f : features)
@@ -305,7 +352,7 @@ void test4()
 void test5()
 {
     string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
-    CloudTypePtr cloud1 = scan_denoise(radar_file_path1, 10, 5);
+    CloudTypePtr cloud1 = scan_denoise(radar_file_path1, 10, 5, normal);
     vector<feature> features1 = extract_features(cloud1, 2, 5);
     CloudTypePtr feature_cloud1(new CloudType());
     for(auto f : features1)
@@ -315,7 +362,7 @@ void test5()
     }
     
     string radar_file_path2 = "/home/evan/code/radar-localization/test/1547131046353776.png";
-    CloudTypePtr cloud2 = scan_denoise(radar_file_path2, 10, 5);
+    CloudTypePtr cloud2 = scan_denoise(radar_file_path2, 10, 5, normal);
     vector<feature> features2 = extract_features(cloud2, 2, 5);
     CloudTypePtr feature_cloud2(new CloudType());
     for(auto f : features2)
@@ -357,12 +404,14 @@ void test6()
 // 大数据量测试
 void test7()
 {
-    const string save_path = "/home/evan/code/radar-localization/test/result/ceres_registration.txt";
+    const string save_path = "/home/evan/code/radar-localization/test/result/ceres_registration_1_2.txt";
     fstream output(save_path.c_str(), std::ios::out);
     vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
     ll pre_timestamps = 0;
     ll cur_timestamps = 0;
     vector<double> pre_result = vector<double>{0, 0, 0};
+    model mdl = normal;
+    imu::IMUSensor imu_sensor(imu_data_file_path);
     for(uint i = 0; i < timestamps.size(); ++i)
     {
         cur_timestamps = timestamps[i];
@@ -370,15 +419,18 @@ void test7()
         {
             // scan denoise
             string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
-            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 2);
+            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 2, mdl);
             string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
-            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 2);
+            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 2, mdl);
             // radar_data target_rd;
             // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
             // CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
             // radar_data source_rd;
             // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
             // CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
+            // vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result);
+            Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+            pre_result = vector<double>{t[0], t[1], t[2]};
             vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result);
             output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << endl;
             pre_result = result;
@@ -386,6 +438,30 @@ void test7()
         pre_timestamps = cur_timestamps;
     }
     output.close();
+}
+
+void test8()
+{
+    string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
+
+    CloudTypePtr cloud1 = scan_denoise(radar_file_path1, 1, 2, normal);
+    CloudTypePtr cloud2 = scan_denoise(radar_file_path1, 1, 2, md);
+
+    cv::Mat image1 = pointcloud_to_cartesian_points(cloud1, 800, 800, 0.1);
+    cv::Mat image2 = pointcloud_to_cartesian_points(cloud2, 800, 800, 0.1);
+
+    cv::Mat image(800, 1600, CV_8U);
+    image1.copyTo(image.colRange(0, 800));
+    image2.copyTo(image.colRange(800, 1600));
+
+    CloudTypePtr cloud3(new CloudType());
+    *cloud3 += *cloud1;
+    *cloud3 += *cloud2;
+    cv::Mat image3 = pointcloud_to_cartesian_points(cloud3, 800, 800, 0.1);
+
+    cv::imshow("image", image3);
+    cv::waitKey(0);
+
 }
 
 int main()

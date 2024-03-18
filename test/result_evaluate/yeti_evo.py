@@ -104,7 +104,7 @@ def getStats(err):
 
 
 if __name__ == "__main__":
-    result_name = "ceres_registration"
+    result_name = "ceres_registration_md_2_4"
     gt_name = 0
     keyframe = 1
     if gt_name:

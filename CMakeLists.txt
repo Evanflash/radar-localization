@@ -23,6 +23,7 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/ceres_registration.cpp
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
     ${PROJECT_SOURCE_DIR}/src/filter.cpp
+    ${PROJECT_SOURCE_DIR}/src/imu_sensor.cpp
 )
 
 # set(SRC_LIST
