@@ -11,8 +11,8 @@
 
 vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vector<double> init_pose)
 {
-    MapFeatures targets_map = MapFeatures(targets, 1, 2);
-    MapFeatures sources_map = MapFeatures(sources, 1, 2);
+    MapFeatures targets_map = MapFeatures(targets, 2, 3);
+    MapFeatures sources_map = MapFeatures(sources, 2, 3);
 
     // vector<double> parameters = vector<double>{0, 0, 0};
     vector<double> parameters = init_pose;

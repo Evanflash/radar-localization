@@ -4,8 +4,8 @@ import evaluation as evo
 
 
 if __name__ == '__main__':
-    first_file_name = "ceres_registration_kstrongest_1_4"
-    second_file_name = "ceres_registration_md_1_2"
+    first_file_name = "ceres_registration_mdad_2_3"
+    second_file_name = "ceres_registration_md_2_3"
     big_data = False
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar_change.timestamps")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/large/gt/radar_odometry_change.csv")

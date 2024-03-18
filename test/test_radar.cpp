@@ -124,6 +124,15 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     }
     doppler_offset_vector.push_back(doppler_offset_vector.back());
 
+    vector<double> doppler_offset_dis;
+    for(uint i = 0; i < radar_timestamps.size(); ++i)
+    {
+        double cos_t = cos(radar_azimuths[i]);
+        double sin_t = sin(radar_azimuths[i]);
+        doppler_offset_dis.push_back(0.0478 * 
+            (doppler_offset_vector[i][0] * cos_t + doppler_offset_vector[i][1] * sin_t));
+    }
+
     // 计算各个方位角上的均值，找到最小的均值作为阈值
     vector<float> radar_means;
     for(uint i = 0; i < radar_datas.size(); ++i)
@@ -148,12 +157,17 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     {
         // 获得变换矩阵
         Mat3d T;
+        double d = 0;
         if(mdl == normal)
         {
             T = Mat3d::Identity();
         }else if(mdl == md)
         {
             T = motion_distortion_vector[i];
+        }else if(mdl == mdad)
+        {
+            T = motion_distortion_vector[i];
+            d = doppler_offset_dis[i];
         }
 
         int index = 0;
@@ -180,7 +194,7 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         // 转换到笛卡尔坐标系中
         for(auto ind : valid_points)
         {
-            float distance = (ind + 0.5) * resolution;
+            float distance = (ind + 0.5) * resolution + d;
             float azimuths = radar_azimuths[i];
             float cos_theta = cos(azimuths);
             float sin_theta = sin(azimuths);
@@ -404,13 +418,13 @@ void test6()
 // 大数据量测试
 void test7()
 {
-    const string save_path = "/home/evan/code/radar-localization/test/result/ceres_registration_1_2.txt";
+    const string save_path = "/home/evan/code/radar-localization/test/result/ceres_registration_mdad_2_3.txt";
     fstream output(save_path.c_str(), std::ios::out);
     vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
     ll pre_timestamps = 0;
     ll cur_timestamps = 0;
     vector<double> pre_result = vector<double>{0, 0, 0};
-    model mdl = normal;
+    model mdl = mdad;
     imu::IMUSensor imu_sensor(imu_data_file_path);
     for(uint i = 0; i < timestamps.size(); ++i)
     {
@@ -445,7 +459,7 @@ void test8()
     string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
 
     CloudTypePtr cloud1 = scan_denoise(radar_file_path1, 1, 2, normal);
-    CloudTypePtr cloud2 = scan_denoise(radar_file_path1, 1, 2, md);
+    CloudTypePtr cloud2 = scan_denoise(radar_file_path1, 1, 2, mdad);
 
     cv::Mat image1 = pointcloud_to_cartesian_points(cloud1, 800, 800, 0.1);
     cv::Mat image2 = pointcloud_to_cartesian_points(cloud2, 800, 800, 0.1);
@@ -459,13 +473,13 @@ void test8()
     *cloud3 += *cloud2;
     cv::Mat image3 = pointcloud_to_cartesian_points(cloud3, 800, 800, 0.1);
 
-    cv::imshow("image", image3);
+    cv::imshow("image", image);
     cv::waitKey(0);
 
 }
 
 int main()
 {
-    test7();
+    test8();
     return 0;
 }
