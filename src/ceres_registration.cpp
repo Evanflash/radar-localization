@@ -9,10 +9,11 @@
 #include "normal_feature.hpp"
 #include "radar_utils.hpp"
 
-vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vector<double> init_pose)
+vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vector<double> init_pose, double thres)
 {
-    MapFeatures targets_map = MapFeatures(targets, 2, 3);
-    MapFeatures sources_map = MapFeatures(sources, 2, 3);
+    bool use_thres = false;
+    MapFeatures targets_map = MapFeatures(targets, 1, 2);
+    MapFeatures sources_map = MapFeatures(sources, 1, 2);
 
     // vector<double> parameters = vector<double>{0, 0, 0};
     vector<double> parameters = init_pose;
@@ -27,10 +28,14 @@ vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vecto
 
         double angle_outlier = std::cos(M_PI / 6.0);
 
-        double cur_radius = (iterator == 1) ? 4 : 2;
+        double cur_radius;
+        if(use_thres)
+            cur_radius = thres;
+        else
+            cur_radius = (iterator == 1) ? 4 : 2;
 
         int nums = 0;
-        std::cout << sources_map.GetSize() << std::endl;
+        // std::cout << sources_map.GetSize() << std::endl;
 
         CloudTypePtr visual_cloud(new CloudType());
 
@@ -92,14 +97,14 @@ vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vecto
         // cv::imshow("", image);
         // cv::waitKey(0);
 
-        std::cout << nums << std::endl;
+        // std::cout << nums << std::endl;
         // solve
         problem -> SetParameterBlockConstant(target_para.data());
 
         ceres::Solver::Options options_;
         ceres::Solver::Summary summary_;
         ceres::Solve(options_, problem, &summary_);
-        std::cout << summary_.BriefReport() << std::endl;
+        // std::cout << summary_.BriefReport() << std::endl;
 
 
         double cur_sorce = summary_.final_cost;

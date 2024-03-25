@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <chrono>
 
 #include <opencv2/opencv.hpp>
 
@@ -20,6 +21,7 @@
 #include <Eigen/Dense>
 
 #include "ceres_registration.hpp"
+#include "threshold.hpp"
 
 using namespace std;
 using ll = long long;
@@ -31,7 +33,7 @@ using FeaturePoint = pcl::PointXY;
 
 static string imu_data_file_path = "/home/evan/extra/datasets/large/gps/ins.csv";
 
-enum model {normal, md, mdad};
+enum model {normal, md, mdad, doppler};
 
 struct feature
 {
@@ -47,6 +49,17 @@ struct feature
 };
 
 Mat3d vec_to_transformation(Vec3d v)
+{
+    Eigen::Matrix3d T;
+    double cos_t = cos(v[2]);
+    double sin_t = sin(v[2]);
+    T << cos_t, sin_t, v[0],
+        -sin_t, cos_t, v[1],
+        0, 0, 1;
+    return T;
+}
+
+Mat3d vec_to_transformation(vector<double> v)
 {
     Eigen::Matrix3d T;
     double cos_t = cos(v[2]);
@@ -109,12 +122,19 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     Mat3d T_pre = Mat3d::Identity();
     vector<Mat3d> motion_distortion_vector{T_pre};
     imu::IMUSensor imu_sensor(imu_data_file_path);
+    Vec3d T_all = imu_sensor.get_relative_pose(radar_timestamps.front(), radar_timestamps.back());
     for(uint i = 1; i < radar_timestamps.size(); ++i)
     {
-        Mat3d T_cur = T_pre * vec_to_transformation(imu_sensor.get_relative_pose(radar_timestamps[i - 1], radar_timestamps[i]));
+        Mat3d T_cur = vec_to_transformation((i / 400.0) * T_all);
         motion_distortion_vector.push_back(T_cur);
-        T_pre = T_cur;
     }
+    // for(uint i = 1; i < radar_timestamps.size(); ++i)
+    // {
+    //     Mat3d T_cur = T_pre * vec_to_transformation(imu_sensor.get_relative_pose(radar_timestamps[i - 1], radar_timestamps[i]));
+    //     motion_distortion_vector.push_back(T_cur);
+    //     T_pre = T_cur;
+    // }
+    // 多普勒去畸变
     vector<vector<double>> doppler_offset_vector;
     for(uint i = 0; i < radar_timestamps.size() - 1; ++i)
     {
@@ -168,6 +188,10 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         {
             T = motion_distortion_vector[i];
             d = doppler_offset_dis[i];
+        }else if(mdl == doppler)
+        {
+            T = Mat3d::Identity();
+            d = doppler_offset_dis[i];
         }
 
         int index = 0;
@@ -183,7 +207,7 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         vector<int> valid_points;
         for(int ind = index; ind >= index - range && ind >= 0; --ind)
         {
-            if(radar_datas[i][ind] > /*threshold +*/2 * radar_means[i])
+            if(radar_datas[i][ind] > threshold + 2 * radar_means[i])
                 valid_points.push_back(ind);
         }
         for(int ind = index + 1; ind <= index + range && ind < (int)radar_datas[i].size(); ++ind)
@@ -410,7 +434,7 @@ void test6()
     cv::imshow("", image);
     cv::waitKey(0);
 
-    vector<double> result = P2PRegisterTest(target_cloud, source_cloud, vector<double>{0, 0, 0});
+    vector<double> result = P2PRegisterTest(target_cloud, source_cloud, vector<double>{0, 0, 0}, 2);
 
     cout << "x = " << result[0] << ", y = " << result[1] << ", yaw = " << result[2] << endl;
 }
@@ -418,14 +442,16 @@ void test6()
 // 大数据量测试
 void test7()
 {
-    const string save_path = "/home/evan/code/radar-localization/test/result/ceres_registration_mdad_2_3.txt";
+    const string save_path = 
+    "/home/evan/code/radar-localization/test/result/normal_md_doppler_mdad/1_2_10/ceres_registration_md_other.txt";
     fstream output(save_path.c_str(), std::ios::out);
     vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
     ll pre_timestamps = 0;
     ll cur_timestamps = 0;
     vector<double> pre_result = vector<double>{0, 0, 0};
-    model mdl = mdad;
+    model mdl = md;
     imu::IMUSensor imu_sensor(imu_data_file_path);
+    SearchThreshold search_threshold;
     for(uint i = 0; i < timestamps.size(); ++i)
     {
         cur_timestamps = timestamps[i];
@@ -433,9 +459,9 @@ void test7()
         {
             // scan denoise
             string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
-            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 2, mdl);
+            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 5, mdl);
             string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
-            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 2, mdl);
+            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 5, mdl);
             // radar_data target_rd;
             // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
             // CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
@@ -443,11 +469,16 @@ void test7()
             // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
             // CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
             // vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result);
+            double thres = search_threshold.computeThreshold();
             Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
             pre_result = vector<double>{t[0], t[1], t[2]};
-            vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result);
+            vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result, thres);
             output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << endl;
+            
+            search_threshold.updateDeltaT(vec_to_transformation(pre_result).inverse() * vec_to_transformation(result));
+            
             pre_result = result;
+            // std::cout << thres << std::endl;
         }
         pre_timestamps = cur_timestamps;
     }
@@ -458,28 +489,38 @@ void test8()
 {
     string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
 
-    CloudTypePtr cloud1 = scan_denoise(radar_file_path1, 1, 2, normal);
-    CloudTypePtr cloud2 = scan_denoise(radar_file_path1, 1, 2, mdad);
+    radar_data rd;
+    radar_data_split("/home/evan/code/radar-localization/test", to_string(1547131046606586), rd);
+    CloudTypePtr cloud1 = k_strongest_filter(rd, 12, 0);
+    // CloudTypePtr cloud1 = scan_denoise(radar_file_path1, 1, 2, normal);
+    CloudTypePtr cloud2 = scan_denoise(radar_file_path1, 10, 5, mdad);
 
-    cv::Mat image1 = pointcloud_to_cartesian_points(cloud1, 800, 800, 0.1);
-    cv::Mat image2 = pointcloud_to_cartesian_points(cloud2, 800, 800, 0.1);
+    cv::Mat image1 = pointcloud_to_cartesian_points(cloud1, 500, 500, 0.2);
+    cv::Mat image2 = pointcloud_to_cartesian_points(cloud2, 500, 500, 0.2);
 
-    cv::Mat image(800, 1600, CV_8U);
-    image1.copyTo(image.colRange(0, 800));
-    image2.copyTo(image.colRange(800, 1600));
+    cv::Mat image(500, 1000, CV_8U);
+    image1.copyTo(image.colRange(0, 500));
+    image2.copyTo(image.colRange(500, 1000));
 
     CloudTypePtr cloud3(new CloudType());
     *cloud3 += *cloud1;
     *cloud3 += *cloud2;
     cv::Mat image3 = pointcloud_to_cartesian_points(cloud3, 800, 800, 0.1);
 
-    cv::imshow("image", image);
+    uint k_num = cloud1 -> size();
+    uint s_num = cloud2 -> size();
+
+    cv::imshow(std::to_string(k_num) + " _ " + std::to_string(s_num), image);
     cv::waitKey(0);
 
 }
 
 int main()
 {
-    test8();
+    auto ts = std::chrono::high_resolution_clock::now();
+    test7();
+    auto te = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> e = te - ts;
+    std::cout << e.count() << std::endl;
     return 0;
 }

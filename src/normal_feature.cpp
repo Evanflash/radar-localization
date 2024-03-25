@@ -74,7 +74,7 @@ void MapFeatures::ComputeNormals(const Vec2d &origin)
     downsampleFilter.filter(grid_sample_means);
 
     // 查询特征点是否满足周围点数大于阈值的条件
-    int num_thres = 6;
+    int num_thres = 12;
 
     vector<int> point_ind;
     vector<float> point_dis;

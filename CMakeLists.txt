@@ -24,6 +24,7 @@ set(SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/radar_utils.cpp
     ${PROJECT_SOURCE_DIR}/src/filter.cpp
     ${PROJECT_SOURCE_DIR}/src/imu_sensor.cpp
+    ${PROJECT_SOURCE_DIR}/src/threshold.cpp
 )
 
 # set(SRC_LIST
@@ -41,9 +42,9 @@ set(SRC_LIST
 # )
 
 # add_executable(test test/test_odometry.cpp ${SRC_LIST} )
-add_executable(test test/test_radar.cpp ${SRC_LIST})
+add_executable(test6 test/test_radar.cpp ${SRC_LIST})
 
-target_link_libraries(test
+target_link_libraries(test6
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
     ${CERES_LIBRARIES}
