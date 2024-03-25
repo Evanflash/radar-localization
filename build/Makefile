@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test6
+# Target rules for targets named test
 
 # Build rule for target.
-test6: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test6
-.PHONY : test6
+test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test
+.PHONY : test
 
 # fast build rule for target.
-test6/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/build
-.PHONY : test6/fast
+test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
+.PHONY : test/fast
 
 src/ceres_registration.o: src/ceres_registration.cpp.o
 .PHONY : src/ceres_registration.o
 
 # target to build an object file
 src/ceres_registration.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/ceres_registration.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.o
 .PHONY : src/ceres_registration.cpp.o
 
 src/ceres_registration.i: src/ceres_registration.cpp.i
@@ -142,7 +142,7 @@ src/ceres_registration.i: src/ceres_registration.cpp.i
 
 # target to preprocess a source file
 src/ceres_registration.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/ceres_registration.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.i
 .PHONY : src/ceres_registration.cpp.i
 
 src/ceres_registration.s: src/ceres_registration.cpp.s
@@ -150,7 +150,7 @@ src/ceres_registration.s: src/ceres_registration.cpp.s
 
 # target to generate assembly for a file
 src/ceres_registration.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/ceres_registration.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/ceres_registration.cpp.s
 .PHONY : src/ceres_registration.cpp.s
 
 src/filter.o: src/filter.cpp.o
@@ -158,7 +158,7 @@ src/filter.o: src/filter.cpp.o
 
 # target to build an object file
 src/filter.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/filter.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.o
 .PHONY : src/filter.cpp.o
 
 src/filter.i: src/filter.cpp.i
@@ -166,7 +166,7 @@ src/filter.i: src/filter.cpp.i
 
 # target to preprocess a source file
 src/filter.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/filter.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.i
 .PHONY : src/filter.cpp.i
 
 src/filter.s: src/filter.cpp.s
@@ -174,7 +174,7 @@ src/filter.s: src/filter.cpp.s
 
 # target to generate assembly for a file
 src/filter.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/filter.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/filter.cpp.s
 .PHONY : src/filter.cpp.s
 
 src/imu_sensor.o: src/imu_sensor.cpp.o
@@ -182,7 +182,7 @@ src/imu_sensor.o: src/imu_sensor.cpp.o
 
 # target to build an object file
 src/imu_sensor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/imu_sensor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.o
 .PHONY : src/imu_sensor.cpp.o
 
 src/imu_sensor.i: src/imu_sensor.cpp.i
@@ -190,7 +190,7 @@ src/imu_sensor.i: src/imu_sensor.cpp.i
 
 # target to preprocess a source file
 src/imu_sensor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/imu_sensor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.i
 .PHONY : src/imu_sensor.cpp.i
 
 src/imu_sensor.s: src/imu_sensor.cpp.s
@@ -198,7 +198,7 @@ src/imu_sensor.s: src/imu_sensor.cpp.s
 
 # target to generate assembly for a file
 src/imu_sensor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/imu_sensor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/imu_sensor.cpp.s
 .PHONY : src/imu_sensor.cpp.s
 
 src/normal_feature.o: src/normal_feature.cpp.o
@@ -206,7 +206,7 @@ src/normal_feature.o: src/normal_feature.cpp.o
 
 # target to build an object file
 src/normal_feature.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/normal_feature.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/normal_feature.cpp.o
 .PHONY : src/normal_feature.cpp.o
 
 src/normal_feature.i: src/normal_feature.cpp.i
@@ -214,7 +214,7 @@ src/normal_feature.i: src/normal_feature.cpp.i
 
 # target to preprocess a source file
 src/normal_feature.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/normal_feature.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/normal_feature.cpp.i
 .PHONY : src/normal_feature.cpp.i
 
 src/normal_feature.s: src/normal_feature.cpp.s
@@ -222,7 +222,7 @@ src/normal_feature.s: src/normal_feature.cpp.s
 
 # target to generate assembly for a file
 src/normal_feature.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/normal_feature.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/normal_feature.cpp.s
 .PHONY : src/normal_feature.cpp.s
 
 src/radar_sensor.o: src/radar_sensor.cpp.o
@@ -230,7 +230,7 @@ src/radar_sensor.o: src/radar_sensor.cpp.o
 
 # target to build an object file
 src/radar_sensor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/radar_sensor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_sensor.cpp.o
 .PHONY : src/radar_sensor.cpp.o
 
 src/radar_sensor.i: src/radar_sensor.cpp.i
@@ -238,7 +238,7 @@ src/radar_sensor.i: src/radar_sensor.cpp.i
 
 # target to preprocess a source file
 src/radar_sensor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/radar_sensor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_sensor.cpp.i
 .PHONY : src/radar_sensor.cpp.i
 
 src/radar_sensor.s: src/radar_sensor.cpp.s
@@ -246,7 +246,7 @@ src/radar_sensor.s: src/radar_sensor.cpp.s
 
 # target to generate assembly for a file
 src/radar_sensor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/radar_sensor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_sensor.cpp.s
 .PHONY : src/radar_sensor.cpp.s
 
 src/radar_utils.o: src/radar_utils.cpp.o
@@ -254,7 +254,7 @@ src/radar_utils.o: src/radar_utils.cpp.o
 
 # target to build an object file
 src/radar_utils.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/radar_utils.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.o
 .PHONY : src/radar_utils.cpp.o
 
 src/radar_utils.i: src/radar_utils.cpp.i
@@ -262,7 +262,7 @@ src/radar_utils.i: src/radar_utils.cpp.i
 
 # target to preprocess a source file
 src/radar_utils.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/radar_utils.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.i
 .PHONY : src/radar_utils.cpp.i
 
 src/radar_utils.s: src/radar_utils.cpp.s
@@ -270,7 +270,7 @@ src/radar_utils.s: src/radar_utils.cpp.s
 
 # target to generate assembly for a file
 src/radar_utils.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/radar_utils.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/radar_utils.cpp.s
 .PHONY : src/radar_utils.cpp.s
 
 src/threshold.o: src/threshold.cpp.o
@@ -278,7 +278,7 @@ src/threshold.o: src/threshold.cpp.o
 
 # target to build an object file
 src/threshold.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/threshold.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/threshold.cpp.o
 .PHONY : src/threshold.cpp.o
 
 src/threshold.i: src/threshold.cpp.i
@@ -286,7 +286,7 @@ src/threshold.i: src/threshold.cpp.i
 
 # target to preprocess a source file
 src/threshold.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/threshold.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/threshold.cpp.i
 .PHONY : src/threshold.cpp.i
 
 src/threshold.s: src/threshold.cpp.s
@@ -294,7 +294,7 @@ src/threshold.s: src/threshold.cpp.s
 
 # target to generate assembly for a file
 src/threshold.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/src/threshold.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/threshold.cpp.s
 .PHONY : src/threshold.cpp.s
 
 test/test_radar.o: test/test_radar.cpp.o
@@ -302,7 +302,7 @@ test/test_radar.o: test/test_radar.cpp.o
 
 # target to build an object file
 test/test_radar.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/test/test_radar.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_radar.cpp.o
 .PHONY : test/test_radar.cpp.o
 
 test/test_radar.i: test/test_radar.cpp.i
@@ -310,7 +310,7 @@ test/test_radar.i: test/test_radar.cpp.i
 
 # target to preprocess a source file
 test/test_radar.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/test/test_radar.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_radar.cpp.i
 .PHONY : test/test_radar.cpp.i
 
 test/test_radar.s: test/test_radar.cpp.s
@@ -318,7 +318,7 @@ test/test_radar.s: test/test_radar.cpp.s
 
 # target to generate assembly for a file
 test/test_radar.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test6.dir/build.make CMakeFiles/test6.dir/test/test_radar.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/test/test_radar.cpp.s
 .PHONY : test/test_radar.cpp.s
 
 # Help Target
@@ -329,7 +329,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... test6"
+	@echo "... test"
 	@echo "... src/ceres_registration.o"
 	@echo "... src/ceres_registration.i"
 	@echo "... src/ceres_registration.s"

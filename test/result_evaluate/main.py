@@ -4,8 +4,8 @@ import evaluation as evo
 
 
 if __name__ == '__main__':
-    first_file_name = "ceres_registration_new_md_1_2"
-    second_file_name = "ceres_registration_1_2"
+    first_file_name = "normal_md_doppler_mdad/rsize1_rsearch2_contral10_num5/md"
+    second_file_name = "normal_md_doppler_mdad/rsize1_rsearch2_contral10_num5/md_other"
     big_data = False
     timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar_change.timestamps")
     gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/large/gt/radar_odometry_change.csv")
@@ -13,7 +13,7 @@ if __name__ == '__main__':
     result1 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + first_file_name + ".txt")
     result2 = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + second_file_name + ".txt")
 
-    # evaluate_utils.compare_two_result(gt_pose, result1, result2)
+    evaluate_utils.compare_two_result(gt_pose, result1, result2)
     # for i in range(0, len(result1)):
     #     result2[i][2] = result1[i][2]    
 

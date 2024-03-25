@@ -42,9 +42,9 @@ set(SRC_LIST
 # )
 
 # add_executable(test test/test_odometry.cpp ${SRC_LIST} )
-add_executable(test6 test/test_radar.cpp ${SRC_LIST})
+add_executable(test test/test_radar.cpp ${SRC_LIST})
 
-target_link_libraries(test6
+target_link_libraries(test
     ${PCL_LIBRARIES}
     ${OpenCV_LIBRARIES}
     ${CERES_LIBRARIES}

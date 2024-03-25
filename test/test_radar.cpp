@@ -34,6 +34,7 @@ using FeaturePoint = pcl::PointXY;
 static string imu_data_file_path = "/home/evan/extra/datasets/large/gps/ins.csv";
 
 enum model {normal, md, mdad, doppler};
+enum fltrmdl {my, ks, c2018, c2019};
 
 struct feature
 {
@@ -123,17 +124,17 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     vector<Mat3d> motion_distortion_vector{T_pre};
     imu::IMUSensor imu_sensor(imu_data_file_path);
     Vec3d T_all = imu_sensor.get_relative_pose(radar_timestamps.front(), radar_timestamps.back());
-    for(uint i = 1; i < radar_timestamps.size(); ++i)
-    {
-        Mat3d T_cur = vec_to_transformation((i / 400.0) * T_all);
-        motion_distortion_vector.push_back(T_cur);
-    }
     // for(uint i = 1; i < radar_timestamps.size(); ++i)
     // {
-    //     Mat3d T_cur = T_pre * vec_to_transformation(imu_sensor.get_relative_pose(radar_timestamps[i - 1], radar_timestamps[i]));
+    //     Mat3d T_cur = vec_to_transformation((i / 400.0) * T_all);
     //     motion_distortion_vector.push_back(T_cur);
-    //     T_pre = T_cur;
     // }
+    for(uint i = 1; i < radar_timestamps.size(); ++i)
+    {
+        Mat3d T_cur = T_pre * vec_to_transformation(imu_sensor.get_relative_pose(radar_timestamps[i - 1], radar_timestamps[i]));
+        motion_distortion_vector.push_back(T_cur);
+        T_pre = T_cur;
+    }
     // 多普勒去畸变
     vector<vector<double>> doppler_offset_vector;
     for(uint i = 0; i < radar_timestamps.size() - 1; ++i)
@@ -212,7 +213,7 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         }
         for(int ind = index + 1; ind <= index + range && ind < (int)radar_datas[i].size(); ++ind)
         {
-            if(radar_datas[i][ind] > /*threshold +*/2 * radar_means[i])
+            if(radar_datas[i][ind] > threshold + 2 * radar_means[i])
                 valid_points.push_back(ind);
         }
         // 转换到笛卡尔坐标系中
@@ -443,13 +444,14 @@ void test6()
 void test7()
 {
     const string save_path = 
-    "/home/evan/code/radar-localization/test/result/normal_md_doppler_mdad/1_2_10/ceres_registration_md_other.txt";
+    "/home/evan/code/radar-localization/test/result/rsize/0_1.txt";
     fstream output(save_path.c_str(), std::ios::out);
     vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
     ll pre_timestamps = 0;
     ll cur_timestamps = 0;
     vector<double> pre_result = vector<double>{0, 0, 0};
-    model mdl = md;
+    model mdl = mdad;
+    fltrmdl flm = my;
     imu::IMUSensor imu_sensor(imu_data_file_path);
     SearchThreshold search_threshold;
     for(uint i = 0; i < timestamps.size(); ++i)
@@ -457,17 +459,45 @@ void test7()
         cur_timestamps = timestamps[i];
         if(i > 0)
         {
-            // scan denoise
-            string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
-            CloudTypePtr target_cloud = scan_denoise(target_file_path, 1, 5, mdl);
-            string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
-            CloudTypePtr source_cloud = scan_denoise(source_file_path, 1, 5, mdl);
-            // radar_data target_rd;
-            // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
-            // CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
-            // radar_data source_rd;
-            // radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
-            // CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
+            CloudTypePtr target_cloud(new CloudType());
+            CloudTypePtr source_cloud(new CloudType());
+            if(flm == my)
+            {
+                // scan denoise
+                string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
+                target_cloud = scan_denoise(target_file_path, 10, 5, mdl);
+                string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
+                source_cloud = scan_denoise(source_file_path, 10, 5, mdl);
+            }else if(flm == ks)
+            {
+                radar_data target_rd;
+                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+                target_cloud = k_strongest_filter(target_rd, 12, 0);
+                radar_data source_rd;
+                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+                source_cloud = k_strongest_filter(source_rd, 12, 0);
+            }else if(flm == c2018)
+            {
+                radar_data target_rd;
+                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+                cen2018features(target_rd.fft_data, 3, 17, 58, target_rd.targets);
+                targets_to_point_cloud(target_rd, target_cloud);
+                radar_data source_rd;
+                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+                cen2018features(source_rd.fft_data, 3, 17, 58, source_rd.targets);
+                targets_to_point_cloud(source_rd, source_cloud);
+            }else if(flm == c2019)
+            {
+                radar_data target_rd;
+                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+                cen2019features(target_rd.fft_data, 10000, 58, target_rd.targets);
+                targets_to_point_cloud(target_rd, target_cloud);
+                radar_data source_rd;
+                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+                cen2019features(source_rd.fft_data, 10000, 58, source_rd.targets);
+                targets_to_point_cloud(source_rd, source_cloud);   
+            }
+            
             // vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result);
             double thres = search_threshold.computeThreshold();
             Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
@@ -515,10 +545,166 @@ void test8()
 
 }
 
+void test9()
+{
+    string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
+
+    radar_data rd;
+    radar_data_split("/home/evan/code/radar-localization/test", to_string(1547131046606586), rd);
+    cen2018features(rd.fft_data, 3.0, 17, 58, rd.targets);
+    cv::Mat image1 = targets_to_cartesian_points(rd, 800, 800, 0.2);
+    cen2019features(rd.fft_data, 10000, 58, rd.targets);
+    cv::Mat image2 = targets_to_cartesian_points(rd, 800, 800, 0.2);
+    cv::Mat image(800, 1600, CV_8U);
+    image1.copyTo(image.colRange(0, 800));
+    image2.copyTo(image.colRange(800, 1600));
+    cfar1d(rd.fft_data, 10, 1, 2, 58, rd.targets);
+    cv::Mat image3 = targets_to_cartesian_points(rd, 800, 800, 0.2);
+    cv::imshow("", image3);
+    cv::waitKey(0);
+}
+
+void test10()
+{
+    vector<vector<double>> r_size_search_vector{{0.5, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}};
+    for(vector<double> v : r_size_search_vector)
+    {
+        auto ts = std::chrono::high_resolution_clock::now();
+        const string save_path = "/home/evan/code/radar-localization/test/result/rsize/" +
+            to_string(int(v[0])) + "_" + to_string(int(v[1])) + ".txt";
+        fstream output(save_path.c_str(), std::ios::out);
+        vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
+        ll pre_timestamps = 0;
+        ll cur_timestamps = 0;
+        vector<double> pre_result = vector<double>{0, 0, 0};
+        model mdl = mdad;
+        imu::IMUSensor imu_sensor(imu_data_file_path);
+        SearchThreshold search_threshold;
+        for(uint i = 0; i < timestamps.size(); ++i)
+        {
+            cur_timestamps = timestamps[i];
+            if(i > 0)
+            {
+                CloudTypePtr target_cloud(new CloudType());
+                CloudTypePtr source_cloud(new CloudType());
+
+                // scan denoise
+                string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
+                target_cloud = scan_denoise(target_file_path, 10, 5, mdl);
+                string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
+                source_cloud = scan_denoise(source_file_path, 10, 5, mdl);
+                
+                double thres = search_threshold.computeThreshold();
+                Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+                pre_result = vector<double>{t[0], t[1], t[2]};
+                vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result, thres, v[0], v[1]);
+                output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << endl;
+                
+                search_threshold.updateDeltaT(vec_to_transformation(pre_result).inverse() * vec_to_transformation(result));
+                
+                pre_result = result;
+                // std::cout << thres << std::endl;
+            }
+            pre_timestamps = cur_timestamps;
+        }
+        output.close();
+        auto te = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> e = te - ts;
+        std::cout << save_path << std::endl;
+        std::cout << e.count() << std::endl;
+    }
+}
+void test11()
+{
+    vector<double> contral{11, 12, 13, 14, 15, 16};
+    for(double c : contral)
+    {
+        const string save_path = "/home/evan/code/radar-localization/test/result/contral/" +
+            to_string(int(c)) + ".txt";
+        fstream output(save_path.c_str(), std::ios::out);
+        vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
+        ll pre_timestamps = 0;
+        ll cur_timestamps = 0;
+        vector<double> pre_result = vector<double>{0, 0, 0};
+        model mdl = mdad;
+        imu::IMUSensor imu_sensor(imu_data_file_path);
+        SearchThreshold search_threshold;
+        for(uint i = 0; i < timestamps.size(); ++i)
+        {
+            cur_timestamps = timestamps[i];
+            if(i > 0)
+            {
+                CloudTypePtr target_cloud(new CloudType());
+                CloudTypePtr source_cloud(new CloudType());
+
+                // scan denoise
+                string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
+                target_cloud = scan_denoise(target_file_path, c, 5, mdl);
+                string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
+                source_cloud = scan_denoise(source_file_path, c, 5, mdl);
+                
+                double thres = search_threshold.computeThreshold();
+                Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+                pre_result = vector<double>{t[0], t[1], t[2]};
+                vector<double> result = P2PRegisterTest(target_cloud, source_cloud, pre_result, thres);
+                output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << endl;
+                
+                search_threshold.updateDeltaT(vec_to_transformation(pre_result).inverse() * vec_to_transformation(result));
+                
+                pre_result = result;
+                // std::cout << thres << std::endl;
+            }
+            pre_timestamps = cur_timestamps;
+        }
+        output.close();
+    }
+}
+
+void test12()
+{
+    vector<fltrmdl> flms {my, ks, c2018, c2019};
+    vector<string> names {"my", "kstrongest", "cen2018", "cen2019"};
+    CloudTypePtr cloud(new CloudType());
+    string file_path = "/home/evan/code/radar-localization/test";
+    string timestamps = "1547131046606586";
+    string save_path = "/home/evan/code/radar-localization/test/result/figure";
+    for(uint i = 0; i < flms.size(); ++i)
+    {
+        fltrmdl flm = flms[i];
+        string name = names[i];
+        if(flm == my)
+        {
+            // scan denoise
+            string path = file_path + "/" + timestamps + ".png";
+            cloud = scan_denoise(path, 10, 5, normal);
+        }else if(flm == ks)
+        {
+            radar_data rd;
+            radar_data_split(file_path, timestamps, rd);
+            cloud = k_strongest_filter(rd, 12, 0);
+        }else if(flm == c2018)
+        {
+            radar_data rd;
+            radar_data_split(file_path, timestamps, rd);
+            cen2018features(rd.fft_data, 3, 17, 58, rd.targets);
+            targets_to_point_cloud(rd, cloud);
+        }else if(flm == c2019)
+        {
+            radar_data rd;
+            radar_data_split(file_path, timestamps, rd);
+            cen2019features(rd.fft_data, 10000, 58, rd.targets);
+            targets_to_point_cloud(rd, cloud);  
+        }
+        cv::Mat image = pointcloud_to_cartesian_points(cloud, 500, 500, 0.25);
+        string path = save_path + "/" + name + ".png";
+        cv::imwrite(path, image);
+    }
+}
+
 int main()
 {
     auto ts = std::chrono::high_resolution_clock::now();
-    test7();
+    test12();
     auto te = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> e = te - ts;
     std::cout << e.count() << std::endl;

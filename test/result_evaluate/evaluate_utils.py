@@ -78,7 +78,6 @@ def get_average(e):
     all_e = 0
     for ei in e:
         all_e = all_e + ei
-    
     return all_e / l
 
 def calculate_percentage(e, s):
@@ -128,23 +127,11 @@ def calculate_error_by_matmul(gt_pose, result):
         t, x, y, yaw = find_gt_pose(gt_pose, pose[0])
         T_ = get_transform(pose[1], pose[2], pose[3])
         T = get_transform(x, y, yaw)
-        
-
         T_error = np.matmul(np.linalg.inv(T_), T)
-        if 0:
-            ex.append(T_error[0, 2])
-            ey.append(T_error[1, 2])
-            exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
-            theta = np.arccos(T_error[0, 0])
-            if T_error[0, 1] < 0:
-                theta = -theta
-            eyaw.append(theta)
-        else:
-            ex.append(abs(T_error[0, 2]))
-            ey.append(abs(T_error[1, 2]))
-            exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
-            eyaw.append(abs(np.arccos(T_error[0, 0])))
-
+        ex.append(np.abs(T_error[0, 2]))
+        ey.append(np.abs(T_error[1, 2]))
+        exy2.append(math.sqrt(T_error[0, 2] * T_error[0, 2] + T_error[1, 2] * T_error[1, 2]))
+        eyaw.append(math.acos(T_error[0, 0]))
     return ex, ey, exy2, eyaw
 
 def calculate_drift(gt_pose, result):
@@ -173,7 +160,7 @@ def error_vs_speed(gt_pose, result, speed):
         for pose in result:
             t, x, y, yaw = find_gt_pose(gt_pose, pose[0])
             v_cur = np.sqrt(x * x + y * y) * 4
-            if v_cur > v and v_cur < v + 0.25:
+            if v_cur < v:
                 T_ = get_transform(pose[1], pose[2], pose[3])
                 T = get_transform(x, y, yaw)
                 T_error = np.matmul(np.linalg.inv(T_), T)
@@ -182,9 +169,7 @@ def error_vs_speed(gt_pose, result, speed):
     return e
 
 def compare_two_result(gt_pose, result1, result2):
-    speed = []
-    for i in range(0, 48):
-        speed.append(0.25 * i)
+    speed = range(1, 13)
     e1 = error_vs_speed(gt_pose, result1, speed)
     e2 = error_vs_speed(gt_pose, result2, speed)
     plt.plot(speed, e1)

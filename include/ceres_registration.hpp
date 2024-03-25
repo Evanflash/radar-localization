@@ -19,7 +19,7 @@ using CloudType = pcl::PointCloud<pcl::PointXYZI>;
 using CloudTypePtr = pcl::PointCloud<pcl::PointXYZI>::Ptr;
 
 std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, std::vector<double> init_pose, double thres);
-
+std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, std::vector<double> init_pose, double thres, double rsize, double rsearch);
 class RegistrationCost
 {
 protected:
