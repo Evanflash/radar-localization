@@ -25,6 +25,9 @@ public:
 
     bool ComputeNormal(const Vec2d & origin);
 
+    double GetPlanarity() const;
+    double GetNsamples() const;
+
 public:
     Vec2d u_ = Vec2d::Zero();
     Mat2d cov_ = Mat2d::Identity() * 0.1;

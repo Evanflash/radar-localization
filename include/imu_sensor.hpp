@@ -18,12 +18,12 @@ using Mat3d = Eigen::Matrix3d;
 struct imu_data
 {
     ll timestamp;
-    float x_coor;
-    float y_coor;
-    float yaw;
+    double x_coor;
+    double y_coor;
+    double yaw;
     imu_data()
         : timestamp(0), x_coor(0), y_coor(0), yaw(0){}
-    imu_data(ll timestamp_, float x_coor_, float y_coor_, float yaw_)
+    imu_data(ll timestamp_, double x_coor_, double y_coor_, double yaw_)
         : timestamp(timestamp_), x_coor(x_coor_), y_coor(y_coor_), yaw(yaw_){}
 }; // struct imu_data
 

@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <Eigen/Geometry>
+
 namespace imu
 {
 
@@ -23,10 +25,10 @@ IMUSensor::IMUSensor(const std::string imu_data_file_path)
         while(std::getline(ss, str, ',')){
             strs.push_back(str);
         }
-        x_coor += 0.02 * std::stof(strs[10]);
-        y_coor += 0.02 * std::stof(strs[9]);
+        x_coor += 0.02 * std::stod(strs[10]);
+        y_coor += 0.02 * std::stod(strs[9]);
         this -> all_imu_data.push_back(imu_data(std::stoll(strs[0]), 
-                                        x_coor, y_coor, std::stof(strs[14]) - M_PI / 2));
+                                        x_coor, y_coor, std::stod(strs[14]) - M_PI / 2));
         if(strs[1] == "INS_BAD_GPS_AGREEMENT"){
             bad_gps_value.insert(std::stoll(strs[0]));
         }
@@ -68,13 +70,22 @@ Vec3d IMUSensor::get_imu_data_by_timestamp(ll timestamp)
     else{
         imu_data pre = all_imu_data[i];
         imu_data nxt = all_imu_data[j];
-        float l1 = timestamp - pre.timestamp;
-        float l2 = nxt.timestamp - timestamp;
-        float w1 = l2 / (l1 + l2);
-        float w2 = l1 / (l1 + l2);
-        return Vec3d(w1 * pre.x_coor + w2 * nxt.x_coor,
-                    w1 * pre.y_coor + w2 * nxt.y_coor,
-                    w1 * pre.yaw + w2 * pre.yaw);
+        double alpha = (timestamp - pre.timestamp) / (nxt.timestamp - pre.timestamp);
+        Eigen::Matrix3d R;
+        R = 
+            Eigen::AngleAxisd(pre.yaw, Eigen::Vector3d::UnitZ()) * 
+            Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY()) *
+            Eigen::AngleAxisd(0, Eigen::Vector3d::UnitX());
+        Eigen::Quaterniond rot1(R);
+        R = 
+            Eigen::AngleAxisd(nxt.yaw, Eigen::Vector3d::UnitZ()) * 
+            Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY()) *
+            Eigen::AngleAxisd(0, Eigen::Vector3d::UnitX());
+        Eigen::Quaterniond rot2(R);
+        R = rot1.slerp(alpha, rot2).toRotationMatrix();
+        return Vec3d((1 - alpha) * pre.x_coor + alpha * nxt.x_coor,
+                    (1 - alpha) * pre.y_coor + alpha * nxt.y_coor,
+                    R.eulerAngles(0, 1, 2)(2));
     }
 }
 

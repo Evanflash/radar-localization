@@ -31,7 +31,7 @@ Odometry::Odometry(const std::string radar_data_file_path, const std::string rad
     iterations = 10;
     grid_size = 2;
     least_point_num = 5;
-    save_file_path = "/home/evan/code/radar-localization/test/result/my_registration_denoise_5_7.txt";
+    save_file_path = "/home/evan/code/radar-localization/test/result/0110/0110_mdad_thres_mul.txt";
 
     aLoopIsClosed = false;
     last_keyframe_index = 0;
@@ -441,7 +441,7 @@ void Odometry::save_keyframes_and_factor()
     
     // 因子图更新
     add_odom_factor();
-    add_gps_factor();
+    // add_gps_factor();
     // add_loop_factor();
 
     // update iSAM

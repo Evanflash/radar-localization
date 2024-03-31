@@ -44,7 +44,7 @@ def read_result(result_file):
         data = f.readlines()
         for line in data:
             l = line.split()
-            result.append([int(float(l[0])), float(l[1]), float(l[2]), float(l[3])])
+            result.append([int(float(l[0])), float(l[1]), float(l[2]), float(l[3]), float(l[4]), float(l[5]), float(l[6])])
     return result
 
 def calculate_error(gt_pose, result):

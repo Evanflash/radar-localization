@@ -16,7 +16,7 @@ public:
     }
 
 private:
-    const double initial_threshold = 2.0;
+    const double initial_threshold = 4.0;
     const double min_motion_th = 0.1;
     const double max_range = 100;
 

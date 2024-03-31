@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <chrono>
+#include <sstream>
 
 #include <opencv2/opencv.hpp>
 
@@ -19,9 +20,11 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 #include "ceres_registration.hpp"
 #include "threshold.hpp"
+#include "normal_feature.hpp"
 
 using namespace std;
 using ll = long long;
@@ -31,7 +34,9 @@ using CloudType = pcl::PointCloud<pcl::PointXYZI>;
 using CloudTypePtr = pcl::PointCloud<pcl::PointXYZI>::Ptr;
 using FeaturePoint = pcl::PointXY;
 
-static string imu_data_file_path = "/home/evan/extra/datasets/large/gps/ins.csv";
+string datasets = "20190110-114621";
+static string imu_data_file_path = "/home/evan/extra/datasets/" + datasets + "/gps/ins.csv";
+imu::IMUSensor imu_sensor(imu_data_file_path);
 
 enum model {normal, md, mdad, doppler};
 enum fltrmdl {my, ks, c2018, c2019};
@@ -92,8 +97,12 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
     vector<ll> radar_timestamps;
     vector<float> radar_azimuths;
     vector<vector<float>> radar_datas;
-
-    cv::Mat raw_data = cv::imread(radar_file_path, 0);
+    radar_timestamps.reserve(500);
+    radar_azimuths.reserve(500);
+    radar_datas.reserve(500);
+    auto ts = std::chrono::high_resolution_clock::now();
+    cv::Mat raw_data = cv::imread(radar_file_path, cv::IMREAD_UNCHANGED);
+    auto te = std::chrono::high_resolution_clock::now();
     for(int i = 0; i < raw_data.rows; ++i)
     {
         static const float encode = M_PI / 2800.0;
@@ -111,19 +120,25 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         float theta = (float)((high_byte << 8) + low_byte) * encode;
         radar_azimuths.push_back(theta);
 
-        radar_datas.push_back(vector<float>());
+        vector<float> tmp;
+        tmp.reserve(4000);
         for(int j = 11; j < raw_data.cols; ++j)
         {
             float data = (float)raw_data.at<uchar>(i, j) / 255.0;
-            radar_datas[i].push_back(data);
+            tmp.push_back(data);
         }
+        radar_datas.push_back(tmp);
     }
+    
+    std::chrono::duration<double> e_read = te - ts;
+
+    // std::cout << "read: " << e_read.count() << std::endl;
 
     // 运动去畸变
     Mat3d T_pre = Mat3d::Identity();
     vector<Mat3d> motion_distortion_vector{T_pre};
-    imu::IMUSensor imu_sensor(imu_data_file_path);
-    Vec3d T_all = imu_sensor.get_relative_pose(radar_timestamps.front(), radar_timestamps.back());
+    // imu::IMUSensor imu_sensor(imu_data_file_path);
+    // Vec3d T_all = imu_sensor.get_relative_pose(radar_timestamps.front(), radar_timestamps.back());
     // for(uint i = 1; i < radar_timestamps.size(); ++i)
     // {
     //     Mat3d T_cur = vec_to_transformation((i / 400.0) * T_all);
@@ -135,12 +150,18 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
         motion_distortion_vector.push_back(T_cur);
         T_pre = T_cur;
     }
+
     // 多普勒去畸变
     vector<vector<double>> doppler_offset_vector;
     for(uint i = 0; i < radar_timestamps.size() - 1; ++i)
     {
         Vec3d offset = imu_sensor.get_relative_pose(radar_timestamps[i], radar_timestamps[i + 1]);
         double time = (radar_timestamps[i + 1] - radar_timestamps[i]) * 0.000001;
+        if(time == 0)
+        {
+            doppler_offset_vector.push_back(vector<double>{0, 0});
+            continue;
+        }
         doppler_offset_vector.push_back(vector<double>{offset[0] / time, offset[1] / time});
     }
     doppler_offset_vector.push_back(doppler_offset_vector.back());
@@ -229,7 +250,6 @@ CloudTypePtr scan_denoise(const string radar_file_path, float contral, int range
             point_cloud_valid -> push_back(point);
         }
     }
-
     return point_cloud_valid;
 }
 
@@ -418,22 +438,23 @@ void test5()
 // 测试ceres配准函数
 void test6()
 {
-    // string radar_file_path1 = "/home/evan/code/radar-localization/test/1547131046606586.png";
-    // CloudTypePtr source_cloud = scan_denoise(radar_file_path1, 1, 5);
+    string radar_file_path1 = "/home/evan/extra/datasets/20190110-114621/radar/1547120913172284.png";
+    CloudTypePtr source_cloud = scan_denoise(radar_file_path1, 10, 5, mdad);
 
-    // string radar_file_path2 = "/home/evan/code/radar-localization/test/1547131046353776.png";
-    // CloudTypePtr target_cloud = scan_denoise(radar_file_path2, 1, 5);
+    string radar_file_path2 = "/home/evan/extra/datasets/20190110-114621/radar/1547120913424486.png";
+    CloudTypePtr target_cloud = scan_denoise(radar_file_path2, 10, 5, mdad);
 
-    radar_data target_rd;
-    radar_data_split("/home/evan/extra/datasets/large/radar", "1547131046353776", target_rd);
-    CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
-    radar_data source_rd;
-    radar_data_split("/home/evan/extra/datasets/large/radar", "1547131046606586", source_rd);
-    CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
+    // radar_data target_rd;
+    // radar_data_split("/home/evan/extra/datasets/large/radar", "1547131046353776", target_rd);
+    // CloudTypePtr target_cloud = k_strongest_filter(target_rd, 12, 0);
+    // radar_data source_rd;
+    // radar_data_split("/home/evan/extra/datasets/large/radar", "1547131046606586", source_rd);
+    // CloudTypePtr source_cloud = k_strongest_filter(source_rd, 12, 0);
 
-    cv::Mat image = pointcloud_to_cartesian_points(source_cloud, 800, 800, 0.2);
-    cv::imshow("", image);
-    cv::waitKey(0);
+    // cv::Mat image = pointcloud_to_cartesian_points(target_cloud, 2000, 1000, 0.05);
+    // cv::imshow("", image);
+    // cv::imwrite("/home/evan/code/radar-localization/test/result/figure/ys.png", image);
+    // cv::waitKey(0);
 
     vector<double> result = P2PRegisterTest(target_cloud, source_cloud, vector<double>{0, 0, 0}, 2);
 
@@ -443,10 +464,12 @@ void test6()
 // 大数据量测试
 void test7()
 {
+    string timestamp_file_path = "/home/evan/extra/datasets/20190110-114621/radar_change.timestamps";
+    string radar_file_path = "/home/evan/extra/datasets/20190110-114621/radar";
     const string save_path = 
-    "/home/evan/code/radar-localization/test/result/rsize/0_1.txt";
+    "/home/evan/code/radar-localization/test/result/0110/0110_mdad_thres.txt";
     fstream output(save_path.c_str(), std::ios::out);
-    vector<ll> timestamps = read_timestamp_file("/home/evan/extra/datasets/large/radar_change.timestamps");
+    vector<ll> timestamps = read_timestamp_file(timestamp_file_path);
     ll pre_timestamps = 0;
     ll cur_timestamps = 0;
     vector<double> pre_result = vector<double>{0, 0, 0};
@@ -464,36 +487,43 @@ void test7()
             if(flm == my)
             {
                 // scan denoise
-                string target_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(pre_timestamps) + ".png";
+                string target_file_path = radar_file_path + "/" + to_string(pre_timestamps) + ".png";
                 target_cloud = scan_denoise(target_file_path, 10, 5, mdl);
-                string source_file_path = "/home/evan/extra/datasets/large/radar/" + to_string(cur_timestamps) + ".png";
+                string source_file_path = radar_file_path + "/" + to_string(cur_timestamps) + ".png";
                 source_cloud = scan_denoise(source_file_path, 10, 5, mdl);
+                // cv::Mat image1 = pointcloud_to_cartesian_points(target_cloud, 800, 800, 0.2);
+                // cv::Mat image2 = pointcloud_to_cartesian_points(source_cloud, 800, 800, 0.2);
+                // cv::Mat image(800, 1600, CV_8U);
+                // image1.copyTo(image.colRange(0, 800));
+                // image2.copyTo(image.colRange(800, 1600));
+                // cv::imshow(to_string(target_cloud -> size()) + "+" + to_string(source_cloud -> size()), image);
+                // cv::waitKey(0);
             }else if(flm == ks)
             {
                 radar_data target_rd;
-                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+                radar_data_split(radar_file_path, to_string(pre_timestamps), target_rd);
                 target_cloud = k_strongest_filter(target_rd, 12, 0);
                 radar_data source_rd;
-                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+                radar_data_split(radar_file_path, to_string(cur_timestamps), source_rd);
                 source_cloud = k_strongest_filter(source_rd, 12, 0);
             }else if(flm == c2018)
             {
                 radar_data target_rd;
-                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+                radar_data_split(radar_file_path, to_string(pre_timestamps), target_rd);
                 cen2018features(target_rd.fft_data, 3, 17, 58, target_rd.targets);
                 targets_to_point_cloud(target_rd, target_cloud);
                 radar_data source_rd;
-                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+                radar_data_split(radar_file_path, to_string(cur_timestamps), source_rd);
                 cen2018features(source_rd.fft_data, 3, 17, 58, source_rd.targets);
                 targets_to_point_cloud(source_rd, source_cloud);
             }else if(flm == c2019)
             {
                 radar_data target_rd;
-                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(pre_timestamps), target_rd);
+                radar_data_split(radar_file_path, to_string(pre_timestamps), target_rd);
                 cen2019features(target_rd.fft_data, 10000, 58, target_rd.targets);
                 targets_to_point_cloud(target_rd, target_cloud);
                 radar_data source_rd;
-                radar_data_split("/home/evan/extra/datasets/large/radar", to_string(cur_timestamps), source_rd);
+                radar_data_split(radar_file_path, to_string(cur_timestamps), source_rd);
                 cen2019features(source_rd.fft_data, 10000, 58, source_rd.targets);
                 targets_to_point_cloud(source_rd, source_cloud);   
             }
@@ -701,10 +731,238 @@ void test12()
     }
 }
 
+vector<double> combine_two_pose(vector<double> pre_result, Vec3d relative_pose)
+{
+    Mat3d T_pre = vec_to_transformation(pre_result);
+    Mat3d T_relative_pose = vec_to_transformation(relative_pose);
+    Mat3d T_cur = T_pre * T_relative_pose;
+    vector<double> cur_result {T_cur(0, 2), T_cur(1, 2), pre_result[2] + relative_pose[2]};
+    return cur_result;
+}
+
+vector<double> combine_two_pose(vector<double> pre_result, vector<double> relative_pose)
+{
+    Mat3d T_pre = vec_to_transformation(pre_result);
+    Mat3d T_relative_pose = vec_to_transformation(relative_pose);
+    Mat3d T_cur = T_pre * T_relative_pose;
+    vector<double> cur_result {T_cur(0, 2), T_cur(1, 2), pre_result[2] + relative_pose[2]};
+    return cur_result;
+}
+
+Vec3d combine_two_pose(Vec3d pre_result, Vec3d relative_pose)
+{
+    Mat3d T_pre = vec_to_transformation(pre_result);
+    Mat3d T_relative_pose = vec_to_transformation(relative_pose);
+    Mat3d T_cur = T_pre * T_relative_pose;
+    Vec3d cur_result {T_cur(0, 2), T_cur(1, 2), pre_result[2] + relative_pose[2]};
+    return cur_result;
+}
+Vec3d sub_two_pose(Vec3d pre_result, Vec3d cur_result)
+{
+    Mat3d T_pre = vec_to_transformation(pre_result);
+    Mat3d T_cur = vec_to_transformation(cur_result);
+    Mat3d T_ = T_pre.inverse() * T_cur;
+    Vec3d result {T_(0, 2), T_(1, 2), cur_result[2] - pre_result[2]};
+    return result;
+}
+
+std::unordered_map<ll, Vec3d> interp_gt_pose(string timestamps_file_path, string gt_pose_file_path)
+{
+    // read gt pose
+    vector<ll> gt_timestamps;
+    vector<Vec3d> gt_poses;
+    std::fstream input_file(gt_pose_file_path.c_str(), std::ios::in);
+    std::string line;
+    getline(input_file, line);
+    while(getline(input_file, line)){
+        std::stringstream ss(line);
+        string str;
+        vector<string> tmp;
+        while(getline(ss, str, ','))
+        {
+            tmp.push_back(str);
+        }
+        gt_timestamps.push_back(std::stoll(tmp[8]));
+        gt_poses.push_back(Vec3d{std::stod(tmp[2]), std::stod(tmp[3]), std::stod(tmp[7])});
+    }
+    input_file.close();
+    // read timestamps
+    vector<ll> timestamps;
+    std::fstream input_file_2(timestamps_file_path.c_str(), std::ios::in);
+    while (getline(input_file_2, line))
+    {
+        std::stringstream ss(line);
+        string str;
+        getline(ss, str, ' ');
+        timestamps.push_back(std::stoll(str));
+    }
+    
+    // trans to world 
+    vector<Vec3d> gt_world_poses(gt_poses.size());
+    Vec3d pre{0, 0, 0};
+    for(uint i = 0; i < gt_poses.size(); ++i)
+    {
+        gt_world_poses[i] = combine_two_pose(pre, gt_poses[i]);
+        pre = gt_world_poses[i];
+    }
+
+    // interp pose
+    uint pre_index = 0;
+    vector<Vec3d> result;
+    for(uint i = 0; i < timestamps.size(); ++i)
+    {
+        Vec3d cur_pose {0, 0, 0};
+        for (uint j = pre_index; j < gt_timestamps.size() - 1; ++j)
+        {
+            if(timestamps[i] >= gt_timestamps[j] && timestamps[i] < gt_timestamps[j + 1])
+            {
+                pre_index = j;
+                double alpha = 0.0;
+                if(gt_timestamps[j] != gt_timestamps[j + 1])
+                    alpha = (timestamps[i] - gt_timestamps[j]) / (gt_timestamps[j+1] - gt_timestamps[j]);
+                Eigen::Matrix3d R;
+                R = 
+                    Eigen::AngleAxisd(gt_world_poses[j][2], Eigen::Vector3d::UnitZ()) * 
+                    Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY()) *
+                    Eigen::AngleAxisd(0, Eigen::Vector3d::UnitX());
+                Eigen::Quaternion<double> rot1(R);
+                R = 
+                    Eigen::AngleAxisd(gt_world_poses[j+1][2], Eigen::Vector3d::UnitZ()) * 
+                    Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY()) *
+                    Eigen::AngleAxisd(0, Eigen::Vector3d::UnitX());
+                Eigen::Quaternion<double> rot2(R);
+                Vec2d trans1 {gt_world_poses[j][0], gt_world_poses[j][1]};
+                Vec2d trans2 {gt_world_poses[j+1][0], gt_world_poses[j+1][1]};
+                Vec2d cur_trans = (1.0 - alpha) * trans1 + alpha * trans2;
+                cur_pose[0] = cur_trans[0];
+                cur_pose[1] = cur_trans[1];
+                R = rot1.slerp(alpha, rot2).toRotationMatrix();
+                cur_pose[2] = R.eulerAngles(0, 1, 2)(2);
+                result.push_back(cur_pose);
+            }
+        }
+    }
+    std::unordered_map<ll, Vec3d> res;
+    for(uint i = 0; i < timestamps.size(); ++i)
+    {
+        res[timestamps[i]] = sub_two_pose(result[0], result[i]);
+    }
+    return res;
+}
+
+
+
+void MulKeyFrameRegister()
+{
+    string gt_file_path = "/home/evan/extra/datasets/" + datasets + "/gt/radar_odometry.csv";
+    string timestamp_file_path = "/home/evan/extra/datasets/" + datasets + "/radar_change.timestamps";
+    string radar_file_path = "/home/evan/extra/datasets/" + datasets + "/radar";
+    const string save_path = 
+    "/home/evan/code/radar-localization/test/result/0110/0110_mdad_thres_mul.txt";
+    fstream output(save_path.c_str(), std::ios::out);
+    vector<ll> timestamps = read_timestamp_file(timestamp_file_path);
+    ll pre_timestamps = 0; // keyframe
+    ll cur_timestamps = 0;
+    vector<double> pre_result = vector<double>{0, 0, 0};
+    model mdl = mdad;
+    // imu::IMUSensor imu_sensor(imu_data_file_path);
+    SearchThreshold search_threshold;
+    SearchThreshold search_threshold_init;
+    vector<MapFeatures> targets_;
+    vector<vector<double>> transforms_;
+    vector<MapFeatures> targets_init_;
+    vector<vector<double>> transforms_init_;
+    double dis_thres = 1.5;
+    double the_thres = 0.1;
+    unordered_map<ll, Vec3d> gt_poses = interp_gt_pose(timestamp_file_path, gt_file_path);
+    for(uint i = 0; i < timestamps.size(); ++i)
+    {
+        cur_timestamps = timestamps[i];
+        Vec3d gt_pose = gt_poses[cur_timestamps];
+        string source_file_path = radar_file_path + "/" + to_string(cur_timestamps) + ".png";
+        auto ts = std::chrono::high_resolution_clock::now();
+        CloudTypePtr source_cloud = scan_denoise(source_file_path, 10, 5, mdl);
+        auto te = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> e_filter = te - ts;
+
+        // radar_data rd;
+        // radar_data_split(radar_file_path, to_string(cur_timestamps), rd);
+        // CloudTypePtr source_cloud = k_strongest_filter(rd, 12, 0);
+        ts = std::chrono::high_resolution_clock::now();
+        MapFeatures source_map = MapFeatures(source_cloud, 1, 2);
+        te = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> e_feature = te - ts;
+        ts = std::chrono::high_resolution_clock::now();
+        if(targets_.empty())
+        {
+            targets_.push_back(source_map);
+            transforms_.push_back(pre_result);
+            pre_timestamps = cur_timestamps;
+
+            targets_init_.push_back(source_map);
+            transforms_init_.push_back(pre_result);
+
+            output << to_string(cur_timestamps) << " " << 0 << " " << 0 << " " << 0 << " " << 
+            gt_pose[0] << " " << gt_pose[1] << " " << gt_pose[2] << 
+            endl;
+            // thres = search_threshold.computeThreshold();
+            continue;
+        }
+        Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+        vector<double> result_before = combine_two_pose(transforms_init_.back(), t);
+        targets_init_.push_back(source_map);
+        transforms_init_.push_back(result_before);
+        double thres_init = search_threshold_init.computeThreshold();
+        vector<double> result_init = P2PMulKeyFrameRegisterInit(targets_init_, transforms_init_, thres_init);
+        search_threshold_init.updateDeltaT(vec_to_transformation(result_before).inverse() * vec_to_transformation(result_init));
+        
+        targets_.push_back(source_map);
+        transforms_.push_back(result_init);
+        double thres = search_threshold.computeThreshold();
+        std::cout << thres << std::endl;
+        vector<double> result = P2PMulKeyFrameRegisterTest(targets_, transforms_, 2.5 * thres);
+        search_threshold.updateDeltaT(vec_to_transformation(result_init).inverse() * vec_to_transformation(result));
+        pre_timestamps = cur_timestamps;
+        transforms_init_.back() = result;
+        if(abs(result[2] - pre_result[2] > the_thres) || 
+            (result[0] - pre_result[0]) * (result[0] - pre_result[0]) + 
+            (result[1] - pre_result[1]) * (result[1] - pre_result[1]) > dis_thres * dis_thres)
+        {
+            if(targets_.size() < 3)
+                result = result_init;
+            pre_result = result;
+            transforms_.back() = result;
+            output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << " " <<
+            gt_pose[0] << " " << gt_pose[1] << " " << gt_pose[2] << " " <<
+            result_init[0] << " " << result_init[1] << " " << result_init[2] << 
+            endl;
+        }else{
+            targets_.pop_back();
+            transforms_.pop_back();
+        }
+        if(transforms_.size() > 3)
+        {
+            targets_.erase(targets_.begin());
+            transforms_.erase(transforms_.begin());
+        }
+        if(transforms_init_.size() > 3)
+        {
+            targets_init_.erase(targets_init_.begin());
+            transforms_init_.erase(transforms_init_.begin());
+        }
+        te = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> e_register = te - ts;
+        // std::cout << "filter: " << e_filter.count() << 
+        //     ", feature: " << e_feature.count() << 
+        //     ", register: " << e_register.count() << std::endl;
+    }
+    output.close();
+}
+
 int main()
 {
     auto ts = std::chrono::high_resolution_clock::now();
-    test12();
+    MulKeyFrameRegister();
     auto te = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> e = te - ts;
     std::cout << e.count() << std::endl;

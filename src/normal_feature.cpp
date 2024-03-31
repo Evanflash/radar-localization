@@ -50,6 +50,15 @@ bool GridFeatures::ComputeNormal(const Vec2d & origin)
     return cov_reasonalbe;
 }
 
+double GridFeatures::GetPlanarity() const
+{
+    return log10(1 + abs(lambda_max / lambda_min));
+}
+double GridFeatures::GetNsamples() const
+{
+    return (double)Nsamples_;
+}
+
 MapFeatures::MapFeatures(CloudTypePtr cloud, float grid_size, float radius)
 {
     cloud_ = cloud;
@@ -66,13 +75,21 @@ void MapFeatures::ComputeNormals(const Vec2d &origin)
     CloudType grid_sample_means;
 
     kdtree_input.setInputCloud(cloud_);
-
+    // for(uint i = 0; i < cloud_ ->size(); ++i)
+    // {
+    //     PointType p = cloud_ -> points[i];
+    //     if(std::isnan(p.x))
+    //     {
+    //         std::cout << p << std::endl;
+    //     }
+        
+    // }
     // 计算均值
     pcl::VoxelGrid<PointType> downsampleFilter;
     downsampleFilter.setInputCloud(cloud_);
     downsampleFilter.setLeafSize(grid_size_, grid_size_, grid_size_);
     downsampleFilter.filter(grid_sample_means);
-
+    // removeNaNFromPointCloud(grid_sample_means);
     // 查询特征点是否满足周围点数大于阈值的条件
     int num_thres = 12;
 
@@ -83,6 +100,7 @@ void MapFeatures::ComputeNormals(const Vec2d &origin)
         point_ind.clear();
         point_dis.clear();
         PointType pnt = grid_sample_means.points[i];
+        // std::cout << pnt << std::endl;
         if(kdtree_input.radiusSearchT(pnt, radius_, point_ind, point_dis) >= num_thres)
         {
             GridFeatures grid = GridFeatures(cloud_, point_ind, origin);

@@ -104,9 +104,9 @@ def getStats(err):
 
 
 if __name__ == "__main__":
-    result_name = "0110/0110_mdad_thres_mul"
-    gt_name = 1
-    keyframe = 0
+    result_name = "large/large_mdad_thres_mul"
+    gt_name = 0
+
     if gt_name:
         gt_name = "20190110-114621"
     else:
@@ -126,74 +126,45 @@ if __name__ == "__main__":
     poses_res = []
 
     timestamps.remove(timestamps[len(timestamps) - 1])
+    # 仅存关键帧
+    result_after = []
+    cur = 0
+    for timestamp in timestamps:
+        for ind in range(cur, len(result) - 1):
+            if not (result[ind][0] <= timestamp and result[ind + 1][0] >= timestamp):
+                continue
+            l1 = timestamp - result[ind][0]
+            l2 = result[ind + 1][0] - timestamp
+            w1 = l2 / (l1 + l2)
+            w2 = l1 / (l1 + l2)
+            x = w1 * result[ind][1] + w2 * result[ind + 1][1]
+            y = w1 * result[ind][2] + w2 * result[ind + 1][2]
+            yaw = w1 * result[ind][3] + w2 * result[ind + 1][3]
+            result_after.append([timestamp, x, y, yaw])
+            cur = ind - 1
+            break
+    
+    result = result_after
 
-    if keyframe:
-        # 所有帧都保存
-        for ind in range(0, len(result)):
-            T_gt_ = get_transform(gt_pose[ind][1], gt_pose[ind][2], gt_pose[ind][3])
-            T_res_ = get_transform(result[ind][1], result[ind][2], result[ind][3])
+    for ind in range(0, len(result)):
+        T_res = get_transform(result[ind][1], result[ind][2], result[ind][3])
+        R_res = T_res[0:2, 0:2]
+        if np.linalg.det(R_res) != 1.0:
+            enforce_orthogonality(R_res)
+            T_res[0:2, 0:2] = R_res
+        poses_res.append(T_res)
 
-            T_gt = np.matmul(T_gt, T_gt_)
-            T_res = np.matmul(T_res, T_res_)
+    gt_pose = gt_pose[0 : len(result) - 1]
 
-            R_gt = T_gt[0:2, 0:2]
-            R_res = T_res[0:2, 0:2]
-
-            if np.linalg.det(R_gt) != 1.0:
-                enforce_orthogonality(R_gt)
-                T_gt[0:2, 0:2] = R_gt
-            if np.linalg.det(R_res) != 1.0:
-                enforce_orthogonality(R_res)
-                T_res[0:2, 0:2] = R_res
-
-            poses_gt.append(T_gt)
-            poses_res.append(T_res)
-    else:
-        # 仅存关键帧
-        for ind in range(0, len(result)):
-            T_gt_ = get_transform(result[ind][4], result[ind][5], result[ind][6])
-            T_res_ = get_transform(result[ind][1], result[ind][2], result[ind][3])
-
-            poses_gt.append(T_gt_)
-            poses_res.append(T_res_)
-        # result_after = []
-        # cur = 0
-        # for timestamp in timestamps:
-        #     for ind in range(cur, len(result) - 1):
-        #         if not (result[ind][0] <= timestamp and result[ind + 1][0] >= timestamp):
-        #             continue
-        #         l1 = timestamp - result[ind][0]
-        #         l2 = result[ind + 1][0] - timestamp
-        #         w1 = l2 / (l1 + l2)
-        #         w2 = l1 / (l1 + l2)
-        #         x = w1 * result[ind][1] + w2 * result[ind + 1][1]
-        #         y = w1 * result[ind][2] + w2 * result[ind + 1][2]
-        #         yaw = w1 * result[ind][3] + w2 * result[ind + 1][3]
-        #         result_after.append([timestamp, x, y, yaw])
-        #         cur = ind - 1
-        #         break
-        
-        # result = result_after
-
-        # for ind in range(0, len(result)):
-        #     T_res = get_transform(result[ind][1], result[ind][2], result[ind][3])
-        #     R_res = T_res[0:2, 0:2]
-        #     if np.linalg.det(R_res) != 1.0:
-        #         enforce_orthogonality(R_res)
-        #         T_res[0:2, 0:2] = R_res
-        #     poses_res.append(T_res)
-
-        # gt_pose = gt_pose[0 : len(result) - 1]
-
-        # poses_gt.insert(0, poses_res[0])
-        # for i in range(0, len(gt_pose)):
-        #     T_gt_ = get_transform(gt_pose[i][1], gt_pose[i][2], gt_pose[i][3])
-        #     T_gt = np.matmul(T_gt, T_gt_)
-        #     R_gt = T_gt[0:2, 0:2]
-        #     if np.linalg.det(R_gt) != 1.0:
-        #         enforce_orthogonality(R_gt)
-        #         T_gt[0:2, 0:2] = R_gt
-        #     poses_gt.append(T_gt)
+    poses_gt.insert(0, poses_res[0])
+    for i in range(0, len(gt_pose)):
+        T_gt_ = get_transform(gt_pose[i][1], gt_pose[i][2], gt_pose[i][3])
+        T_gt = np.matmul(T_gt, T_gt_)
+        R_gt = T_gt[0:2, 0:2]
+        if np.linalg.det(R_gt) != 1.0:
+            enforce_orthogonality(R_gt)
+            T_gt[0:2, 0:2] = R_gt
+        poses_gt.append(T_gt)
     
     err.extend(calcSequenceErrors(poses_gt, poses_res))
     ate.append(calcAbsoluteTrajectoryError(poses_gt, poses_res))
