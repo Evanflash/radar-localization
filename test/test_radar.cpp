@@ -34,12 +34,13 @@ using CloudType = pcl::PointCloud<pcl::PointXYZI>;
 using CloudTypePtr = pcl::PointCloud<pcl::PointXYZI>::Ptr;
 using FeaturePoint = pcl::PointXY;
 
-string datasets = "20190110-114621";
-static string imu_data_file_path = "/home/evan/extra/datasets/" + datasets + "/gps/ins.csv";
+string datasets = "0110-1146";
+string imu_data_file_path = "/home/evan/extra/datasets/" + datasets + "/gps/ins.csv";
 imu::IMUSensor imu_sensor(imu_data_file_path);
 
 enum model {normal, md, mdad, doppler};
 enum fltrmdl {my, ks, c2018, c2019};
+enum initmdl {imu_init, time_init};
 
 struct feature
 {
@@ -766,6 +767,15 @@ Vec3d sub_two_pose(Vec3d pre_result, Vec3d cur_result)
     return result;
 }
 
+Vec3d sub_two_pose(vector<double> pre_result, vector<double> cur_result)
+{
+    Mat3d T_pre = vec_to_transformation(pre_result);
+    Mat3d T_cur = vec_to_transformation(cur_result);
+    Mat3d T_ = T_pre.inverse() * T_cur;
+    Vec3d result {T_(0, 2), T_(1, 2), cur_result[2] - pre_result[2]};
+    return result;
+}
+
 std::unordered_map<ll, Vec3d> interp_gt_pose(string timestamps_file_path, string gt_pose_file_path)
 {
     // read gt pose
@@ -850,7 +860,143 @@ std::unordered_map<ll, Vec3d> interp_gt_pose(string timestamps_file_path, string
     return res;
 }
 
+void One2OneFrameRegister(string datasets_name, model mdl, fltrmdl flt, double rsize, double contral, string save_path)
+{
+    string gt_file_path = "/home/evan/extra/datasets/" + datasets_name + "/gt/radar_odometry.csv";
+    imu_data_file_path = "/home/evan/extra/datasets/" + datasets_name + "/gps/ins.csv";
+    string timestamp_file_path = "/home/evan/extra/datasets/" + datasets_name + "/radar.timestamps";
+    string radar_file_path = "/home/evan/extra/datasets/" + datasets_name + "/radar";
 
+    fstream output(save_path.c_str(), std::ios::out);
+    vector<ll> timestamps = read_timestamp_file(timestamp_file_path);
+    ll pre_timestamps = 0;
+    ll cur_timestamps = 0;
+    MapFeatures pre_map;
+    vector<double> pre_result = vector<double>{0, 0, 0};
+    imu_sensor = imu::IMUSensor(imu_data_file_path);
+    unordered_map<ll, Vec3d> gt_poses = interp_gt_pose(timestamp_file_path, gt_file_path);
+    for(uint i = 0; i < timestamps.size(); ++i)
+    {
+        cur_timestamps = timestamps[i];
+        Vec3d gt_pose = gt_poses[cur_timestamps];
+        CloudTypePtr cloud(new CloudType());
+        if(flt == my)
+        {
+            // scan denoise
+            string file_path = radar_file_path + "/" + to_string(cur_timestamps) + ".png";
+            cloud = scan_denoise(file_path, contral, 5, mdl);
+        }else if(flt == ks)
+        {
+            radar_data rd;
+            radar_data_split(radar_file_path, to_string(cur_timestamps), rd);
+            cloud = k_strongest_filter(rd, 12, 0);
+        }else if(flt == c2018)
+        {
+            radar_data rd;
+            radar_data_split(radar_file_path, to_string(cur_timestamps), rd);
+            cen2018features(rd.fft_data, 3, 17, 58, rd.targets);
+            targets_to_point_cloud(rd, cloud);
+        }else if(flt == c2019)
+        {
+            radar_data rd;
+            radar_data_split(radar_file_path, to_string(cur_timestamps), rd);
+            cen2019features(rd.fft_data, 10000, 58, rd.targets);
+            targets_to_point_cloud(rd, cloud);  
+        }
+        MapFeatures cur_map = MapFeatures(cloud, rsize, rsize + 1.0);
+        if(i > 0)
+        {  
+            Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+            vector<double> result_init = vector<double>{t[0], t[1], t[2]};
+            vector<double> result = P2PRegister(pre_map, cur_map, result_init);
+            pre_result = combine_two_pose(pre_result, result);
+            output << to_string(cur_timestamps) << " " << 
+                pre_result[0] << " " << pre_result[1] << " " << pre_result[2] << " " <<
+                gt_pose[0] << " " << gt_pose[1] << " " << gt_pose[2]
+                << endl;
+        }else
+        {
+            output << to_string(cur_timestamps) << " " << 
+                0 << " " << 0 << " " << 0 << " " <<
+                0 << " " << 0 << " " << 0 << " "  << endl;
+        }
+        pre_map = cur_map;
+        pre_timestamps = cur_timestamps;
+    }
+    output.close();
+}
+
+void filter_compare()
+{
+    vector<string> datasets_name_vector {"20190110-114621", "20190118-152012"};
+    vector<fltrmdl> flt_vector {my, ks, c2018, c2019};
+    vector<string> flt_name_vector {"my", "ks", "c2018", "c2019"};
+    string time_path = "/home/evan/code/radar-localization/test/result/filter/time.txt";
+    std::fstream time_compare(time_path.c_str(), std::ios::out);
+    for(auto datasets_name : datasets_name_vector)
+    {
+        for(uint i = 0; i < flt_vector.size(); ++i)
+        {
+            string save_path = "/home/evan/code/radar-localization/test/result/filter/" + 
+                                datasets_name + "_" + flt_name_vector[i] + ".txt";
+            auto ts = std::chrono::high_resolution_clock::now();
+            One2OneFrameRegister(datasets_name, mdad, flt_vector[i], 1, 10, save_path);
+            auto te = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> e = te - ts;
+            time_compare << save_path << " " << e.count() << std::endl;
+        }
+    }
+    time_compare.close();
+}
+
+void rsize_compare()
+{
+    vector<string> datasets_name_vector {"large"};
+    vector<double> rsize_vector {0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8};
+    vector<string> rsize_name_vector {"0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", 
+        "6", "6.5", "7", "7.5", "8"};
+    string time_path = "/home/evan/code/radar-localization/test/result/rsize/time.txt";
+    std::fstream time_compare(time_path.c_str(), std::ios::out);
+    for(auto datasets_name : datasets_name_vector)
+    {
+        for(uint i = 0; i < rsize_vector.size(); ++i)
+        {
+            string save_path = "/home/evan/code/radar-localization/test/result/rsize/" + 
+                                datasets_name + "_" + rsize_name_vector[i] + ".txt";
+            auto ts = std::chrono::high_resolution_clock::now();
+            One2OneFrameRegister(datasets_name, mdad, my, rsize_vector[i], 10, save_path);
+            auto te = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> e = te - ts;
+            time_compare << save_path << " " << e.count() << std::endl;
+        }
+    }
+    time_compare.close();
+}
+
+void contral_compare()
+{
+    vector<string> datasets_name_vector {"large"};
+    vector<double> contral_vector {0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15};
+    vector<string> contral_name_vector {"0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", 
+        "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5",
+        "13", "13.5", "14", "14.5", "15"};
+    string time_path = "/home/evan/code/radar-localization/test/result/contral/time.txt";
+    std::fstream time_compare(time_path.c_str(), std::ios::out);
+    for(auto datasets_name : datasets_name_vector)
+    {
+        for(uint i = 0; i < contral_vector.size(); ++i)
+        {
+            string save_path = "/home/evan/code/radar-localization/test/result/contral/" + 
+                                datasets_name + "_" + contral_name_vector[i] + ".txt";
+            auto ts = std::chrono::high_resolution_clock::now();
+            One2OneFrameRegister(datasets_name, mdad, my, 2.5, contral_vector[i], save_path);
+            auto te = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> e = te - ts;
+            time_compare << save_path << " " << e.count() << std::endl;
+        }
+    }
+    time_compare.close();
+}
 
 void MulKeyFrameRegister()
 {
@@ -858,14 +1004,15 @@ void MulKeyFrameRegister()
     string timestamp_file_path = "/home/evan/extra/datasets/" + datasets + "/radar_change.timestamps";
     string radar_file_path = "/home/evan/extra/datasets/" + datasets + "/radar";
     const string save_path = 
-    "/home/evan/code/radar-localization/test/result/0110/0110_mdad_thres_mul.txt";
+    "/home/evan/code/radar-localization/test/result/0110/try.txt";
     fstream output(save_path.c_str(), std::ios::out);
     vector<ll> timestamps = read_timestamp_file(timestamp_file_path);
-    ll pre_timestamps = 0; // keyframe
+    ll pre_timestamps = 0; 
     ll cur_timestamps = 0;
     vector<double> pre_result = vector<double>{0, 0, 0};
     model mdl = mdad;
-    // imu::IMUSensor imu_sensor(imu_data_file_path);
+    initmdl iml = time_init;
+
     SearchThreshold search_threshold;
     SearchThreshold search_threshold_init;
     vector<MapFeatures> targets_;
@@ -880,81 +1027,107 @@ void MulKeyFrameRegister()
         cur_timestamps = timestamps[i];
         Vec3d gt_pose = gt_poses[cur_timestamps];
         string source_file_path = radar_file_path + "/" + to_string(cur_timestamps) + ".png";
-        auto ts = std::chrono::high_resolution_clock::now();
+        // 滤波与特征提取
         CloudTypePtr source_cloud = scan_denoise(source_file_path, 10, 5, mdl);
-        auto te = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> e_filter = te - ts;
-
         // radar_data rd;
         // radar_data_split(radar_file_path, to_string(cur_timestamps), rd);
         // CloudTypePtr source_cloud = k_strongest_filter(rd, 12, 0);
-        ts = std::chrono::high_resolution_clock::now();
         MapFeatures source_map = MapFeatures(source_cloud, 1, 2);
-        te = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> e_feature = te - ts;
-        ts = std::chrono::high_resolution_clock::now();
+        MapFeatures source_map_init = source_map;// MapFeatures(source_cloud, 1, 2);
+        // 初始化
         if(targets_.empty())
         {
+            // 关键帧
             targets_.push_back(source_map);
             transforms_.push_back(pre_result);
+            // 连续帧
+            if(iml == time_init)
+            {
+                targets_init_.push_back(source_map_init);
+                transforms_init_.push_back(pre_result);
+            }
+            
             pre_timestamps = cur_timestamps;
 
-            targets_init_.push_back(source_map);
-            transforms_init_.push_back(pre_result);
-
             output << to_string(cur_timestamps) << " " << 0 << " " << 0 << " " << 0 << " " << 
-            gt_pose[0] << " " << gt_pose[1] << " " << gt_pose[2] << 
-            endl;
-            // thres = search_threshold.computeThreshold();
+            0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << endl;
             continue;
         }
-        Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
-        vector<double> result_before = combine_two_pose(transforms_init_.back(), t);
-        targets_init_.push_back(source_map);
-        transforms_init_.push_back(result_before);
-        double thres_init = search_threshold_init.computeThreshold();
-        vector<double> result_init = P2PMulKeyFrameRegisterInit(targets_init_, transforms_init_, thres_init);
-        search_threshold_init.updateDeltaT(vec_to_transformation(result_before).inverse() * vec_to_transformation(result_init));
-        
-        targets_.push_back(source_map);
-        transforms_.push_back(result_init);
-        double thres = search_threshold.computeThreshold();
-        std::cout << thres << std::endl;
-        vector<double> result = P2PMulKeyFrameRegisterTest(targets_, transforms_, 2.5 * thres);
-        search_threshold.updateDeltaT(vec_to_transformation(result_init).inverse() * vec_to_transformation(result));
-        pre_timestamps = cur_timestamps;
-        transforms_init_.back() = result;
+        vector<double> result_init;
+        vector<double> result;
+        // 获得初始化位姿 连续帧
+        if(iml == imu_init)
+        {
+            Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+            result_init = combine_two_pose(pre_result, t);
+            // 帧到多帧配准 关键帧
+            targets_.push_back(source_map);
+            transforms_.push_back(result_init);
+            double thres = search_threshold.computeThreshold();
+            result = P2PMulKeyFrameRegisterTest(targets_, transforms_, 2.5 * thres);
+            search_threshold.updateDeltaT(vec_to_transformation(result_init).inverse() * vec_to_transformation(result));
+        }else if(iml == time_init)
+        {
+            // 通过imu累计位姿
+            // Vec3d t = imu_sensor.get_relative_pose(pre_timestamps, cur_timestamps);
+            Vec3d t = Vec3d::Zero();
+            if(transforms_init_.size() > 1)
+            {
+                t = sub_two_pose(transforms_init_[transforms_init_.size() - 2], transforms_init_.back());
+            }
+            vector<double> result_before = combine_two_pose(transforms_init_.back(), t);
+            // 通过配准的方法获得初始化位姿
+            targets_init_.push_back(source_map_init);
+            transforms_init_.push_back(result_before);
+            double thres_init = search_threshold_init.computeThreshold();
+            result_init = P2PMulKeyFrameRegisterInit(targets_init_, transforms_init_, 3 * thres_init);
+            search_threshold_init.updateDeltaT(vec_to_transformation(result_before).inverse() * vec_to_transformation(result_init));
+            
+            // 帧到多帧配准 关键帧
+            targets_.push_back(source_map);
+            transforms_.push_back(result_init);
+            double thres = search_threshold.computeThreshold();
+            result = P2PMulKeyFrameRegisterTest(targets_, transforms_, 6 * thres);
+            std::cout << thres << std::endl;
+            // 更新连续帧信息
+            pre_timestamps = cur_timestamps;
+            transforms_init_.back() = result;
+        }
+        // 判断是否为关键帧
         if(abs(result[2] - pre_result[2] > the_thres) || 
             (result[0] - pre_result[0]) * (result[0] - pre_result[0]) + 
             (result[1] - pre_result[1]) * (result[1] - pre_result[1]) > dis_thres * dis_thres)
-        {
-            if(targets_.size() < 3)
-                result = result_init;
+        {            
+            search_threshold.updateDeltaT(vec_to_transformation(result_init).inverse() * vec_to_transformation(result));
+            // 更新关键帧位姿
             pre_result = result;
             transforms_.back() = result;
+
+            if(iml == imu_init) pre_timestamps = cur_timestamps;
+
+            // save
             output << to_string(cur_timestamps) << " " << result[0] << " " << result[1] << " " << result[2] << " " <<
             gt_pose[0] << " " << gt_pose[1] << " " << gt_pose[2] << " " <<
-            result_init[0] << " " << result_init[1] << " " << result_init[2] << 
-            endl;
+            result_init[0] << " " << result_init[1] << " " << result_init[2] << " " << endl;
         }else{
             targets_.pop_back();
             transforms_.pop_back();
         }
+        // 控制帧对多帧配准的多帧数量
         if(transforms_.size() > 3)
         {
             targets_.erase(targets_.begin());
+            vector<MapFeatures>(targets_).swap(targets_);
             transforms_.erase(transforms_.begin());
+            vector<vector<double>>(transforms_).swap(transforms_);
         }
         if(transforms_init_.size() > 3)
         {
             targets_init_.erase(targets_init_.begin());
+            vector<MapFeatures>(targets_init_).swap(targets_init_);
             transforms_init_.erase(transforms_init_.begin());
+            vector<vector<double>>(transforms_init_).swap(transforms_init_);
         }
-        te = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> e_register = te - ts;
-        // std::cout << "filter: " << e_filter.count() << 
-        //     ", feature: " << e_feature.count() << 
-        //     ", register: " << e_register.count() << std::endl;
     }
     output.close();
 }

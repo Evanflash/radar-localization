@@ -25,7 +25,7 @@ std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, 
 std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, std::vector<double> init_pose, double thres, double rsize, double rsearch);
 std::vector<double> P2PMulKeyFrameRegisterTest(vector<MapFeatures> clouds_, vector<vector<double>> transforms_, double thres);
 std::vector<double> P2PMulKeyFrameRegisterInit(vector<MapFeatures> clouds_, vector<vector<double>> transforms_, double thres);
-
+vector<double> P2PRegister(MapFeatures targets, MapFeatures sources, vector<double> init_pose);
 class RegistrationCost
 {
 protected:

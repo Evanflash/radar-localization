@@ -104,7 +104,7 @@ def getStats(err):
 
 
 if __name__ == "__main__":
-    result_name = "0110/0110_mdad_thres_mul"
+    result_name = "0110/try"
     gt_name = 1
     keyframe = 0
     if gt_name:
@@ -112,8 +112,8 @@ if __name__ == "__main__":
     else:
         gt_name = "large"
 
-    timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/" + gt_name + "/radar_change.timestamps")
-    gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/" + gt_name + "/gt/radar_odometry_change.csv")
+    # timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/" + gt_name + "/radar_change.timestamps")
+    # gt_pose = evaluate_utils.read_gt_pose("/home/evan/extra/datasets/" + gt_name + "/gt/radar_odometry_change.csv")
     result = evaluate_utils.read_result("/home/evan/code/radar-localization/test/result/" + result_name + ".txt")
 
     err = []
@@ -125,29 +125,30 @@ if __name__ == "__main__":
     poses_gt = []
     poses_res = []
 
-    timestamps.remove(timestamps[len(timestamps) - 1])
+    # timestamps.remove(timestamps[len(timestamps) - 1])
 
     if keyframe:
         # 所有帧都保存
-        for ind in range(0, len(result)):
-            T_gt_ = get_transform(gt_pose[ind][1], gt_pose[ind][2], gt_pose[ind][3])
-            T_res_ = get_transform(result[ind][1], result[ind][2], result[ind][3])
+        1
+        # for ind in range(0, len(result)):
+            # T_gt_ = get_transform(gt_pose[ind][1], gt_pose[ind][2], gt_pose[ind][3])
+            # T_res_ = get_transform(result[ind][1], result[ind][2], result[ind][3])
 
-            T_gt = np.matmul(T_gt, T_gt_)
-            T_res = np.matmul(T_res, T_res_)
+            # T_gt = np.matmul(T_gt, T_gt_)
+            # T_res = np.matmul(T_res, T_res_)
 
-            R_gt = T_gt[0:2, 0:2]
-            R_res = T_res[0:2, 0:2]
+            # R_gt = T_gt[0:2, 0:2]
+            # R_res = T_res[0:2, 0:2]
 
-            if np.linalg.det(R_gt) != 1.0:
-                enforce_orthogonality(R_gt)
-                T_gt[0:2, 0:2] = R_gt
-            if np.linalg.det(R_res) != 1.0:
-                enforce_orthogonality(R_res)
-                T_res[0:2, 0:2] = R_res
+            # if np.linalg.det(R_gt) != 1.0:
+            #     enforce_orthogonality(R_gt)
+            #     T_gt[0:2, 0:2] = R_gt
+            # if np.linalg.det(R_res) != 1.0:
+            #     enforce_orthogonality(R_res)
+            #     T_res[0:2, 0:2] = R_res
 
-            poses_gt.append(T_gt)
-            poses_res.append(T_res)
+            # poses_gt.append(T_gt)
+            # poses_res.append(T_res)
     else:
         # 仅存关键帧
         for ind in range(0, len(result)):
@@ -156,45 +157,16 @@ if __name__ == "__main__":
 
             poses_gt.append(T_gt_)
             poses_res.append(T_res_)
-        # result_after = []
-        # cur = 0
-        # for timestamp in timestamps:
-        #     for ind in range(cur, len(result) - 1):
-        #         if not (result[ind][0] <= timestamp and result[ind + 1][0] >= timestamp):
-        #             continue
-        #         l1 = timestamp - result[ind][0]
-        #         l2 = result[ind + 1][0] - timestamp
-        #         w1 = l2 / (l1 + l2)
-        #         w2 = l1 / (l1 + l2)
-        #         x = w1 * result[ind][1] + w2 * result[ind + 1][1]
-        #         y = w1 * result[ind][2] + w2 * result[ind + 1][2]
-        #         yaw = w1 * result[ind][3] + w2 * result[ind + 1][3]
-        #         result_after.append([timestamp, x, y, yaw])
-        #         cur = ind - 1
-        #         break
-        
-        # result = result_after
+    rpe_err = 0
+    rpe_num = 0
+    for first_frame in range(0, len(poses_gt) - 1):
+        pose_delta_gt = np.matmul(get_inverse_tf(poses_gt[first_frame]), poses_gt[first_frame - 1])
+        pose_delta_res = np.matmul(get_inverse_tf(poses_res[first_frame]), poses_res[first_frame - 1])
+        pose_error = np.matmul(get_inverse_tf(pose_delta_res), pose_delta_gt)
+        t_err = translationError(pose_error)
+        rpe_err = rpe_err + t_err
+        rpe_num = rpe_num + 1
 
-        # for ind in range(0, len(result)):
-        #     T_res = get_transform(result[ind][1], result[ind][2], result[ind][3])
-        #     R_res = T_res[0:2, 0:2]
-        #     if np.linalg.det(R_res) != 1.0:
-        #         enforce_orthogonality(R_res)
-        #         T_res[0:2, 0:2] = R_res
-        #     poses_res.append(T_res)
-
-        # gt_pose = gt_pose[0 : len(result) - 1]
-
-        # poses_gt.insert(0, poses_res[0])
-        # for i in range(0, len(gt_pose)):
-        #     T_gt_ = get_transform(gt_pose[i][1], gt_pose[i][2], gt_pose[i][3])
-        #     T_gt = np.matmul(T_gt, T_gt_)
-        #     R_gt = T_gt[0:2, 0:2]
-        #     if np.linalg.det(R_gt) != 1.0:
-        #         enforce_orthogonality(R_gt)
-        #         T_gt[0:2, 0:2] = R_gt
-        #     poses_gt.append(T_gt)
-    
     err.extend(calcSequenceErrors(poses_gt, poses_res))
     ate.append(calcAbsoluteTrajectoryError(poses_gt, poses_res))
 
@@ -204,4 +176,5 @@ if __name__ == "__main__":
     print(result_name)
     print('t_err: {} %'.format(t_err * 100))
     print('r_err: {} deg/100m'.format(r_err * 100 * 180 / np.pi))
+    print('RPE: {} m'.format(rpe_err / rpe_num))
     print('ATE: {} m'.format(np.mean(ate)))

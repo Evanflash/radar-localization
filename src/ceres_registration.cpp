@@ -57,7 +57,7 @@ vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vecto
             
             Vec2d source_mean_world = Vec2d(source_mean(0), source_mean(1));
 
-            vector<GridFeatures*> ts = targets_map.GetClosest(source_mean_world, cur_radius);
+            vector<GridFeatures> ts = targets_map.GetClosest(source_mean_world, cur_radius);
             
             
             PointType p(s.u_(0), s.u_(1), s.snormal_(0), s.snormal_(1));
@@ -67,7 +67,7 @@ vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vecto
             for(auto g : ts)
             {
                 Vec3d s_normal = Vec3d(s.snormal_(0), s.snormal_(1), 1);
-                Vec3d t_normal = Vec3d(g -> snormal_(0), g -> snormal_(1), 1);
+                Vec3d t_normal = Vec3d(g.snormal_(0), g.snormal_(1), 1);
                 Vec3d src_normal_trans = T * s_normal;
                 Vec3d tar_normal_trans = t_normal;
                 double simi = std::max(src_normal_trans.dot(tar_normal_trans), 0.0);
@@ -75,7 +75,7 @@ vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, vecto
 
                 if(simi > angle_outlier)
                 {
-                    ceres::CostFunction *cost_function = P2PCost::Create(g -> u_, s.u_);
+                    ceres::CostFunction *cost_function = P2PCost::Create(g.u_, s.u_);
                     problem -> AddResidualBlock(
                         cost_function, new ceres::HuberLoss(0.1), target_para.data(), parameters.data());
                         nums++;
@@ -166,7 +166,7 @@ std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, 
             
             Vec2d source_mean_world = Vec2d(source_mean(0), source_mean(1));
 
-            vector<GridFeatures*> ts = targets_map.GetClosest(source_mean_world, cur_radius);
+            vector<GridFeatures> ts = targets_map.GetClosest(source_mean_world, cur_radius);
             
             
             PointType p(s.u_(0), s.u_(1), s.snormal_(0), s.snormal_(1));
@@ -176,7 +176,7 @@ std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, 
             for(auto g : ts)
             {
                 Vec3d s_normal = Vec3d(s.snormal_(0), s.snormal_(1), 1);
-                Vec3d t_normal = Vec3d(g -> snormal_(0), g -> snormal_(1), 1);
+                Vec3d t_normal = Vec3d(g.snormal_(0), g.snormal_(1), 1);
                 Vec3d src_normal_trans = T * s_normal;
                 Vec3d tar_normal_trans = t_normal;
                 double simi = std::max(src_normal_trans.dot(tar_normal_trans), 0.0);
@@ -184,7 +184,7 @@ std::vector<double> P2PRegisterTest(CloudTypePtr targets, CloudTypePtr sources, 
 
                 if(simi > angle_outlier)
                 {
-                    ceres::CostFunction *cost_function = P2PCost::Create(g -> u_, s.u_);
+                    ceres::CostFunction *cost_function = P2PCost::Create(g.u_, s.u_);
                     problem -> AddResidualBlock(
                         cost_function, new ceres::HuberLoss(0.1), target_para.data(), parameters.data());
                         nums++;
@@ -277,17 +277,17 @@ std::vector<double> P2PMulKeyFrameRegisterTest(vector<MapFeatures> clouds_, vect
             GridFeatures s = sources_map.GetGrid(i);
             // 模板点云参数
             vector<uint> indexs;
-            vector<GridFeatures*> grids;
+            vector<GridFeatures> grids;
             vector<double> weights;
             for(uint j = 0; j < clouds_.size(); ++j)
             {
                 Vec3d source_mean = T_stot_[j] * Vec3d(s.u_(0), s.u_(1), 1);
                 Vec2d source_mean_world = Vec2d(source_mean(0), source_mean(1));
-                vector<GridFeatures*> ts = clouds_[j].GetClosest(source_mean_world, cur_radius);
+                vector<GridFeatures> ts = clouds_[j].GetClosest(source_mean_world, cur_radius);
                 for(auto g : ts)
                 {
                     Vec3d s_normal = Vec3d(s.snormal_(0), s.snormal_(1), 1);
-                    Vec3d t_normal = Vec3d(g -> snormal_(0), g -> snormal_(1), 1);
+                    Vec3d t_normal = Vec3d(g.snormal_(0), g.snormal_(1), 1);
                     Vec3d src_normal_trans = T_stot_[j] * s_normal;
                     Vec3d tar_normal_trans = t_normal;
                     double simi = std::max(src_normal_trans.dot(tar_normal_trans), 0.0);
@@ -297,8 +297,8 @@ std::vector<double> P2PMulKeyFrameRegisterTest(vector<MapFeatures> clouds_, vect
                         target_indexs.insert(j);
                         indexs.push_back(j);
                         grids.push_back(g);
-                        double plan = 2 * std::min(g->GetPlanarity(), s.GetPlanarity()) / (g->GetPlanarity() + s.GetPlanarity());
-                        double det = 2 * std::min(g->GetNsamples(), s.GetNsamples()) / (g->GetNsamples(), s.GetNsamples());
+                        double plan = 0;//2 * std::min(g.GetPlanarity(), s.GetPlanarity()) / (g.GetPlanarity() + s.GetPlanarity());
+                        double det = 0;//2 * std::min(g.GetNsamples(), s.GetNsamples()) / (g.GetNsamples(), s.GetNsamples());
                         weights.push_back(plan + simi + det);
                         break;
                     }
@@ -308,9 +308,9 @@ std::vector<double> P2PMulKeyFrameRegisterTest(vector<MapFeatures> clouds_, vect
             for(uint j = 0; j < indexs.size(); ++j)
             {
                 ceres::LossFunction* cere_loss = 
-                    new ceres::ScaledLoss(new ceres::HuberLoss(0.1), /*weights[j]*/1, ceres::TAKE_OWNERSHIP);
-                // ceres::CostFunction *cost_function = P2LCost::Create(grids[j] -> u_, grids[j] -> snormal_, s.u_);
-                ceres::CostFunction *cost_function = P2PCost::Create(grids[j] -> u_, s.u_);
+                    new ceres::ScaledLoss(new ceres::HuberLoss(0.1), 1 /*+ weights[j]*/, ceres::TAKE_OWNERSHIP);
+                // ceres::CostFunction *cost_function = P2LCost::Create(grids[j].u_, grids[j].snormal_, s.u_);
+                ceres::CostFunction *cost_function = P2PCost::Create(grids[j].u_, s.u_);
                 problem -> AddResidualBlock(
                     cost_function, cere_loss, transforms_[indexs[j]].data(), parameters.data());
                 nums++;
@@ -342,6 +342,7 @@ std::vector<double> P2PMulKeyFrameRegisterTest(vector<MapFeatures> clouds_, vect
         }
         pre_score = cur_sorce;
         pre_parameters = parameters;
+        delete problem;
     }
     return parameters;
 }
@@ -394,17 +395,17 @@ std::vector<double> P2PMulKeyFrameRegisterInit(vector<MapFeatures> clouds_, vect
             GridFeatures s = sources_map.GetGrid(i);
             // 模板点云参数
             vector<uint> indexs;
-            vector<GridFeatures*> grids;
+            vector<GridFeatures> grids;
             vector<double> weights;
             for(uint j = 0; j < clouds_.size(); ++j)
             {
                 Vec3d source_mean = T_stot_[j] * Vec3d(s.u_(0), s.u_(1), 1);
                 Vec2d source_mean_world = Vec2d(source_mean(0), source_mean(1));
-                vector<GridFeatures*> ts = clouds_[j].GetClosest(source_mean_world, cur_radius);
-                for(auto g : ts)
+                vector<GridFeatures> ts = clouds_[j].GetClosest(source_mean_world, cur_radius);
+                for(auto &g : ts)
                 {
                     Vec3d s_normal = Vec3d(s.snormal_(0), s.snormal_(1), 1);
-                    Vec3d t_normal = Vec3d(g -> snormal_(0), g -> snormal_(1), 1);
+                    Vec3d t_normal = Vec3d(g.snormal_(0), g.snormal_(1), 1);
                     Vec3d src_normal_trans = T_stot_[j] * s_normal;
                     Vec3d tar_normal_trans = t_normal;
                     double simi = std::max(src_normal_trans.dot(tar_normal_trans), 0.0);
@@ -414,8 +415,8 @@ std::vector<double> P2PMulKeyFrameRegisterInit(vector<MapFeatures> clouds_, vect
                         target_indexs.insert(j);
                         indexs.push_back(j);
                         grids.push_back(g);
-                        double plan = 2 * std::min(g->GetPlanarity(), s.GetPlanarity()) / (g->GetPlanarity() + s.GetPlanarity());
-                        double det = 2 * std::min(g->GetNsamples(), s.GetNsamples()) / (g->GetNsamples(), s.GetNsamples());
+                        double plan = 2 * std::min(g.GetPlanarity(), s.GetPlanarity()) / (g.GetPlanarity() + s.GetPlanarity());
+                        double det = 0;//2 * std::min(g.GetNsamples(), s.GetNsamples()) / (g.GetNsamples(), s.GetNsamples());
                         weights.push_back(plan + simi + det);
                         break;
                     }
@@ -425,9 +426,9 @@ std::vector<double> P2PMulKeyFrameRegisterInit(vector<MapFeatures> clouds_, vect
             for(uint j = 0; j < indexs.size(); ++j)
             {
                 ceres::LossFunction* cere_loss = 
-                    new ceres::ScaledLoss(new ceres::HuberLoss(0.1), /*weights[j]*/1, ceres::TAKE_OWNERSHIP);
-                ceres::CostFunction *cost_function = P2LCost::Create(grids[j] -> u_, grids[j] -> snormal_, s.u_);
-                // ceres::CostFunction *cost_function = P2PCost::Create(grids[j] -> u_, s.u_);
+                    new ceres::ScaledLoss(new ceres::HuberLoss(0.1), /*weights[j] + */1, ceres::TAKE_OWNERSHIP);
+                ceres::CostFunction *cost_function = P2LCost::Create(grids[j].u_, grids[j].snormal_, s.u_);
+                // ceres::CostFunction *cost_function = P2PCost::Create(grids[j].u_, s.u_);
                 problem -> AddResidualBlock(
                     cost_function, cere_loss, transforms_[indexs[j]].data(), parameters.data());
                 nums++;
@@ -459,6 +460,85 @@ std::vector<double> P2PMulKeyFrameRegisterInit(vector<MapFeatures> clouds_, vect
         }
         pre_score = cur_sorce;
         pre_parameters = parameters;
+        delete problem;
+    }
+    return parameters;
+}
+
+vector<double> P2PRegister(MapFeatures targets, MapFeatures sources, vector<double> init_pose)
+{
+    MapFeatures targets_map = targets;
+    MapFeatures sources_map = sources;
+
+    vector<double> parameters = init_pose;
+    vector<double> target_para = vector<double>{0, 0, 0};
+
+    double pre_score = 0;
+    for(int iterator = 1; iterator <= 10; ++iterator)
+    {
+        // 构建问题
+        ceres::Problem *problem = new ceres::Problem();
+        problem -> AddParameterBlock(parameters.data(), 3);
+        bool have = false;
+        double angle_outlier = std::cos(M_PI / 6.0);
+
+        double cur_radius = (iterator == 1) ? 4 : 2;;
+
+        int nums = 0;
+
+        for(uint i = 0; i < sources_map.GetSize(); ++i)
+        {
+            double sin_yaw = sin(parameters[2]);
+            double cos_yaw = cos(parameters[2]);
+
+            Eigen::Matrix3d T;
+            T << cos_yaw, sin_yaw, parameters[0],
+                -sin_yaw, cos_yaw, parameters[1],
+                0, 0, 1;
+
+            GridFeatures s = sources_map.GetGrid(i);
+
+            Vec3d source_mean = T * Vec3d(s.u_(0), s.u_(1), 1);
+            
+            Vec2d source_mean_world = Vec2d(source_mean(0), source_mean(1));
+
+            vector<GridFeatures> ts = targets_map.GetClosest(source_mean_world, cur_radius);
+
+            for(auto g : ts)
+            {
+                Vec3d s_normal = Vec3d(s.snormal_(0), s.snormal_(1), 1);
+                Vec3d t_normal = Vec3d(g.snormal_(0), g.snormal_(1), 1);
+                Vec3d src_normal_trans = T * s_normal;
+                Vec3d tar_normal_trans = t_normal;
+                double simi = std::max(src_normal_trans.dot(tar_normal_trans), 0.0);
+
+                if(simi > angle_outlier)
+                {
+                    // ceres::CostFunction *cost_function = P2PCost::Create(g.u_, s.u_);
+                    ceres::CostFunction *cost_function = P2LCost::Create(g.u_, g.snormal_, s.u_);
+                    problem -> AddResidualBlock(
+                        cost_function, new ceres::HuberLoss(0.1), target_para.data(), parameters.data());
+                        nums++;
+                    have = true;
+                }
+            }
+        }
+
+        // solve
+        if(have)    problem -> SetParameterBlockConstant(target_para.data());
+
+        ceres::Solver::Options options_;
+        ceres::Solver::Summary summary_;
+        ceres::Solve(options_, problem, &summary_);
+ 
+        double cur_sorce = summary_.final_cost;
+
+        if(iterator > 3)
+        {
+            if(pre_score <= cur_sorce) break;
+        }
+        pre_score = cur_sorce;
+        delete problem;
     }
     return parameters;
 }

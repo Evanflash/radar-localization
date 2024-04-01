@@ -124,9 +124,9 @@ void MapFeatures::ComputeSearchTreeFormGrids()
     grid_search_tree.setInputCloud(feature_cloud);
 }
 
-vector<GridFeatures*> MapFeatures::GetClosest(Vec2d &p, double d)
+vector<GridFeatures> MapFeatures::GetClosest(Vec2d &p, double d)
 {
-    vector<GridFeatures*> nearby;
+    vector<GridFeatures> nearby;
     
     pcl::PointXY pnt;
     pnt.x = p[0];
@@ -136,7 +136,7 @@ vector<GridFeatures*> MapFeatures::GetClosest(Vec2d &p, double d)
     vector<float> point_dis;
     grid_search_tree.nearestKSearch(pnt, 1, point_ind, point_dis);
     if(!point_ind.empty() && point_dis[0] < d * d){
-        nearby.push_back(&grids[point_ind[0]]);
+        nearby.push_back(grids[point_ind[0]]);
     }
     return nearby;
 }

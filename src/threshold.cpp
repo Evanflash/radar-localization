@@ -18,5 +18,5 @@ double SearchThreshold::computeThreshold()
     {
         return initial_threshold;
     }
-    return std::sqrt(model_error_sse2 / num_samples) * 3;
+    return std::sqrt(model_error_sse2 / num_samples);
 }

@@ -4,7 +4,7 @@ import evaluation as evo
 
 
 if __name__ == '__main__':
-    first_file_name = "0110/0110_mdad_thres_mul"
+    first_file_name = "0110/try"
     # second_file_name = "large/large_mdad_thres_mul"
     # big_data = False
     # timestamps = evaluate_utils.read_timestamps("/home/evan/extra/datasets/large/radar_change.timestamps")

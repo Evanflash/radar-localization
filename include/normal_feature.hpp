@@ -42,8 +42,9 @@ class MapFeatures
 {  
 public:
     MapFeatures(CloudTypePtr cloud, float grid_size, float radius);
+    MapFeatures() = default;
 
-    vector<GridFeatures*> GetClosest(Vec2d &p, double d);
+    vector<GridFeatures> GetClosest(Vec2d &p, double d);
 
     size_t GetSize() const;
 

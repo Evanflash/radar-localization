@@ -1,0 +1,16 @@
+/home/evan/code/radar-localization/test/result/rsize/large_0.5.txt 21.0058
+/home/evan/code/radar-localization/test/result/rsize/large_1.txt 13.2502
+/home/evan/code/radar-localization/test/result/rsize/large_1.5.txt 12.6003
+/home/evan/code/radar-localization/test/result/rsize/large_2.txt 12.633
+/home/evan/code/radar-localization/test/result/rsize/large_2.5.txt 12.1926
+/home/evan/code/radar-localization/test/result/rsize/large_3.txt 11.9725
+/home/evan/code/radar-localization/test/result/rsize/large_3.5.txt 11.9055
+/home/evan/code/radar-localization/test/result/rsize/large_4.txt 11.7553
+/home/evan/code/radar-localization/test/result/rsize/large_4.5.txt 11.9001
+/home/evan/code/radar-localization/test/result/rsize/large_5.txt 11.627
+/home/evan/code/radar-localization/test/result/rsize/large_5.5.txt 11.7455
+/home/evan/code/radar-localization/test/result/rsize/large_6.txt 11.7155
+/home/evan/code/radar-localization/test/result/rsize/large_6.5.txt 11.4356
+/home/evan/code/radar-localization/test/result/rsize/large_7.txt 11.3259
+/home/evan/code/radar-localization/test/result/rsize/large_7.5.txt 11.6539
+/home/evan/code/radar-localization/test/result/rsize/large_8.txt 11.6364
